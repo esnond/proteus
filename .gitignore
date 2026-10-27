@@ -1,0 +1,4 @@
+*.o
+proteusd
+proteusctl
+libproteus.a
