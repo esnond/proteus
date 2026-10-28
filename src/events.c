@@ -16,6 +16,7 @@ int schedule_load(schedule_t* sc, const char* path)
         char kind[16];
         double t;
         float amp;
+        int evk;
         if (line[0] == '#' || line[0] == '\n')
             continue;
         if (sc->n >= EVENTS_MAX) {
@@ -26,7 +27,15 @@ int schedule_load(schedule_t* sc, const char* path)
             fclose(f);
             return -1;
         }
-        if (strcmp(kind, "burst") != 0 || amp < 0.0f || amp > ASH_AMP_MAX) {
+        if (strcmp(kind, "burst") == 0)
+            evk = EVK_BURST;
+        else if (strcmp(kind, "legit") == 0)
+            evk = EVK_LEGIT;
+        else {
+            fclose(f);
+            return -1;
+        }
+        if (evk == EVK_BURST && (amp < 0.0f || amp > ASH_AMP_MAX)) {
             fclose(f);
             return -1;
         }
@@ -35,24 +44,10 @@ int schedule_load(schedule_t* sc, const char* path)
             return -1;
         }
         sc->ev[sc->n].t_ms = t;
+        sc->ev[sc->n].kind = evk;
         sc->ev[sc->n].amp = amp;
         sc->n++;
     }
     fclose(f);
     return 0;
-}
-
-float schedule_due(schedule_t* sc, double t_lo, double t_hi, int* fired)
-{
-    float amp = 0.0f;
-
-    *fired = 0;
-    while (sc->cursor < sc->n && sc->ev[sc->cursor].t_ms < t_hi) {
-        if (sc->ev[sc->cursor].t_ms >= t_lo) {
-            amp = sc->ev[sc->cursor].amp;
-            *fired = 1;
-        }
-        sc->cursor++;
-    }
-    return amp;
 }

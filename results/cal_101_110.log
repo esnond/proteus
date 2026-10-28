@@ -1,0 +1,15 @@
+detector false alarm calibration, rerun after baseline seeding fix
+proteus commit e38df49 + detector baseline seed change, flags: make defaults
+start 2026-10-28T03:22:44+03:00
+seed 101 done
+seed 102 done
+seed 103 done
+seed 104 done
+seed 105 done
+seed 106 done
+seed 107 done
+seed 108 done
+seed 109 done
+seed 110 done
+burst journals done
+DONE

@@ -45,9 +45,9 @@ static int load_rec(rec_t* r, const char* path)
         {
             double t;
             float ava;
-            int port, ev;
-            if (sscanf(line, "%lf,%f,%*f,%*f,%*f,%*f,%*f,%d,%d",
-                       &t, &ava, &port, &ev) != 4) {
+            int port, cause, ev;
+            if (sscanf(line, "%lf,%f,%*f,%*f,%*f,%*f,%*f,%*f,%d,%d,%d",
+                       &t, &ava, &port, &cause, &ev) != 5) {
                 fclose(f);
                 return -1;
             }

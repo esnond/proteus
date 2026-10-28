@@ -39,4 +39,40 @@
  * noise (0.4 mv per sqrt ms), mirrors readme limitations */
 #define NOISE_SCALE      1.0f
 
+/* ---- r1: threat detector ---- */
+
+/* dense matched filter window, ms of simulated time, r1 spec */
+#define DET_WINDOW_MS    1000
+#define DET_WINDOW_TICKS (DET_WINDOW_MS / TICK_MS)
+
+/* baseline adaptation tau of the detector, ms. assumption: far above the
+ * reversal cycle (about 1.5 s), far below the session length */
+#define DET_BASE_TAU_MS  30000
+
+/* detector cooling after a firing, ms. assumption: one order above the
+ * port move refractory so one detection is one response */
+#define DET_COOL_MS      10000
+
+/* matched filter threshold, units are summed ava deviations over the one
+ * second window. set once from the false alarm budget on withheld seeds
+ * 101..110 (no events, 6000 s model time total): the lowest calibration
+ * grid threshold with false alarms within the budget of one per ten
+ * minutes. curve and per seed tables: results/detector_threshold.csv.
+ * never refitted to a green gate */
+#define DET_THRESHOLD    30.0f
+
+/* ---- r1: modulator injection ---- */
+
+/* sliding window for the scan density and the legit share, s, r1 spec */
+#define MOD_WINDOW_S     60
+
+/* octopamine injection rate per unit scan density, concentration per s of
+ * simulated time at one scan event per second. assumption: saturates the
+ * roaming range inside one window at the highest planned density */
+#define OCT_INJ_PER_HZ   0.010f
+
+/* serotonin injection rate at a full legitimate share, concentration per
+ * s of simulated time. assumption: same scale as the octopamine arm */
+#define SER_INJ_PER_SHARE 0.010f
+
 #endif

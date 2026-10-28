@@ -1,0 +1,41 @@
+# detector threshold calibration, proteus r1
+# withheld seeds 101..110, no events, 6000 s model time total
+# rule: lowest calibration grid threshold with total false alarms
+# within the budget of one per ten minutes (10 over 6000 s)
+# frozen as DET_THRESHOLD 30.0, replay mirrors src/detector.c
+# false alarm curve:
+# threshold,fa_total,fa_rate_per_600s,det_pos,det_n
+25,40,4.00,10,10
+28,18,1.80,7,10
+29,12,1.20,7,10
+30,10,1.00,7,10
+31,10,1.00,5,10
+32,5,0.50,3,10
+33,3,0.30,2,10
+35,1,0.10,0,10
+40,0,0.00,0,10
+50,0,0.00,0,10
+# per seed tables at the frozen threshold
+seed,kind,count
+1,detection,1
+2,detection,1
+3,detection,0
+4,detection,1
+5,detection,0
+6,detection,1
+7,detection,1
+8,detection,1
+9,detection,1
+10,detection,0
+101,false_alarm,1
+102,false_alarm,2
+103,false_alarm,0
+104,false_alarm,1
+105,false_alarm,2
+106,false_alarm,1
+107,false_alarm,1
+108,false_alarm,1
+109,false_alarm,1
+110,false_alarm,0
+# detection rate 7/10 = 0.70, wilson 95% ci [0.40,0.89]
+# false alarms 10/6000 s = 1.00 per 600 s, normal approx 95% ci [0.38,1.62] per 600 s

@@ -6,9 +6,11 @@
 
 /*
  * party journal, the frozen per tick record. csv contract: header lives in
- * one comment line, columns documented in readme, decimal dot, no scientific
- * notation. the journal is part of the determinism gate: same seed plus the
- * same event history must give bitwise identical bytes.
+ * one comment line, columns documented in docs/schemas.md, decimal dot, no
+ * scientific notation. the journal is part of the determinism gate: same
+ * seed plus the same event history must give bitwise identical bytes.
+ * schema v2 adds det_score and cause, v1 readers are not compatible, see
+ * docs/schemas.md.
  *
  * columns:
  *   t_ms       simulated time, ms
@@ -18,18 +20,22 @@
  *   ser        serotonin, 0..1
  *   oct        octopamine, 0..1
  *   dop        dopamine, 0..1
+ *   det_score  detector matched filter sum over the one second window
  *   port       current listening port
- *   event      0 none, 1 burst, 2 port move, 3 burst and move
+ *   cause      0 none, 1 endogenous reversal, 2 detector, 3 both
+ *   event      0 none, 1 burst, 2 legit, 3 det_armed, 4 det_fired,
+ *              5 det_cool
  */
+
+#define JOURNAL_COLS 11
 
 typedef struct {
     FILE* out;
 } journal_t;
 
-/* write the version and schema lines, then one row per tick */
 void journal_open(journal_t* j, FILE* out, uint64_t seed, int n_events);
 void journal_row(journal_t* j, double t_ms, float act_ava, float act_avb,
                  float ash_trace, float ser, float oct, float dop,
-                 int port, int event_code);
+                 float det_score, int port, int cause, int event);
 
 #endif

@@ -35,7 +35,7 @@ echo "PASS: baseline identical"
 
 echo "== journal schema freeze =="
 sed -n 2p "$TMP/det_a.csv" | \
-    grep -q '^# t_ms,act_ava,act_avb,ash_trace,ser,oct,dop,port,event$' || {
+    grep -q '^# t_ms,act_ava,act_avb,ash_trace,ser,oct,dop,det_score,port,cause,event$' || {
     echo "FAIL: journal header drifted from the frozen contract"; exit 1; }
 echo "PASS: journal header frozen"
 
@@ -59,8 +59,9 @@ else
     echo "NOTE: $MODE"
 fi
 $NS sh -c "ip link set lo up 2>/dev/null; ./proteusd -s 3 -d 8 -e tests/fixtures/burst.csv -o '$TMP/move.csv'"
-grep -qE ',[23]$' "$TMP/move.csv" || { echo "FAIL: no port move fired"; exit 1; }
-awk -F, 'NR>2 && ($8 < 40000 || $8 >= 40064) { bad = 1 } END { exit bad }' \
+awk -F, 'NR>2 && $10 != 0 { ok = 1 } END { exit !ok }' \
+    "$TMP/move.csv" || { echo "FAIL: no port move fired"; exit 1; }
+awk -F, 'NR>2 && ($9 < 40000 || $9 >= 40064) { bad = 1 } END { exit bad }' \
     "$TMP/move.csv" || { echo "FAIL: port outside the window"; exit 1; }
 echo "PASS: port move fires, ports stay in the window ($MODE)"
 
@@ -89,7 +90,8 @@ echo "== ubsan =="
 cc -std=c99 -pedantic -Wall -Wextra -O1 -g -fsanitize=undefined \
    -ffp-contract=off -D_DEFAULT_SOURCE -Isrc -Isrc/petri \
    -o "$TMP/proteusd_ubsan" src/proteusd.c \
-   src/bridge.c src/events.c src/journal.c src/motor.c src/reflex.c \
+   src/bridge.c src/detector.c src/events.c src/journal.c src/motor.c \
+   src/rate.c src/reflex.c \
    src/petri/body.c src/petri/connectome.c src/petri/gcamp.c \
    src/petri/metrics.c src/petri/modulators.c src/petri/mutants.c \
    src/petri/neuron.c src/petri/plasticity.c src/petri/rng.c \

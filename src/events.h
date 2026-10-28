@@ -7,14 +7,18 @@
  * event schedule, the external history that drives the nervous system.
  * frozen csv schema: t_ms,kind,amp. one comment line carries the version,
  * the next carries the column names. rows must be sorted by t_ms.
- * r0 implements kind burst only: a scan burst on closed ports, amplitude
- * is the normalized burst density.
+ * kind burst: a scan burst on closed ports, amplitude is the normalized
+ * burst density, drives the ash nociceptor.
+ * kind legit: a completed legitimate session, drives the serotonin arm.
  */
 #define EVENTS_MAX 4096
 
+enum { EVK_BURST = 0, EVK_LEGIT = 1 };
+
 typedef struct {
     double t_ms;
-    float  amp;      /* ash envelope amplitude 0..1 */
+    int    kind;     /* evk_burst or evk_legit */
+    float  amp;      /* ash envelope amplitude 0..1, burst only */
 } event_t;
 
 typedef struct {
@@ -25,8 +29,5 @@ typedef struct {
 
 /* parse a schedule file, -1 on any malformed row or unsorted time */
 int    schedule_load(schedule_t* sc, const char* path);
-/* apply all events due in [t_lo, t_hi): returns the last amplitude written
- * and sets *fired, 0 when nothing was due */
-float  schedule_due(schedule_t* sc, double t_lo, double t_hi, int* fired);
 
 #endif
