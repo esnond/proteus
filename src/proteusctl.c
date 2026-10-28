@@ -336,7 +336,8 @@ static int cmd_detector(int argc, char** argv)
     }
     if (fa_files)
         printf("fa_total=%ld fa_rate_per_600s=%.2f over %.0f s\n",
-               fa_total, fa_total / fa_time * 600.0, fa_time);
+               fa_total, fa_total / (fa_time / 1000.0) * 600.0,
+               fa_time / 1000.0);
     if (det_files)
         printf("detected=%ld/%ld\n", det_pos, det_files);
     return 0;
