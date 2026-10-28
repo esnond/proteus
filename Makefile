@@ -17,8 +17,9 @@ PETRI_SRC = src/petri/body.c src/petri/connectome.c src/petri/gcamp.c \
             src/petri/metrics.c src/petri/modulators.c src/petri/mutants.c \
             src/petri/neuron.c src/petri/plasticity.c src/petri/rng.c \
             src/petri/sim.c src/petri/world.c src/petri/evolution.c
-PROTEUS_SRC = src/bridge.c src/detector.c src/events.c src/journal.c \
-              src/motor.c src/rate.c src/reflex.c
+PROTEUS_SRC = src/bridge.c src/detector.c src/events.c src/ipc.c \
+              src/journal.c src/motor.c src/rate.c src/reflex.c \
+              src/session.c
 LIB_SRC  = $(PETRI_SRC) $(PROTEUS_SRC)
 LIB_OBJ  = $(LIB_SRC:.c=.o)
 HDR      = $(wildcard src/*.h) $(wildcard src/petri/*.h)

@@ -67,12 +67,16 @@
 #define MOD_WINDOW_S     60
 
 /* octopamine injection rate per unit scan density, concentration per s of
- * simulated time at one scan event per second. assumption: saturates the
- * roaming range inside one window at the highest planned density */
-#define OCT_INJ_PER_HZ   0.010f
+ * simulated time at one scan event per second. the engine pulls the
+ * concentration back with its own tau (5 s), so the equilibrium at
+ * density d is rate * d * 5. chosen so the planned density range
+ * 0.5..4 hz covers the engine working range (0.1..0.8), not from any
+ * move rate result */
+#define OCT_INJ_PER_HZ   0.040f
 
 /* serotonin injection rate at a full legitimate share, concentration per
- * s of simulated time. assumption: same scale as the octopamine arm */
-#define SER_INJ_PER_SHARE 0.010f
+ * s of simulated time, equilibrium rate * share * 6 (engine tau). chosen
+ * so a full legit share settles near 0.7, not from any move rate result */
+#define SER_INJ_PER_SHARE 0.120f
 
 #endif

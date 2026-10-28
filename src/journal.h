@@ -28,14 +28,19 @@
  */
 
 #define JOURNAL_COLS 11
+#define JOURNAL_LINE_MAX 128
 
 typedef struct {
     FILE* out;
 } journal_t;
 
 void journal_open(journal_t* j, FILE* out, uint64_t seed, int n_events);
-void journal_row(journal_t* j, double t_ms, float act_ava, float act_avb,
-                 float ash_trace, float ser, float oct, float dop,
-                 float det_score, int port, int cause, int event);
+/* format one tick row into the buffer, the daemon and the ipc stream
+   share this single formatting path */
+void journal_line(char* buf, int n, double t_ms, float act_ava,
+                  float act_avb, float ash_trace, float ser, float oct,
+                  float dop, float det_score, int port, int cause,
+                  int event);
+void journal_emit(journal_t* j, const char* line);
 
 #endif

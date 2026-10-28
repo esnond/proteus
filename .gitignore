@@ -4,3 +4,4 @@ proteusctl
 libproteus.a
 results/fa_*.csv
 results/det_burst_*.csv
+results/mv_*.csv
