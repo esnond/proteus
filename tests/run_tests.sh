@@ -69,12 +69,11 @@ echo "== detector measurement, ten seeds =="
 for s in 1 2 3 4 5 6 7 8 9 10; do
     ./proteusd -s "$s" -d 8 -e tests/fixtures/burst.csv -o "$TMP/burst_$s.csv"
 done
-BPAIRS=""
-for s in 1 2 3 4 5 6 7 8 9 10; do
-    BPAIRS="$BPAIRS $TMP/burst_$s.csv"
-done
-# shellcheck disable=SC2086
-./proteusctl detector $BPAIRS | tee results/detector_r1.log
+# run from the journal directory so the published log carries no
+# throwaway temp paths, the report stays byte identical between runs
+ROOT="$PWD"
+(cd "$TMP" && "$ROOT/proteusctl" detector burst_*.csv) \
+    | tee results/detector_r1.log
 grep -q '^detected=' results/detector_r1.log \
     || { echo "FAIL: detector produced no detection line"; exit 1; }
 echo "PASS: detector report published in results/detector_r1.log"
