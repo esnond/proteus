@@ -35,6 +35,12 @@ updated: 2026-10-29
 | phase B train run | running | atlas_runner bio 1001..1100 -> g1_g7_runner (flat/seeded/random + g1-g7 analysis); smoke: 30 s/party, 208-214 moves, all 3 conditions verified; ~400 parties ~4 h wall, checkpoint+resume | this commit | verdicts after the chain; then held-out validate 2001..2100 |
 | h5 sustained tool | written, registered first | tools/sustained_attack.py: 20 train seeds paired, dose-matched sustained schedule frozen in the tool, wilcoxon + CI + d; run launched | this commit | verdict into hypotheses_results |
 | h5 verdict | NOT FALSIFIED, first phase B verdict | fires 20 burst vs 19 sustained, n=20 paired, dz=-0.13, p=0.564; det_score last 300 s diff +0.001. bench desensitization = mixed/order effect, not sustained-rate | this commit | h1-h4, h6 from the training chain |
+| h2 central claim | FALSIFIED mid-run | destination = PORT_BASE + binds %% WINDOW counter (motor.c); 100.0%% ascending cycle on 4 seeds, L=65.0 std 0 in 200 parties; live path shares the counter | 5e67cca | h9 registered, implemented |
+| old-core g1-g7 chain | abandoned mid-run, honestly | owner ordered the petri v1.2 core swap; seeded/random confirmatory parties (ratio 1.0) obsolete on the new core; bio+flat falsification data retained | 96aee63 | new-core science chain after h10 calibration |
+| petri v1.2 core | vendored, integrated, gate green | 42d5062: varshney wiring (279 neurons, csv), avb slow command; 1.25 ms/tick (was 0.46); TICK_CATCHUP_MAX 6 holds idle < 0.8%% | 96aee63, 0183653 | bench validate on owner |
+| h9 dest modes | implemented | --dest-mode {cycle,bio,random}; bio = frozen mean readout of 6 state vars; random = proteus xorshift (engine rng untouched); replay green | 96aee63 | science chain |
+| h10 coupling | registered, calibration running | reflex = engine-native reversal episode (speed, metrics.c constants); detector channel = avb (ava saturated, mean 0.988, wiring regime not noise); FA grid on 101..110 in flight | a9313c6 | freeze new DET_THRESHOLD, then science chain |
+| industry research (owner order) | done, inline | competitors: SDN shuffle, Morphisec, WireGuard hopping, Rlaph 2025 — all mechanical open-loop randomization; NO published learnability metric for port schedules (closest: LSTM test Mani 2023, 802.15.4 cracking, Cai unpredictability formalism) | - | write into architecture_research.md; differentiators: L benchmark, closed-loop schedule (attack-reactive), host-specific bio schedules, bitwise-replayable daemon |
 
 ## known gaps (no hiding)
 

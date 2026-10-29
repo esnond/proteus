@@ -80,3 +80,42 @@ backtrace sampling, strace -c, web literature pass (sources inline).
 - 8 legitimate short log subscribers can still hold the control table;
   a subscriber cap that reserves a status slot is the closing design
   (blue team residual).
+
+## industry scan 2026-10-29 (owner order: know the competitors)
+
+production practice: SDN-based shuffling (WPI mtd15, 161 citations),
+endpoint polymorphism (Morphisec), rotating ports/ips as a service
+(Twingate), WireGuard-based port hopping for anti-censorship, VM
+migration MTD (Chalmers 2022). academic line 2025: stochastic
+scheduling optimization balancing randomization speed vs connection
+stability (Li, Information Sciences 2025); Rlaph (Springer 2025)
+compares static vs fixed-time vs dynamic hopping; federated multi-agent
+MTD (arXiv 2506.07392).
+
+schedule learnability in the literature: NOT a standard measurement.
+closest work: Mani et al. 2023 (LSTM predicts the next address of
+RT-MTD from update messages), ieee 802.15.4 channel-hopping sequence
+cracking (prediction probability of schedule slots), Cai et al.
+(unpredictability as attacker key-information coverage). none publish
+an L-style observation-count metric against defined observer classes.
+
+four defensible differentiators for proteus, in order of strength:
+1. L as a benchmark: any schedule generator scores against defined
+   observer classes (passive markov, active prober, reconstruction);
+   proteus ships the instrument and measured numbers. industry has
+   nothing comparable.
+2. closed-loop schedule: the generator state is an organism that
+   REACTS to attack pressure (oct/ser injection shifts timing);
+   competitor schedules are open-loop time functions. mid-attack
+   prediction breaks by construction.
+3. host-specific schedules from per-host connectome state without a
+   shared generator (the г3 k-anonymity angle, harness pending).
+4. bitwise-replayable live daemon: every schedule decision auditable
+   post hoc from the journal, which no polymorphic endpoint product
+   offers.
+
+honest threats: MTD reviewers will ask why biology beats a good PRNG
+at unpredictability — the answer must come from the h9 data (equal
+L to random would justify the design on detection coupling + audit,
+not on unpredictability); the closed-loop claim needs a live-surface
+experiment, journals alone show the coupling exists.
