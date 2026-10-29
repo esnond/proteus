@@ -388,6 +388,52 @@ timing. held out 2001..2100 same criteria.
 leaks structure a port-only observer can use), or n_moves shifts
 (p < 0.0083), or replay breaks in any mode.
 
+## h10 engine_bump_coupling — registered 2026-10-29 BEFORE calibration runs
+
+owner order: take the petri v1.2 core (full varshney wiring, vendored
+commit 42d5062, csv sha256 7aa6fada...). diagnostics first, data:
+under varshney the ava command cell is CONSTITUTIVELY saturated
+(mean 0.988 over 60 s, upstream journal, noise 0 as shipped) and the
+anti-phase partner avb sweeps 0..1 on a seconds scale; the r0 readouts
+(ava rising edge 0.75, ava matched filter) are dead on this wiring.
+engine native reversal definition (petri metrics.c): signed body speed
+below -0.02 mm/s sustained > 0.5 s = one reversal episode; 19 confirmed
+episodes in 60 s upstream.
+
+**Hypothesis**: the proteus coupling re-expressed in v1.2 native
+channels restores the r0/r1 design regime: connectome-driven move
+timing at the old rate, and a working false-alarm-bounded detector.
+
+**Method** (declared before any calibration data on the new core):
+1. reflex := engine-native reversal episode on body speed; the move
+   fires when the episode is confirmed (0.5 s sustained), cooldown
+   2000 ms unchanged; constants cited from metrics.c, not tuned.
+2. detector := r1 matched filter design preserved verbatim (ema
+   baseline tau 30 s, dense window 1 s, cooling 10 s), channel := avb,
+   the only oscillating command variable under varshney. this channel
+   choice is declared on wiring grounds before seeing any calibration
+   numbers; escalation path if it fails: reversal-rate detector.
+3. NOISE_SCALE stays 1.0 (the saturation is the wiring's regime, not
+   noise: upstream pegs ava at shipped noise 0 too). the r0 phantom-tap
+   priming is removed: it no longer suppresses the t0 transient on
+   v1.2 (measured ash 1.0 at t0 with priming intact); the transient
+   decays inside the engine tau and the baseline absorbs it.
+4. journal columns unchanged; det_score column semantics become "sum
+   of avb deviations over the dense window" (schemas.md dated note).
+
+**Success Criterion**:
+1. quiet-run endogenous move rate within [100, 300] per 600 s party
+   (old-core reference 187..214); moves occur only at confirmed
+   episodes by construction.
+2. detector: lowest grid threshold on calibration seeds 101..110 (no
+   events, 6000 s model time) with false alarms within one per ten
+   minutes; frozen as the new DET_THRESHOLD with a dated comment; the
+   burst-fixture detection rate is then MEASURED and published with
+   wilson CI as an outcome, not tuned.
+**Falsification**: FA budget unreachable at every grid threshold ->
+avb channel dead, escalate to the rate-based redesign; move rate
+outside [100, 300] -> coupling dead, escalate to the owner.
+
 ## h6 observer_models (theory г2, г4, г6)
 **Hypothesis**: (a, г2) a prediction attacker beats a current-state
 attacker on the same surface; (b, г4) active probing lowers L below
