@@ -20,9 +20,9 @@ jobs:
       - name: deps
         run: sudo apt-get update && sudo apt-get install -y libmnl-dev pkg-config
       - name: build
-        run: make tools
+        run: make proteusd tools
       - name: netns and attack scenarios
-        run: sh tests/run_attack_scenarios.sh
+        run: sudo sh tests/run_attack_scenarios.sh
   static-analysis:
     runs-on: ubuntu-latest
     steps:

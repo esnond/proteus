@@ -4,7 +4,14 @@
 # and on any bench with cap_net_admin. reports csv to stdout.
 set -e
 cd "$(dirname "$0")/.."
-make -s tools
+# iproute2 keeps namespace handles under /run/netns, which only root can
+# create. an unprivileged caller gets a skip, not a red job: the bench
+# runs `sudo tools/validate_r2.sh`, the ci runner runs this under sudo.
+if [ "$(id -u)" -ne 0 ]; then
+    echo "SKIP: netns needs root, run: sudo sh tests/run_attack_scenarios.sh"
+    exit 0
+fi
+make -s proteusd tools
 
 sh tools/netns_setup.sh
 trap 'sh tools/netns_teardown.sh' EXIT
