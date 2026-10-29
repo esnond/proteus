@@ -2,6 +2,10 @@
 proteusd
 proteusctl
 libproteus.a
+scanner
+legit_client
+brute_forcer
+mixed_traffic
 results/fa_*.csv
 results/det_burst_*.csv
 results/mv_*.csv
