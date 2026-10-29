@@ -335,6 +335,59 @@ bench desensitization (h7 amendment: mixed traffic left det_score at
 effect; the two records stand side by side. data:
 results/sustained/sustained_results.json.
 
+## h2 — FALSIFIED 2026-10-29, mid-run, before g6/g7 completed
+
+the central premise is not implemented in the engine: the port
+DESTINATION is not chosen by the connectome at all. src/motor.c
+motor_move(): `port = PORT_BASE + binds % PORT_WINDOW`, a pure
+ascending counter. measured on the training journals: the move
+sequence is a strictly ascending cycle 40000->40001->...->40063->40000,
+100.0% of steps on seeds 1001, 1002, 1050, 1100 (208-210 moves each);
+every context has exactly 1 successor. the connectome decides only the
+TIMING (and count) of moves. consequences, all measured:
+- passive Markov L is CONSTANT 65.0 (one full 64-port cycle + 1) in
+  100/100 bio AND 100/100 flat parties, std 0.00 — the metric works
+  and says: the schedule is fully learned after one pass.
+- the three registered g7 conditions (flat/bio/seeded/random) differ
+  only in sensory INPUT to the same destination cycle; the registered
+  comparison "different schedule generators" was never implemented
+  (atlas_spec sec 5 conflated event schedules with port schedules;
+  the fixture comment admitted the seeded condition is a dummy).
+- the live path shares the counter (bench 6.2 "last port=40003"), so
+  a passive observer predicts the next port with ~100% after one
+  window pass on the bench too. t13/schedule-attacker (phase C) would
+  have found this; the L instrument found it first.
+verdicts h3 and the g7 gate are decided by the same defect, pending
+the confirmatory seeded/random numbers from the running chain.
+the L measurement layer is NOT at fault: it detected the cycle
+exactly (L = window size + 1, std 0).
+
+## h9 destination_readout — registered 2026-10-29 BEFORE any code
+
+**Hypothesis**: if the destination port is a fixed, frozen readout of
+the connectome state at the move tick, the move sequence becomes
+non-learnable to a port-only Markov observer, while timing stays
+connectome-driven.
+**Method**: new engine switch --dest-mode {cycle,bio,random}, default
+cycle (bench unchanged, bitwise journals unchanged for cycle). bio:
+destination index = frozen linear readout of the six journal state
+variables (act_ava, act_avb, ash_trace, ser, oct, dop) at the move
+tick, mapped into PORT_WINDOW; no raw rng in the readout, no goals in
+the sim path (emergent-behavior: this is an encoding of state into
+body position, symmetric to the detector's read of AVA). random:
+uniform draws from the engine xorshift, deterministic per seed.
+PARTY REPLAY per mode. conditions wired into g7 runner as the three
+destination generators the spec meant.
+**Success Criterion** (frozen): passive L (learnability.py, censoring
+cap 500) on bio-mode parties >= 500 in >= 95% of 100 train parties;
+cycle-mode L = 65 in >= 95% (replicates the falsification); random-mode
+L >= 500 in >= 95%. n_moves distribution bio vs cycle not significantly
+different (wilcoxon p >= 0.0083) — the readout must not perturb
+timing. held out 2001..2100 same criteria.
+**Falsification**: bio-mode L < 500 in > 5% of parties (the readout
+leaks structure a port-only observer can use), or n_moves shifts
+(p < 0.0083), or replay breaks in any mode.
+
 ## h6 observer_models (theory г2, г4, г6)
 **Hypothesis**: (a, г2) a prediction attacker beats a current-state
 attacker on the same surface; (b, г4) active probing lowers L below
