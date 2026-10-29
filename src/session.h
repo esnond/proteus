@@ -22,6 +22,7 @@ typedef struct {
     const char* bind_addr;     /* r2: listener address, default loopback */
     int         nft;           /* r2: mirror the bans into nftables */
     int         seccomp;       /* r2: install the syscall whitelist */
+    int         dest_mode;     /* h9: DEST_CYCLE default, DEST_BIO, DEST_RANDOM */
 } session_cfg_t;
 
 typedef struct {

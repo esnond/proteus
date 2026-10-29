@@ -30,7 +30,7 @@ typedef struct {
 void  det_init(detector_t* d);
 /* one tick of ava; returns 1 on the firing edge, 2 when cooling starts,
  * 3 when re armed, 0 otherwise, those become journal events */
-int   det_update(detector_t* d, float act_ava, double t_ms);
+int   det_update(detector_t* d, float act_cmd, double t_ms);
 const char* det_state_name(int state);
 
 #endif

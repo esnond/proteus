@@ -2,19 +2,23 @@
 #define PROTEUS_REFLEX_H
 
 /*
- * reversal reflex: a rising edge of ava across the threshold fires one
- * port move, with a refractory period so one reversal episode is one
- * move. the mapping is the r0 row of the motor table: ava above threshold
- * is a reversal, a reversal moves the port.
+ * reversal reflex, h10: the engine's own reversal definition. a
+ * reversal episode is signed body speed below REVERSAL_SPEED_MMS
+ * sustained REVERSAL_CONFIRM_MS (petri metrics.c); the port move fires
+ * once when the episode confirms, refractory MOVE_COOLDOWN_MS so one
+ * episode is one move. the r0 ava-edge readout is retired with the
+ * legacy wiring (ava is constitutively saturated under varshney).
  */
 typedef struct {
-    float  prev_act;
+    int    in_rev;      /* speed currently below threshold */
+    double start_ms;    /* episode start */
     double last_move_ms;
     int    fired;
 } reflex_t;
 
 void reflex_init(reflex_t* r);
-/* returns 1 when the reflex fires a port move this tick */
-int  reflex_update(reflex_t* r, float act_ava, double t_ms);
+/* feed the signed body speed; returns 1 when the reflex fires a port
+ * move this tick */
+int  reflex_update(reflex_t* r, float speed, double t_ms);
 
 #endif

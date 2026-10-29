@@ -14,6 +14,16 @@
 
 static const char* bind_addr = "127.0.0.1";
 
+static uint64_t rr_next(uint64_t* s)
+{
+    uint64_t x = *s;
+    x ^= x >> 12;
+    x ^= x << 25;
+    x ^= x >> 27;
+    *s = x;
+    return x * 2685821657736338717ULL;
+}
+
 static int bind_listen(int port)
 {
     struct sockaddr_in sa;
@@ -47,13 +57,16 @@ fail:
     return -1;
 }
 
-int motor_init(motor_t* m, const char* addr, int live)
+int motor_init(motor_t* m, const char* addr, int live, uint64_t seed)
 {
     memset(m, 0, sizeof(*m));
     if (addr)
         bind_addr = addr;
     m->fd = -1;
     m->live = live ? 1 : 0;
+    m->rr = seed ^ 0x9E3779B97F4A7C15ULL;
+    if (!m->rr)
+        m->rr = 88172645463325252ULL;
     if (!m->live) {
         /* headless replay: no socket, the port schedule must not
            depend on which host ports are free right now */
@@ -74,6 +87,14 @@ int motor_init(motor_t* m, const char* addr, int live)
     return -1;
 }
 
+static int headless_bind(motor_t* m, int index)
+{
+    m->binds++;
+    m->port = PORT_BASE + index % PORT_WINDOW;
+    m->moves++;
+    return m->port;
+}
+
 int motor_move(motor_t* m)
 {
     int tried;
@@ -83,13 +104,8 @@ int motor_move(motor_t* m)
         m->fd = -1;
         m->port = 0;
     }
-    if (!m->live) {
-        /* headless walk: advance the counter, never touch a socket */
-        m->binds++;
-        m->port = PORT_BASE + m->binds % PORT_WINDOW;
-        m->moves++;
-        return m->port;
-    }
+    if (!m->live)
+        return headless_bind(m, m->binds);
     for (tried = 0; tried < PORT_WINDOW; tried++) {
         int port = PORT_BASE + m->binds % PORT_WINDOW;
         m->binds++;
@@ -101,6 +117,38 @@ int motor_move(motor_t* m)
         }
     }
     return -1;
+}
+
+int motor_move_to(motor_t* m, int index)
+{
+    int tried;
+
+    if (m->fd >= 0) {
+        close(m->fd);
+        m->fd = -1;
+        m->port = 0;
+    }
+    if (!m->live)
+        return headless_bind(m, index);
+    index %= PORT_WINDOW;
+    if (index < 0)
+        index += PORT_WINDOW;
+    for (tried = 0; tried < PORT_WINDOW; tried++) {
+        int port = PORT_BASE + (index + tried) % PORT_WINDOW;
+        m->binds++;
+        m->fd = bind_listen(port);
+        if (m->fd >= 0) {
+            m->port = port;
+            m->moves++;
+            return m->port;
+        }
+    }
+    return -1;
+}
+
+int motor_next_random(motor_t* m)
+{
+    return (int)(rr_next(&m->rr) % (uint64_t)PORT_WINDOW);
 }
 
 void motor_close(motor_t* m)

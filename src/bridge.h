@@ -28,6 +28,11 @@ void   bridge_steps(bridge_t* br, int n);
 /* command pool readout, transmitter release 0..1 */
 float  bridge_ava(const bridge_t* br);
 float  bridge_avb(const bridge_t* br);
+/* h9 destination readout: frozen mean of the six state variables mapped
+ * into the port window, see DEST_BIO in config.h */
+int    bridge_dest_index(const bridge_t* br);
+/* signed body speed, mm/s, the h10 reversal channel */
+float  bridge_speed(const bridge_t* br);
 /* modulator concentrations 0..1 */
 void   bridge_modulators(const bridge_t* br, float* ser, float* oct,
                          float* dop);

@@ -126,7 +126,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         fprintf(stderr, "bridge: engine init failed\n");
         return 1;
     }
-    if (motor_init(&mo, cfg->bind_addr, cfg->listen) != 0) {
+    if (motor_init(&mo, cfg->bind_addr, cfg->listen, cfg->seed) != 0) {
         fprintf(stderr, "motor: no free port in the window\n");
         bridge_free(&br);
         return 1;
@@ -357,9 +357,11 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         br.sim->mod.oct = oct;
         br.sim->mod.ser = ser;
 
-        /* detector state transitions become journal events */
+        /* detector state transitions become journal events; h10: the
+         * matched filter reads avb, the only oscillating command cell
+         * under the varshney wiring (ava is constitutively saturated) */
         {
-            int d = det_update(&det, ava, t_ms);
+            int d = det_update(&det, avb, t_ms);
             if (d == 2) {
                 ev = ev > JEV_DET_FIRED ? ev : JEV_DET_FIRED;
                 cause |= CAUSE_DET;
@@ -371,7 +373,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
             }
         }
 
-        if (reflex_update(&rf, ava, t_ms))
+        if (reflex_update(&rf, bridge_speed(&br), t_ms))
             cause |= CAUSE_ENDO;
 
         if ((cause & CAUSE_DET) && sn && last_scan_ip &&
@@ -382,7 +384,14 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         }
 
         if (cause) {
-            if (motor_move(&mo) < 0) {
+            int mv;
+            if (cfg->dest_mode == DEST_BIO)
+                mv = motor_move_to(&mo, bridge_dest_index(&br));
+            else if (cfg->dest_mode == DEST_RANDOM)
+                mv = motor_move_to(&mo, motor_next_random(&mo));
+            else
+                mv = motor_move(&mo);
+            if (mv < 0) {
                 fprintf(stderr, "motor: window exhausted at t=%.2f\n",
                         t_ms);
                 rc = 1;

@@ -17,10 +17,35 @@
 #define PORT_BASE        40000
 #define PORT_WINDOW      64
 
-/* ava activation 0..1 above which the reversal reflex fires a port move.
- * set once in r0 from the ten seed calibration (baseline peak vs burst
- * plateau), frozen afterwards, never refitted to a green gate */
-#define AVA_MOVE_THR     0.75f
+/* ---- destination mode (h9, registered 2026-10-29 docs/hypotheses.md) ----
+ * cycle:  legacy counter, port = base + n mod window (falsified as a
+ *         schedule: strictly learnable after one window pass, L=65).
+ * bio:    destination index is a frozen linear readout of the connectome
+ *         state at the move tick, equal weights, no tuning freedom:
+ *         index = floor(window * mean(ava, avb, ash, ser, oct, dop)),
+ *         clamped to window-1. symmetric to the detector's read of AVA:
+ *         an encoding of organism state into body position, no goals.
+ * random: uniform draw from a proteus-side xorshift seeded with the run
+ *         seed, independent of the engine rng (the engine stream must
+ *         stay identical across modes; only the destination differs). */
+#define DEST_CYCLE       0
+#define DEST_BIO         1
+#define DEST_RANDOM      2
+
+/* connectome wiring: the petri v1.2 default is the full varshney sheet
+ * (279 somatic neurons), vendored with the engine. loaded relative to
+ * the working directory; missing file fails the start loudly rather
+ * than silently falling back to the builtin legacy wiring. */
+#define VARSHNEY_CSV     "src/petri/data/varshney_full.csv"
+
+/* ---- h10: reversal trigger, engine native (petri v1.2) ----
+ * the varshney wiring holds ava saturated (mean 0.988 measured); the
+ * r0 ava-edge readout is dead. the engine's own reversal definition
+ * (petri metrics.c): signed body speed below the threshold sustained
+ * over the confirmation window is one reversal episode. constants
+ * cited from the engine, never tuned. */
+#define REVERSAL_SPEED_MMS   0.02f
+#define REVERSAL_CONFIRM_MS  500
 
 /* refractory period between port moves, ms, approx: one reversal episode
  * is one move, not a move every tick while ava stays high */
@@ -36,7 +61,9 @@
 /* membrane noise multiplier passed to the engine noise channel, the engine
  * ships it at zero (wild type loader) which would collapse every seed into
  * the same trajectory. assumption: 1.0, the natural scale of the engine
- * noise (0.4 mv per sqrt ms), mirrors readme limitations */
+ * noise (0.4 mv per sqrt ms), mirrors readme limitations. h10 check: the
+ * ava saturation under varshney is the wiring regime, not noise (upstream
+ * pegs ava at shipped noise 0 too), so 1.0 stands */
 #define NOISE_SCALE      1.0f
 
 /* event loop (r3): on wake the accumulator joins wall time and the loop
@@ -63,12 +90,13 @@
  * port move refractory so one detection is one response */
 #define DET_COOL_MS      10000
 
-/* matched filter threshold, units are summed ava deviations over the one
- * second window. set once from the false alarm budget on withheld seeds
- * 101..110 (no events, 6000 s model time total): the lowest calibration
- * grid threshold with false alarms within the budget of one per ten
- * minutes. curve and per seed tables: results/detector_threshold.csv.
- * never refitted to a green gate */
+/* matched filter threshold, units are summed command-pool deviations
+ * over the one second window. r1 set 30.0 from the false alarm budget on
+ * withheld seeds 101..110 (no events, 6000 s model time total); h10
+ * (2026-10-29) moves the channel to avb for the petri v1.2 wiring and
+ * re-derives the threshold by the same frozen procedure — the dated
+ * value lands here after the calibration run. never refitted to a
+ * green gate */
 #define DET_THRESHOLD    30.0f
 
 /* ---- r1: modulator injection ---- */

@@ -15,6 +15,9 @@ int bridge_init(bridge_t* br, uint64_t seed)
     opts.seed = seed;
     opts.headless = 1;
     opts.quiet = 1;
+    /* petri v1.2 core: full varshney wiring, the file must exist or the
+     * start fails loudly (no silent legacy fallback) */
+    opts.connectome_path = VARSHNEY_CSV;
     if (sim_init(br->sim, &opts) != 0) {
         free(br->sim);
         br->sim = NULL;
@@ -28,16 +31,8 @@ int bridge_init(bridge_t* br, uint64_t seed)
         for (i = 0; i < br->sim->ns.n; i++)
             br->sim->ns.cells[i].noise_scale = NOISE_SCALE;
     }
-    {
-        /* engine init leaves the body skeleton at zero, so the first
-           world step sees the head at (0,0) inside the contact band and
-           the worm inherits a phantom wall tap that burns the ash
-           vesicle pool at t 0. prime the edge detectors so the session
-           starts from a stateless body, real wall contact later still
-           fires through the normal 0 to 1 edge */
-        br->sim->prev_contact = 1;
-        br->sim->prev_nose_contact = 1;
-    }
+    /* v1.2 note: the r0 phantom-tap priming is removed pending a
+       fresh check on the varshney wiring (h10 diagnostics) */
     return 0;
 }
 
@@ -91,6 +86,26 @@ void bridge_modulators(const bridge_t* br, float* ser, float* oct, float* dop)
     *ser = br->sim->mod.ser;
     *oct = br->sim->mod.oct;
     *dop = br->sim->mod.dop;
+}
+
+float bridge_speed(const bridge_t* br)
+{
+    return br->sim->body.speed;
+}
+
+int bridge_dest_index(const bridge_t* br)
+{
+    float mean;
+    int idx;
+
+    mean = (bridge_ava(br) + bridge_avb(br) + bridge_ash_trace(br) +
+            br->sim->mod.ser + br->sim->mod.oct + br->sim->mod.dop) / 6.0f;
+    if (!(mean > 0.0f))
+        return 0;
+    idx = (int)(mean * (float)PORT_WINDOW);
+    if (idx >= PORT_WINDOW)
+        idx = PORT_WINDOW - 1;
+    return idx;
 }
 
 double bridge_time(const bridge_t* br)

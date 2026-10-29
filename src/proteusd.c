@@ -22,7 +22,8 @@ static void usage(FILE* out)
         "  --listen       accept network peers, live scan sensor\n"
         "  --nft          mirror bans into nftables (needs privileges)\n"
         "  --seccomp      install the syscall whitelist (needs profile)\n"
-        "  --addr IP      listener address, default 127.0.0.1\n");
+        "  --addr IP      listener address, default 127.0.0.1\n"
+        "  --dest-mode M  cycle | bio | random (h9), default cycle\n");
 }
 
 int main(int argc, char** argv)
@@ -60,6 +61,19 @@ int main(int argc, char** argv)
             cfg.seccomp = 1;
         else if (!strcmp(argv[i], "--addr") && i + 1 < argc)
             cfg.bind_addr = argv[++i];
+        else if (!strcmp(argv[i], "--dest-mode") && i + 1 < argc) {
+            i++;
+            if (!strcmp(argv[i], "cycle"))
+                cfg.dest_mode = DEST_CYCLE;
+            else if (!strcmp(argv[i], "bio"))
+                cfg.dest_mode = DEST_BIO;
+            else if (!strcmp(argv[i], "random"))
+                cfg.dest_mode = DEST_RANDOM;
+            else {
+                usage(stderr);
+                return 1;
+            }
+        }
         else {
             usage(stderr);
             return 1;

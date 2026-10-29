@@ -10,7 +10,7 @@ void det_init(detector_t* d)
 }
 
 /*
- * the score is the sum of ava deviations from the slow baseline over the
+ * the score is the sum of command-pool (avb, h10) deviations from the
  * dense window. the baseline is an ema, so a reversal episode shows as a
  * positive hump only while it outlives the adaptation, which is the
  * matched filter property the r1 spec asks for.
@@ -24,20 +24,20 @@ static float window_score(detector_t* d)
     return sum;
 }
 
-int det_update(detector_t* d, float act_ava, double t_ms)
+int det_update(detector_t* d, float act_cmd, double t_ms)
 {
     int ev = 0;
 
-    /* the baseline seeds from the first ava reading: starting from zero
+    /* the baseline seeds from the first channel reading: starting from zero
      * would paint the boot transient as a giant positive deviation and
      * spend the first cooling period on a phantom */
     if (!d->started) {
         d->started = 1;
-        d->baseline = act_ava;
+        d->baseline = act_cmd;
     }
-    d->baseline += (act_ava - d->baseline) *
+    d->baseline += (act_cmd - d->baseline) *
                    ((float)TICK_MS / (float)DET_BASE_TAU_MS);
-    d->win[d->head] = act_ava;
+    d->win[d->head] = act_cmd;
     d->head = (d->head + 1) % DET_WINDOW_TICKS;
     if (d->fill < DET_WINDOW_TICKS)
         d->fill++;
