@@ -19,6 +19,7 @@ MAX_HOURS=48
 CHECKPOINT_FILE=""
 RESUME=false
 DURATION_S=600
+DEST_MODE="cycle"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -27,6 +28,10 @@ while [[ $# -gt 0 ]]; do
             SEED_RANGE="$2"
             SEED_START="${SEED_RANGE%%..*}"
             SEED_END="${SEED_RANGE##*..}"
+            shift 2
+            ;;
+        --dest-mode)
+            DEST_MODE="$2"
             shift 2
             ;;
         --schedule)
@@ -134,8 +139,8 @@ run_party() {
     local party_start=$(date +%s)
 
     # Run headless, no -r flag (determinism gate)
-    ./proteusd -s "$seed" -d "$DURATION_S" -e "$SCHEDULE_FILE" -o "$out_file" \
-        2>"$log_file"
+    ./proteusd -s "$seed" -d "$DURATION_S" -e "$SCHEDULE_FILE" \
+        --dest-mode "$DEST_MODE" -o "$out_file" 2>"$log_file"
     local rc=$?
 
     local party_end=$(date +%s)
