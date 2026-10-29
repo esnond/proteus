@@ -7,10 +7,44 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <time.h>
 #include <unistd.h>
 
 #include "tools_common.h"
+
+int live_port(const char* path)
+{
+    struct sockaddr_un sa;
+    char buf[256];
+    ssize_t n;
+    char* p;
+    int fd;
+
+    if (!path)
+        return -1;
+    fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
+    if (fd < 0)
+        return -1;
+    memset(&sa, 0, sizeof(sa));
+    sa.sun_family = AF_UNIX;
+    snprintf(sa.sun_path, sizeof(sa.sun_path), "%s", path);
+    if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != 0) {
+        close(fd);
+        return -1;
+    }
+    if (send(fd, "status", 6, 0) != 6) {
+        close(fd);
+        return -1;
+    }
+    n = recv(fd, buf, sizeof(buf) - 1, 0);
+    close(fd);
+    if (n <= 0)
+        return -1;
+    buf[n] = '\0';
+    p = strstr(buf, "port=");
+    return p ? atoi(p + 5) : -1;
+}
 
 double now_ms_wall(void)
 {

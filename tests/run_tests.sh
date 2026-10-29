@@ -212,6 +212,40 @@ if [ "$TR2" != "trust=0" ]; then
 fi
 echo "PASS: token live with the pid, revoked when it exits"
 
+echo "== r3 immune scope: auth failures ban the source =="
+# credential stuffing sends a payload line per connection, so the plain
+# classifier reads a session. the failed auth counter must hand the burst
+# to the detector while a HELLO client from another loopback address is
+# still accepted. seed 8 is the bench seed for these tests: the detector
+# response is connectome dependent and threshold 30 is not reachable on
+# every seed, a separate published boundary.
+./proteusd -s 8 -d 40 -r --listen --socket "$TMP/s4.sock" \
+    -o "$TMP/s4.csv" 2>/dev/null &
+PD=$!
+sleep 2
+i=0
+while [ "$i" -lt 8 ]; do
+    ./brute_forcer ip=127.0.0.1 src=127.0.0.1 sock="$TMP/s4.sock" \
+        attempts=60 rate=10 > /dev/null 2>&1
+    sleep 1
+    grep -q ',8$' "$TMP/s4.csv" && break
+    i=$((i + 1))
+done
+if ! grep -q ',8$' "$TMP/s4.csv"; then
+    kill -9 "$PD" 2>/dev/null || true; wait "$PD" 2>/dev/null || true
+    echo "FAIL: auth failure burst did not ban the source"; exit 1
+fi
+P=$(./proteusctl status --socket "$TMP/s4.sock" \
+    | grep -o 'port=[0-9]*' | cut -d= -f2)
+P=${P:-40000}
+./legit_client ip=127.0.0.1 src=127.0.0.2 port="$P" sessions=3 \
+    hold_ms=100 gap_ms=100 > "$TMP/s4_legit.csv" 2>/dev/null || true
+kill -9 "$PD" 2>/dev/null || true; wait "$PD" 2>/dev/null || true
+if [ "$(grep -c data_sent "$TMP/s4_legit.csv" || true)" -lt 1 ]; then
+    echo "FAIL: legit client from a clean source was refused"; exit 1
+fi
+echo "PASS: auth burst banned, clean source accepted"
+
 echo "== r2 netns =="
 if unshare -n true 2>/dev/null || ip netns add __probe 2>/dev/null; then
     ip netns del __probe 2>/dev/null || true

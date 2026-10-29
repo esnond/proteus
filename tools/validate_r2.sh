@@ -265,9 +265,10 @@ if [ "$ROOT" = yes ] && [ "$HAS_IP" = yes ] && [ "$HAS_NFT" = yes ]; then
     T0=$(tail -n 1 "$OUT/raw_data/netns_journal2.csv" 2>/dev/null | cut -d, -f1); T0=${T0:-0}
     KI=0
     while [ "$KI" -lt 6 ]; do
-        P=$(status_port $VSOCK); P=${P:-40000}
-        ./brute_forcer ip="$GUEST_IP" src="$BB_IP" port="$P" attempts=60 rate=10 \
-            >> "$OUT/logs/brute_1_4.csv" 2>/dev/null || true
+        # an adaptive stuffer follows the advertised port, a fixed port
+        # would measure the move instead of the auth failure detector
+        ./brute_forcer ip="$GUEST_IP" src="$BB_IP" sock="$VSOCK" \
+            attempts=60 rate=10 >> "$OUT/logs/brute_1_4.csv" 2>/dev/null || true
         sleep 1
         BAN_NOW=$(grep -c ',8$' "$OUT/raw_data/netns_journal2.csv" 2>/dev/null || true); BAN_NOW=${BAN_NOW:-0}
         [ $((BAN_NOW - BAN_PRE)) -ge 1 ] && break

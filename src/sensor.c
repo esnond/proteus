@@ -17,6 +17,8 @@ struct sensor {
     int    n_bans;
     trust_ip_t tips[SENSOR_TRUST_IPS];
     int    n_tips;
+    fail_t fails[SENSOR_FAIL_IPS];
+    int    n_fails;
 };
 
 sensor_t* sensor_init(void)
@@ -47,6 +49,46 @@ static void trust_ip(sensor_t* sn, uint32_t ip, double t_ms)
         sn->tips[sn->n_tips].until_ms = t_ms + SENSOR_TRUST_MS;
         sn->n_tips++;
     }
+}
+
+/* one failed auth line: count per source inside a rolling window. one
+   recv counts once, the stuffing pattern is one line per connection. */
+static void auth_fail(sensor_t* sn, uint32_t ip, double t_ms)
+{
+    fail_t* f = NULL;
+    int i;
+
+    if (sensor_trusted(sn, ip, t_ms))
+        return;
+    for (i = 0; i < sn->n_fails; i++) {
+        if (sn->fails[i].ip == ip) {
+            f = &sn->fails[i];
+            break;
+        }
+    }
+    if (!f && sn->n_fails < SENSOR_FAIL_IPS) {
+        f = &sn->fails[sn->n_fails++];
+        f->ip = ip;
+        f->count = 0;
+        f->first_ms = t_ms;
+    }
+    if (!f) {
+        /* table full: reuse the oldest window */
+        int oldest = 0;
+        for (i = 1; i < sn->n_fails; i++)
+            if (sn->fails[i].first_ms < sn->fails[oldest].first_ms)
+                oldest = i;
+        f = &sn->fails[oldest];
+        f->ip = ip;
+        f->count = 0;
+        f->first_ms = t_ms;
+    }
+    if (t_ms - f->first_ms >= SENSOR_FAIL_MS) {
+        f->count = 0;
+        f->first_ms = t_ms;
+    }
+    if (f->count < SENSOR_FAIL_MAX)
+        f->count++;
 }
 
 static int ip_index(const ban_t* bans, int n, uint32_t ip)
@@ -129,12 +171,19 @@ static void drain(sensor_t* sn, peer_t* p, double t_ms, trust_t* tr,
     char buf[SENSOR_BUF];
     ssize_t n = recv(p->fd, buf, sizeof(buf), MSG_DONTWAIT);
     if (n > 0) {
-        /* payload proves a client, the session is legitimate and the
-           food channel gets it; keep reading until the peer closes.
-           a live registration token in the first line also puts the
-           source in the immune scope: its sessions never count as scans
-           and the ban path skips it. */
+        /* payload proves an application client, not a silent port
+           sweep; keep reading until the peer closes. a live registration
+           token in the first line puts the source in the immune scope:
+           its sessions never count as scans and the ban path skips it.
+           a failed auth line is not food: it feeds the failure counter
+           instead, so a stuffing burst reaches the nociceptor without
+           the serotonin share a legitimate session would add. */
+        int auth = n >= 13 && !memcmp(buf, "PROTEUS AUTH ", 13);
         p->fed = 1;
+        if (auth) {
+            auth_fail(sn, p->ip, t_ms);
+            return;
+        }
         *any_session = 1;
         if (tr && n >= 14 + 64 && !memcmp(buf, "PROTEUS TOKEN ", 14)) {
             char hex[65];
@@ -191,6 +240,17 @@ int sensor_tick(sensor_t* sn, int fd, double t_ms, trust_t* tr,
     for (i = 0; i < sn->n_peers; i++)
         drain(sn, &sn->peers[i], t_ms, tr, last_scan_ip,
               any_scan, any_session);
+    /* a source past the failure threshold is under a stuffing attack:
+       hold the nociceptor for the rest of the window so the connectome
+       sees a sustained stimulus, not one pulse per failed login. only a
+       burst source becomes the ban target. */
+    for (i = 0; i < sn->n_fails; i++) {
+        if (sn->fails[i].count >= SENSOR_FAIL_MAX &&
+            t_ms - sn->fails[i].first_ms < SENSOR_FAIL_MS) {
+            *last_scan_ip = sn->fails[i].ip;
+            *any_scan = 1;
+        }
+    }
     if (*any_scan)
         ev |= 1;
     if (*any_session)

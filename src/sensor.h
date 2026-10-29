@@ -23,6 +23,12 @@
 #define SENSOR_BUF 128
 #define SENSOR_TRUST_MS 60000.0
 #define SENSOR_TRUST_IPS 8
+/* repeated failed auth from one source is credential stuffing, an
+   application level attack. the count is immune scope state, the ban
+   still comes from the connectome detector. */
+#define SENSOR_FAIL_MS   10000.0
+#define SENSOR_FAIL_MAX  8
+#define SENSOR_FAIL_IPS  16
 
 typedef struct {
     uint32_t ip;          /* network byte order */
@@ -33,6 +39,12 @@ typedef struct {
     uint32_t ip;          /* a source that presented a live token */
     double   until_ms;
 } trust_ip_t;
+
+typedef struct {
+    uint32_t ip;
+    int      count;       /* failed auth lines inside the window */
+    double   first_ms;
+} fail_t;
 
 typedef struct {
     int      fd;

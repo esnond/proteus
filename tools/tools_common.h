@@ -17,6 +17,10 @@ double now_ms_wall(void);
 int  tcp_connect(const char* ip, int port, int timeout_ms);
 int  tcp_connect_src(const char* ip, int port, int timeout_ms,
                      const char* src_ip);
+/* advertised port from the status socket, -1 when the channel is down.
+ * a client that knows the service follows the move, so a refusal is a
+ * rejection rather than a stale port */
+int  live_port(const char* path);
 void csv_header(void);
 void csv_row(double t0, const char* event, const char* ip, int port,
              const char* result);

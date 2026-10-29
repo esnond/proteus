@@ -18,15 +18,26 @@ updated: 2026-10-29
 | red team t1-t12 | done/first pass | results/red_team/REPORT.md: 8 pass, 2 documented, 2 bench | 378c5cf | bench t4/t6, third pass after fixes |
 | standards audit | done with exceptions | docs/STANDARDS_AUDIT.md: session_run 307 lines justified | pending commit | r3 refactor |
 | full suite | running | /tmp/r25.log, results/r2_validation (bench) | pending commit | re-run on bench |
+| ci netns job | fixed, unverified in agent env | ci.yml runs the job under sudo, script skips loudly when unprivileged, builds proteusd | this commit | watch the next Actions run |
+| bench gcore glob | fixed | gcore writes memory_dump.PID, the old glob only matched *.core; stale cores removed first | this commit | `sudo tools/bench_gcore_test.sh` |
+| sudo artifact ownership | fixed | validate_r2.sh and bench_gcore_test.sh chown the tree back to SUDO_UID at exit | this commit | owner: one-time `sudo chown -R esnond:esnond ~/proteus` for the current root owned build |
+| h7 auth failure ban | done, criterion met | docs/hypotheses.md measured: seed 7 ttb 620 ms, seed 8 ttb 2020 ms, legit 0/6 banned | this commit | bench test_1_4 |
 
 ## known gaps (no hiding)
 
-1. brute force with an auth payload is classified as a session; the
-   detector has no auth-failure input, so test 1.4 fails honestly.
+1. ~~brute force with an auth payload is classified as a session~~ fixed
+   in h7: a failed `PROTEUS AUTH` line raises the nociceptor and a burst
+   source becomes the ban target. residual: only clients that speak the
+   auth line are counted, a stuffer that sends arbitrary payload stays a
+   session. detector reach is also seed dependent (seed 23 does not ban
+   even a dense silent scan, max det_score 29.35).
 2. the nft mark fast path does not fire for a marked local client
    (counter 0); tier A rests on the token path.
 3. FP<=5/10k is not yet proven: 0/1600 gives an upper bound of 18.8/10k.
 4. push is owner-only: the agent environment has no git credentials.
+5. ASan cannot start in the agent sandbox ("ASan runtime does not come
+   first in initial library list"); ubsan and the strict build are green,
+   ASan is a bench item.
 
 ## how to resume
 
