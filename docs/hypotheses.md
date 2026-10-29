@@ -228,3 +228,114 @@ original criteria plus the density check decide. sandbox numbers at
 registration time: idle 0.67% (10.8 ticks/s), scan ban fires (det_score
 30.43), auth ban 670 ms, determinism cmp identical, wall -d exit
 3.03 s. bench acceptance is still owed.
+
+---
+
+# r3 phase B, registered 2026-10-29 BEFORE any phase B run
+
+plan h1-h6 map onto the г1-г7 hypotheses of docs/theory.md and the
+frozen experiment design of docs/atlas_spec.md. the harness is
+tools/atlas_runner.sh + tools/g1_g7_runner.sh (train) and
+tools/g1_g7_validate.sh (held out); observer classes in
+tools/observer_{passive,active,reconstruction}.py, metric L in
+tools/learnability.py. seeds frozen: calibration 101..110 (spent, r1),
+training 1001..1100, held out 2001..2100, stress 3001..3050. headless
+only, 600 s sim per party, no -r, bitwise PARTY REPLAY. family-wise
+alpha 0.05 over the six hypotheses -> per-hypothesis alpha 0.0083
+where a block has no internal correction; blocks with their own
+bonferroni (atlas flags, atlas falsification triple) keep it.
+power: 100 vs 100, wilcoxon, d>=0.5 -> power > 0.99.
+recorded defect: the journal header written by the binary says
+`journal v1` while docs/schemas.md declares v2 (columns match v2);
+doc/code mismatch logged in STATE.md, fix deferred to phase D because
+a header change invalidates old golden journals.
+
+## h1 attribution_atlas (atlas_spec sec 4)
+**Hypothesis**: port moves are attributable to connectome dynamics:
+>= 80% of moves carry attribution p < 0.05 (permutation, 1000 shuffles,
+bonferroni over moves), and driver sets are stable across halves
+(J >= 0.5 in no more than 10% of parties).
+**Method**: atlas_analyze.py on 100 bio parties (train seeds), 14
+frozen drivers, lasso per half, the four divergence flags of the spec.
+**Success Criterion**: mean attribution coverage >= 0.80 (95% CI
+published, n=100); fraction of parties with any divergence flag <= 0.10
+(wilson CI). held out: same criteria on 2001..2100, drop > 15% relative
+published as negative result.
+**Falsification**: coverage < 0.80 in > 20% of parties, or J >= 0.5 in
+> 10%, or the held out drop > 15%.
+
+## h2 bio_stochastic_vs_random_seeded (theory г7, atlas_spec sec 5) — MAIN
+**Hypothesis**: the bio-stochastic schedule (connectome with contact)
+is harder to learn than seeded no-contact and random no-contact
+schedules at a matched detection posture, while the connectome path
+keeps legit disruption within budget.
+**Method**: g7 block: L_passive on 3 conditions x 100 train parties;
+wilcoxon rank-sum, bonferroni over 3 comparisons (alpha 0.0167),
+cohen's d and odds ratios published. g7 gate: L_bio / L_seeded >= 10.
+**Success Criterion**: median L_bio > median L_seeded AND median L_bio
+> median L_random (both p < 0.0167), and gate ratio >= 10, and bench
+legit_refused = 0 (r2 bench datum, already measured).
+**Falsification**: any of: median L_bio >= median L_seeded; median
+L_bio >= median L_random; J >= 0.5 in > 10% of bio parties; attribution
+coverage < 0.80 in > 20% of bio parties; the gate ratio < 10. a failed
+gate is published as a negative result, not tuned away.
+
+## h3 self_disclosure flat_vs_bio (theory г1)
+**Hypothesis**: flat profiles (no input, endogenous schedule only) are
+recognized faster than bio-stochastic profiles: L_bio > L_flat for the
+passive observer.
+**Method**: g1 block: flat parties on the same train seeds, L_passive
+both conditions, wilcoxon + cohen's d.
+**Success Criterion**: L_bio > L_flat, p < 0.0083, d published.
+**Falsification**: L_bio <= L_flat.
+г3 (recognition time vs family frequency in a population of schedule
+families) has no harness in this cycle: registered NOT_RUN, needs a
+population generator, deferred; it is not counted in the alpha budget.
+
+## h4 economic_threshold (theory г5)
+**Hypothesis**: learnability converts to attacker compute cost, and the
+bio schedule raises the observer's training cost at least as much as it
+raises L.
+**Method**: g5 block: L table by observer class (passive, active,
+reconstruction) on bio parties; cost model fixed before reading
+results: cost = L observations x bytes per observation (journal row) x
+model flops per observation as implemented in learnability.py; the
+model is written into the tool, not chosen after.
+**Success Criterion**: the cost table published with n and CI per
+class; cost_bio / cost_seeded >= 10 for the passive class (same ratio
+as the г7 gate by construction; the block's job is the table itself).
+**Falsification**: no table (any observer class crashes on all
+parties) -> hypothesis inconclusive for that class, published.
+
+## h5 sustained_load_fatigue
+**Hypothesis**: the detector discriminates burst-shaped scan from
+sustained constant-rate scan of equal total dose: under sustained load
+the detector stays at least as responsive as under the burst fixture.
+**Method**: tools/sustained_attack.py (written after this registration,
+before its run): 20 train seeds x 2 conditions (burst fixture vs
+sustained schedule matched to burst total dose over 600 s), headless;
+outcome per party = det_fired count and mean det_score over the last
+300 s (adaptation window); wilcoxon paired by seed.
+**Success Criterion**: sustained fire count >= burst fire count minus
+one (paired), p >= 0.0083 for the difference being a DEGRADATION in
+the sustained direction; means, CI, d published.
+**Falsification**: sustained fires significantly FEWER than burst
+(p < 0.0083, d published) -> adaptation suppresses sustained detection;
+published as a negative result and a defense boundary (the bench h7
+datum already hints at desensitization).
+
+## h6 observer_models (theory г2, г4, г6)
+**Hypothesis**: (a, г2) a prediction attacker beats a current-state
+attacker on the same surface; (b, г4) active probing lowers L below
+the passive bound; (c, г6) an observer trained on seeded (synthetic)
+parties transfers to bio parties with a published gap.
+**Method**: g2 (two attacker models, first 20 train parties), g4
+(active vs passive, first 20), g6 (reconstruction observer, seeded ->
+bio transfer gap). all numbers n, CI, effect size.
+**Success Criterion**: (a) and (b): the stronger attacker reaches
+prediction >= 0.9 in fewer observations, p < 0.0083 per comparison,
+bonferroni over (a,b,c); (c): the transfer gap is PUBLISHED whatever
+its direction (the claim is the gap exists and is measured, not that
+it is small).
+**Falsification**: (a) or (b) reversed at p < 0.0083; (c) has no
+falsifier beyond tool failure (inconclusive then, published).
