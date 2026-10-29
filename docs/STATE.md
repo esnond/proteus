@@ -24,6 +24,7 @@ updated: 2026-10-29
 | h7 auth failure ban | done, criterion met | docs/hypotheses.md measured: seed 7 ttb 620 ms, seed 8 ttb 2020 ms, legit 0/6 banned | this commit | bench test_1_4 |
 | blue_team agent | created, smoke tested | ~/.zcode/agents/blue_team.md (10th agent); test run validated t7, found the oversized variant | this commit | restart the session so the agent type is discovered |
 | ipc oversized command | fixed | MSG_TRUNC + length check; regression test fails pre-fix (status blocked) and passes post-fix | this commit | residual: 8 legit `log` subscribers still fill the table |
+| v1.0 execution plan | written | docs/PLAN_V1.md: 5 phases, per-phase token caps 550/800/600/450/200k, all skills and 10 agents mapped | this commit | start phase A after the owner gate |
 
 ## known gaps (no hiding)
 
