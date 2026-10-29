@@ -663,6 +663,7 @@ DUMPER=no
 [ "$HAS_GCORE" = yes ] && DUMPER=gcore
 [ "$DUMPER" = no ] && [ "$HAS_GDB" = yes ] && DUMPER=gdb
 if [ "$DUMPER" != no ] && [ "$ROOT" = yes ]; then
+    rm -f "$OUT/artifacts"/memory_dump.* "$OUT/artifacts"/*.core
     ./proteusd -s 5 -d 90 -r --listen -o /dev/null 2>/dev/null &
     PD=$!
     sleep 5
@@ -676,7 +677,9 @@ if [ "$DUMPER" != no ] && [ "$ROOT" = yes ]; then
             >> "$LOG" 2>&1 || true
     fi
     kill "$PD" 2>/dev/null || true; wait_dead "$PD"
-    CORE=$(ls "$OUT/artifacts/memory_dump"*.core 2>/dev/null | head -n 1 || true)
+    # gcore writes memory_dump.<pid>, the old glob only matched *.core
+    CORE=$(ls -t "$OUT/artifacts"/memory_dump.* "$OUT/artifacts"/*.core \
+        2>/dev/null | head -n 1 || true)
     if [ -z "$CORE" ]; then
         t_result important test_5_2_state_leakage 5 SKIP "dumper $DUMPER produced no core"
     elif AUDIT=$(sh tools/dump_audit.sh "$CORE" "# proteus journal" 2>&1); then
