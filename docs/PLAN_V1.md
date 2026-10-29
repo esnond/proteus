@@ -16,9 +16,12 @@ team report beyond the t7 smoke test. paper.md exists as v1.2-preprint.
 4. noisy work (sweeps, atlas, stress) runs through nohup/tmux with
    output to results/<name>.log; the main context reads tail/grep only.
 5. token ledger: after every agent call the main writes the call's token
-   cost and the phase total into docs/STATE.md. hard stop per agent call
-   is 300k tokens or 40 tool calls; on breach: stop it, record, continue
-   without it.
+   cost and the phase total into docs/STATE.md. measured 2026-10-29: one
+   small methodologist call cost 577k and a smoke-test call 1.06M (cache
+   reads dominate), so the original 300k cap is not reachable with this
+   harness. revised rule: at most two agent calls per phase, each <= 600k,
+   everything else done inline; a call over 600k is recorded and no
+   further calls run that phase.
 6. /compact at every phase boundary and at 60% context, whichever first.
 7. green gate before every commit: make test + ubsan + determinism cmp.
 8. no history rewrite. push is owner-only.

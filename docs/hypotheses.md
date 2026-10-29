@@ -133,3 +133,81 @@ a moved port 58/60 times, so the adaptive client is required.
 
 
 
+
+---
+
+# r3 phase A, registered 2026-10-29 BEFORE the change
+
+## h8_idle event_driven_tick
+
+**Hypothesis**: the realtime daemon's 11-12% idle CPU is the cost of the
+TICK_MS=10 periodic nanosleep, not the cost of the tick itself; an
+event-driven poll (listener + IPC + reaper deadline, no periodic timer)
+keeps idle CPU below 0.5% of wall on the bench with no dropped network
+event, no wake-latency regression, and no change to the simulation path.
+
+**Method**: current state: the realtime loop paces with nanosleep at
+TICK_MS=10; an opt-in --idle-divisor N stretches the period after
+IDLE_WINDOW_MS=1000 of quiet; bench baseline 0.66-0.96% at divisor 20 vs
+11-12% base. Change under test: remove --idle-divisor and its docs; poll
+on the listener, the IPC socket and the next reaper deadline; a
+wall-clock value may only choose the poll timeout and must never reach
+bridge_steps or any session state. Bench, quiet network, seed 1;
+pre-change binary at the parent commit (golden) and post-change binary
+at the merge commit, same harness; 3 x 600 s wall runs for idle, with
+the daemon killed at t1 (not by -d); burst and latency on separate runs.
+open design point recorded before implementation: in live mode the
+simulation clock no longer advances while the network is quiet, so `-d`
+must mean wall seconds in `-r` mode (headless `-d` stays sim seconds),
+otherwise the loop never reaches its duration.
+
+**Success Criterion** (all four; a failing run is reported, not averaged
+away):
+1. idle CPU = (cpu_ms(t1) - cpu_ms(t0)) / (wall(t1) - wall(t0)) < 0.5%
+   in each of the 3 runs; mean and 95% CI published (n=3).
+2. idle SYN wake p99 < 1 ms, n >= 1000; measured daemon-side with a
+   busy-baseline control for the client+kernel offset; a raw client
+   connect is not the measurement.
+3. 1000 events/s for 10 s: 10,000 paced attempts against the live port,
+   0 dropped = attempts - (net_scans + net_sessions delta) - wrong-port
+   attempts; 95% upper bound published (rule of three: 0/10,000 bounds
+   the drop rate at <= 0.03%).
+4. PARTY REPLAY: the journal is cmp -s identical to the pre-change
+   golden journal for the same seed and input (seed 1, -e
+   tests/fixtures/burst.csv, no -r), and run1 vs run2 is identical too.
+   the golden comparison is what tests that pacing does not enter the
+   sim path.
+
+**Falsification**: any of the four fails; or the p99 is met only with a
+periodic timer still firing at the TICK_MS cadence; or the CPU drop
+comes from a non-event timeout that stretches the sim clock (the old
+divisor under a new name); or the only replay evidence is run1 vs
+run2, which tests determinism but not the absence of a pacing -> sim
+channel.
+
+**Measurement plan**: CPU sampled only at t0 and t1 from the daemon's
+cpu_ms (getrusage RUSAGE_SELF) over the status channel; the denominator
+is the measured wall interval, never status t_ms (sim time). latency:
+n=1000 SYNs, report p50/p99/max with a bootstrap CI. burst: read the
+counters after the burst plus a 1 s drain; peer EOF outside the wait set
+is a drop, not a free pass. seed 1; commit SHA, CFLAGS, binary SHA256
+and CSV SHA256 in results/manifest.txt via tools/generate_manifest.sh;
+the bench run is the acceptance gate, the sandbox is not. limitation:
+cpu_ms is a ~10 ms-granularity cumulative counter, so the criterion is a
+window average and a short spike is invisible by construction; the burst
+and latency tests are the separate guards.
+
+**Implementation attempt 2026-10-29 (reverted, falsified)**: a poll
+driven loop was built: quiet time runs no tick, a peer or control packet
+runs one, the 500 ms reaper timeout runs only the reaper, `-d` becomes
+wall seconds in live mode. measured: idle cpu 0.010% (from 11-12%),
+determinism cmp identical, status and the auth ban still work (ttb
+160 ms). the gate failed on behavior, not on cpu: with no empty ticks the
+nociceptor is saturated by construction, ava stays suppressed, det_score
+reached 6.25 after 121 scan events in 134 ticks, and "targeted scan then
+ban" banned nobody. the unit of the simulation is the tick; removing the
+empty ticks changes the stimulus density, which is exactly the h8
+falsification clause. reverted; no idle claim is made. decision needed,
+owner: (a) re-tune the detector and re-validate the science under
+event-driven ticks, (b) optimize the engine so 100 ticks/s fits under
+0.5% (20x), (c) drop the <0.5% target and keep the wall-paced clock.

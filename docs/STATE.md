@@ -25,6 +25,9 @@ updated: 2026-10-29
 | blue_team agent | created, smoke tested | ~/.zcode/agents/blue_team.md (10th agent); test run validated t7, found the oversized variant | this commit | restart the session so the agent type is discovered |
 | ipc oversized command | fixed | MSG_TRUNC + length check; regression test fails pre-fix (status blocked) and passes post-fix | this commit | residual: 8 legit `log` subscribers still fill the table |
 | v1.0 execution plan | written | docs/PLAN_V1.md: 5 phases, per-phase token caps 550/800/600/450/200k, all skills and 10 agents mapped | this commit | start phase A after the owner gate |
+| h8_idle registration | done | docs/hypotheses.md h8; four numeric criteria; live-mode `-d` must become wall seconds (design point recorded) | this commit | implement event-driven tick |
+| token ledger A | 577k / cap 550k | methodologist call 577k for a 25-line block; plan rule revised to at most two calls per phase, 600k each, rest inline | - | no further agent calls this phase |
+| phase A event-driven tick | reverted, falsified | idle 0.010% but det_score 6.25 after 121 scan events, sensor test banned nobody; empty ticks are part of the input model. data in docs/hypotheses.md h8 | (uncommitted, reverted) | owner decision: retune detector, 20x engine, or drop target |
 
 ## known gaps (no hiding)
 
