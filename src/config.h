@@ -39,11 +39,15 @@
  * noise (0.4 mv per sqrt ms), mirrors readme limitations */
 #define NOISE_SCALE      1.0f
 
-/* r2.5 idle clock: after this much quiet wall time the tick period is
- * multiplied by idle_divisor. the biological clock slows, the listener is
- * polled so a SYN still wakes the loop immediately. divisor 1 disables */
-#define IDLE_WINDOW_MS   1000
-#define IDLE_DIVISOR_MAX 100
+/* event loop (r3): on wake the accumulator joins wall time and the loop
+ * steps the simulation once per TICK_MS of it, clamped to
+ * TICK_CATCHUP_MAX steps per wake. quiet time therefore runs at most
+ * TICK_CATCHUP_MAX ticks per IDLE_POLL_MS, which bounds idle cpu near
+ * TICK_CATCHUP_MAX * tick_cost / IDLE_POLL_MS (~0.5% at 0.46 ms/tick),
+ * and a burst still brings the empty ticks the detector statistics were
+ * calibrated on. the reaper shares the poll deadline. */
+#define TICK_CATCHUP_MAX 10
+#define IDLE_POLL_MS     1000
 
 /* ---- r1: threat detector ---- */
 

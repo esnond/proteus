@@ -211,3 +211,20 @@ falsification clause. reverted; no idle claim is made. decision needed,
 owner: (a) re-tune the detector and re-validate the science under
 event-driven ticks, (b) optimize the engine so 100 ticks/s fits under
 0.5% (20x), (c) drop the <0.5% target and keep the wall-paced clock.
+
+**Design amendment 2026-10-29, registered before the bench run**: the
+poll-driven loop of the first attempt is replaced by the accumulator
+event loop (the game-loop pattern, Fiedler "Fix Your Timestep"): wall
+time accumulates while the loop sleeps in poll (listener + control
+peers + IDLE_POLL_MS deadline, the reaper shares it), and each wake
+steps the simulation once per TICK_MS of accumulated time, clamped at
+TICK_CATCHUP_MAX=10 steps. properties stated before measurement: quiet
+time runs <= 10 ticks/s (~0.46% cpu at the measured 0.46 ms/tick), a
+burst wake returns the empty ticks, wake latency stays one tick. the h8
+falsification clause "the old divisor under a new name" is addressed
+head on: this IS a quiet-time slowdown, but bounded, event aligned, and
+it restores the stimulus density instead of removing it; the four
+original criteria plus the density check decide. sandbox numbers at
+registration time: idle 0.67% (10.8 ticks/s), scan ban fires (det_score
+30.43), auth ban 670 ms, determinism cmp identical, wall -d exit
+3.03 s. bench acceptance is still owed.

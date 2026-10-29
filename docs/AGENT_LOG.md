@@ -16,3 +16,4 @@ is recorded and the run continues without it.
 | 9 | 5 | editor (inline) | bench handoff, state rows, manifests | docs/BENCH_HANDOFF.md, docs/STATE.md |
 | 10 | r3 | blue_team (new agent, smoke test via general-purpose) | validate red team t7 | finding valid in part: unknown fixed, oversized valid-prefix held 8 slots; src/ipc.c MSG_TRUNC fix + regression test added, gate green; residual (8 legit log subscribers) published |
 | 11 | A | methodologist | register h8_idle before the tick change | OK: docs/hypotheses.md h8, includes the live-mode duration design point; 577k tokens, over the 300k cap |
+| 12 | A | interdisciplinary (inline web pass; agent spawn blocked by api) | industry patterns for fixed-rate control planes | accumulator+clamp adopted, docs/architecture_research.md; wall-clock security timers |

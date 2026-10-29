@@ -17,7 +17,6 @@ static void usage(FILE* out)
         "  -e FILE        event schedule csv (t_ms,kind,amp), optional\n"
         "  -o FILE        party journal, default stdout\n"
         "  -r             realtime pacing, one wall clock tick per tick\n"
-        "  --idle-divisor N  stretch the tick period while quiet (1..100)\n"
         "  --socket PATH  status and log unix socket, seqpacket\n"
         "  --group GID    socket group, members need no root\n"
         "  --listen       accept network peers, live scan sensor\n"
@@ -38,7 +37,6 @@ int main(int argc, char** argv)
     cfg.seed = 1;
     cfg.duration_s = 10.0;
     cfg.socket_group = -1;
-    cfg.idle_divisor = 1;
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-s") && i + 1 < argc)
             cfg.seed = strtoull(argv[++i], NULL, 10);
@@ -62,14 +60,6 @@ int main(int argc, char** argv)
             cfg.seccomp = 1;
         else if (!strcmp(argv[i], "--addr") && i + 1 < argc)
             cfg.bind_addr = argv[++i];
-        else if (!strcmp(argv[i], "--idle-divisor") && i + 1 < argc) {
-            cfg.idle_divisor = (int)strtol(argv[++i], NULL, 10);
-            if (cfg.idle_divisor < 1 || cfg.idle_divisor > IDLE_DIVISOR_MAX) {
-                fprintf(stderr, "proteusd: idle divisor 1..%d\n",
-                        IDLE_DIVISOR_MAX);
-                return 1;
-            }
-        }
         else {
             usage(stderr);
             return 1;

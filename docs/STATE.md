@@ -28,6 +28,7 @@ updated: 2026-10-29
 | h8_idle registration | done | docs/hypotheses.md h8; four numeric criteria; live-mode `-d` must become wall seconds (design point recorded) | this commit | implement event-driven tick |
 | token ledger A | 577k / cap 550k | methodologist call 577k for a 25-line block; plan rule revised to at most two calls per phase, 600k each, rest inline | - | no further agent calls this phase |
 | bench rerun bb051b8 | 18 pass / 1 fail / 1 skip | 1.4 green (ban 610 ms, source 10.0.0.5), 5.2 dump audit clean, 5.1 skip with reason; only 4.1 idle red: 1.03% at div 20 vs <1%, runs range 0.66-1.03% | bb051b8 | phase A decision |
+| phase A accumulator loop | implemented, gate green | docs/architecture_research.md: idle 0.67% at 10.8 ticks/s, scan ban fires (det_score 30.43, density 7.8%), auth ban 670 ms, wall-clock security timers, ipc pending-fd race closed | this commit | bench: rerun validate (4.1 new shape) |
 | phase A event-driven tick | reverted, falsified | idle 0.010% but det_score 6.25 after 121 scan events, sensor test banned nobody; empty ticks are part of the input model. data in docs/hypotheses.md h8 | (uncommitted, reverted) | owner decision: retune detector, 20x engine, or drop target |
 
 ## known gaps (no hiding)

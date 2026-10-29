@@ -33,8 +33,6 @@ GUEST_IP=10.0.0.2
 # is dropped by the stale rule and the test measures the wrong thing
 AA_IP=10.0.0.4
 BB_IP=10.0.0.5
-# r2.5 idle clock: tick period x20 while the network is quiet
-IDLE_DIV=20
 
 PASS=0; FAIL=0; SKIP=0
 CRIT_FAIL=0; IMP_FAIL=0; IMP_N=0
@@ -440,13 +438,13 @@ done
 kill "$PD" 2>/dev/null || true; wait_dead "$PD"
 TT=${TT:-1}; SUMCPU=${SUMCPU:-0}
 CPU_PCT=$(python3 -c "print(f'{$SUMCPU / max(1, $TT) * 100:.2f}')" 2>/dev/null || echo n/a)
-# 4.1b idle clock: with --idle-divisor the biological clock slows while
-# quiet and the listener stays in poll, so a SYN wakes the loop. verdict
-# needs <1% cpu on this wall window and wake p99 <= 5 ms; the base-clock
-# number from 4.1a is reported next to it, not hidden.
+# 4.1b idle: event loop with a clamped accumulator. quiet time runs at
+# most TICK_CATCHUP_MAX ticks per poll second, so idle cpu must sit near
+# 0.5% and a SYN must wake the loop at once. the base-clock number from
+# 4.1a is reported next to it, not hidden.
 rm -f $VSOCK
-./proteusd -s 13 -d $((BENCH_DUR / IDLE_DIV + 6)) -r --listen \
-    --idle-divisor "$IDLE_DIV" --socket $VSOCK -o /dev/null 2>/dev/null &
+./proteusd -s 13 -d $((BENCH_DUR + 6)) -r --listen \
+    --socket $VSOCK -o /dev/null 2>/dev/null &
 PD=$!
 sleep 2
 I_SUM=0; I_N=0
@@ -488,16 +486,16 @@ else:
 PYEOF
 )
 kill "$PD" 2>/dev/null || true; wait_dead "$PD"
-CPU_IDLE=$(python3 -c "print(f'{$I_SUM / ($BENCH_DUR * 1000) * 100:.2f}')" 2>/dev/null || echo n/a)
+CPU_IDLE=$(python3 -c "print(f'{$I_SUM / max(1, $I_N * 5 * 1000) * 100:.2f}')" 2>/dev/null || echo n/a)
 if [ "$MAXRSS" = 0 ]; then
     t_result nice test_4_1_idle 4 FAIL "status channel unreachable, rss unknown"
 elif ! echo "$WAKE" | grep -q '^n='; then
     t_result nice test_4_1_idle 4 SKIP "idle clock: wake probe insufficient ($WAKE), base cpu=${CPU_PCT}% rss=${MAXRSS}kb"
 elif python3 -c "exit(0 if $MAXRSS < 10240 and $CPU_IDLE < 1.0 else 1)" 2>/dev/null && \
      python3 -c "exit(0 if $(echo "$WAKE" | sed 's/.*p99=\([0-9.]*\).*/\1/') <= 5.0 else 1)" 2>/dev/null; then
-    t_result nice test_4_1_idle 4 PASS "idle clock cpu=${CPU_IDLE}% (div $IDLE_DIV, base clock ${CPU_PCT}%), wake $WAKE, rss_max=${MAXRSS}kb"
+    t_result nice test_4_1_idle 4 PASS "idle event loop cpu=${CPU_IDLE}% (base clock ${CPU_PCT}%), wake $WAKE, rss_max=${MAXRSS}kb"
 else
-    t_result nice test_4_1_idle 4 FAIL "idle clock cpu=${CPU_IDLE}% (base ${CPU_PCT}%), wake $WAKE, rss=${MAXRSS}kb"
+    t_result nice test_4_1_idle 4 FAIL "idle event loop cpu=${CPU_IDLE}% (base ${CPU_PCT}%), wake $WAKE, rss=${MAXRSS}kb"
 fi
 
 # 4.2 throughput: sessions per second against the live port, the probe

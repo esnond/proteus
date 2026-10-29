@@ -22,7 +22,6 @@ typedef struct {
     const char* bind_addr;     /* r2: listener address, default loopback */
     int         nft;           /* r2: mirror the bans into nftables */
     int         seccomp;       /* r2: install the syscall whitelist */
-    int         idle_divisor;  /* r2.5: slow the tick while quiet, 1 = off */
 } session_cfg_t;
 
 typedef struct {

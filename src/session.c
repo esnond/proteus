@@ -52,6 +52,13 @@ static double cpu_ms(void)
            (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) / 1000.0;
 }
 
+static double mono_s(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
+}
+
 /* the status line contract of proteusctl status, one packet per request */
 static void status_line(char* buf, int n, const session_stats_t* st,
                         const char* det_state)
@@ -101,7 +108,10 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
     uint32_t last_scan_ip = 0;
     double t_ms = 0.0;
     double last_tick_real = 0.0;
-    double last_net_wall = 0.0;   /* 0: quiet since start */
+    double acc_ms = 0.0;          /* wall time waiting to be simulated */
+    double wall_stop = 0.0;
+    int live;
+    int pending = 0;              /* catch-up ticks owed by the last wake */
     int n_events = 0;
     int rc = 0;
 
@@ -198,61 +208,99 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         return 1;
     }
 
-    while (t_ms < cfg->duration_s * 1000.0 && rc == 0) {
+    /* a live daemon is event driven with a clamped accumulator, the
+       game-loop pattern: wall time accumulates while the loop sleeps in
+       poll and each wake steps the simulation once per TICK_MS of it,
+       capped at TICK_CATCHUP_MAX steps. quiet time therefore runs at
+       most TICK_CATCHUP_MAX ticks per IDLE_POLL_MS (idle cpu ~0.5%), and
+       a burst still brings the empty ticks the detector statistics were
+       calibrated on. `-d` is wall seconds in this mode; headless mode
+       keeps sim seconds and stays bitwise replayable. */
+    live = cfg->realtime && sn != NULL;
+    if (live) {
+        wall_stop = mono_s() + cfg->duration_s;
+        last_tick_real = mono_s();
+    }
+
+    while (rc == 0 && (live ? mono_s() < wall_stop
+                            : t_ms < cfg->duration_s * 1000.0)) {
         char line[JOURNAL_LINE_MAX];
         char stat[256];
         int ev = JEV_NONE;
         int cause = CAUSE_NONE;
         float ser, oct, dop, ava, avb;
         float density, share;
+        double sec_ms;
         struct timespec now;
 
         if (ipc || cfg->realtime)
             clock_gettime(CLOCK_MONOTONIC, &now);
-        if (cfg->realtime) {
-            /* pace the tick loop at one wall clock tick. while the network
-               has been quiet for IDLE_WINDOW_MS the period stretches by
-               idle_divisor: the biological clock slows down (documented
-               trade-off), but the listener stays in poll so a SYN wakes
-               the loop at once, not after the stretched period */
-            double cur = now.tv_sec + now.tv_nsec * 1e-9;
-            int idle = cfg->idle_divisor > 1 &&
-                       (cur - last_net_wall) * 1000.0 >= IDLE_WINDOW_MS;
-            double period = (double)TICK_MS * (idle ? cfg->idle_divisor : 1)
-                            / 1000.0;
-            double due = last_tick_real + period;
+        if (pending > 0) {
+            /* catch-up tick owed by the last wake: no poll, no pacing */
+            pending--;
+        } else if (live) {
+            /* block until a peer, the control channel or the reaper
+               deadline needs the loop */
+            struct pollfd pf[1 + 1 + IPC_CLIENTS_MAX];
+            int nfd = 0;
+            double cur;
+            if (mo.fd >= 0) {
+                pf[nfd].fd = mo.fd;
+                pf[nfd].events = POLLIN;
+                pf[nfd].revents = 0;
+                nfd++;
+            }
+            if (ipc)
+                nfd += ipc_poll_fds(ipc, pf + nfd,
+                                    (int)(sizeof(pf) / sizeof(pf[0])) - nfd);
+            poll(pf, (nfds_t)nfd, IDLE_POLL_MS);
+            clock_gettime(CLOCK_MONOTONIC, &now);
+            cur = now.tv_sec + now.tv_nsec * 1e-9;
+            acc_ms += (cur - last_tick_real) * 1000.0;
+            last_tick_real = cur;
+            /* the game-loop clamp: never spend more than
+               TICK_CATCHUP_MAX ticks catching up, the excess wall time
+               is dropped and the biological clock runs slow while quiet */
+            if (acc_ms > (double)TICK_MS * (double)TICK_CATCHUP_MAX)
+                acc_ms = (double)TICK_MS * (double)TICK_CATCHUP_MAX;
+            pending = (int)(acc_ms / (double)TICK_MS);
+            acc_ms -= (double)pending * (double)TICK_MS;
+            trust_reap(tr, mono_s() * 1000.0);
+        } else if (cfg->realtime) {
+            /* realtime without a listener (scheduled events only) keeps
+               the wall clock cadence */
+            double due = last_tick_real + (double)TICK_MS / 1000.0;
+            double cur = mono_s();
             if (cur < due) {
                 double wait = due - cur;
-                if (idle && mo.fd >= 0) {
-                    struct pollfd pf;
-                    pf.fd = mo.fd;
-                    pf.events = POLLIN;
-                    pf.revents = 0;
-                    poll(&pf, 1, (int)(wait * 1000.0));
-                } else {
-                    struct timespec slp;
-                    slp.tv_sec = (time_t)wait;
-                    slp.tv_nsec = (long)((wait - (double)slp.tv_sec) * 1e9);
-                    nanosleep(&slp, NULL);
-                }
+                struct timespec slp;
+                slp.tv_sec = (time_t)wait;
+                slp.tv_nsec = (long)((wait - (double)slp.tv_sec) * 1e9);
+                nanosleep(&slp, NULL);
             }
-        }
-        if (ipc || cfg->realtime) {
             clock_gettime(CLOCK_MONOTONIC, &now);
             last_tick_real = now.tv_sec + now.tv_nsec * 1e-9;
+        } else if (ipc) {
+            last_tick_real = now.tv_sec + now.tv_nsec * 1e-9;
         }
+
+        /* immune scope timers run on the wall clock: bans, token ttl and
+           the reaper are security properties and must not stretch with
+           the simulation clock, which the accumulator slows while quiet.
+           headless mode has no sensor and keeps sim time. */
+        sec_ms = live ? mono_s() * 1000.0 : t_ms;
 
         if (sn) {
             int any_scan = 0, any_sess = 0;
             uint32_t auth_ban = 0;
-            sensor_tick(sn, mo.fd, t_ms, tr, &last_scan_ip, &any_scan,
+            sensor_tick(sn, mo.fd, sec_ms, tr, &last_scan_ip, &any_scan,
                         &any_sess, &auth_ban);
-            trust_reap(tr, t_ms);
-            if (auth_ban && !sensor_trusted(sn, auth_ban, t_ms) &&
-                sensor_is_banned(sn, auth_ban, t_ms) == 0) {
+            trust_reap(tr, sec_ms);
+            if (auth_ban && !sensor_trusted(sn, auth_ban, sec_ms) &&
+                sensor_is_banned(sn, auth_ban, sec_ms) == 0) {
                 /* credential stuffing is standard security, not the
                    connectome path: the immune scope bans the source */
-                ban_source(stats, nf, sn, auth_ban, t_ms);
+                ban_source(stats, nf, sn, auth_ban, sec_ms);
                 ev = ev > JEV_BAN ? ev : JEV_BAN;
             }
             if (any_scan) {
@@ -267,11 +315,6 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
                 rate_add(&r_legit, t_ms);
                 stats->net_sessions++;
                 ev = ev > JEV_NET_SESSION ? ev : JEV_NET_SESSION;
-            }
-            if (any_scan || any_sess) {
-                struct timespec nw;
-                clock_gettime(CLOCK_MONOTONIC, &nw);
-                last_net_wall = nw.tv_sec + nw.tv_nsec * 1e-9;
             }
         }
 
@@ -334,7 +377,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         if ((cause & CAUSE_DET) && sn && last_scan_ip &&
             !sensor_trusted(sn, last_scan_ip, t_ms) &&
             sensor_is_banned(sn, last_scan_ip, t_ms) == 0) {
-            ban_source(stats, nf, sn, last_scan_ip, t_ms);
+            ban_source(stats, nf, sn, last_scan_ip, sec_ms);
             ev = ev > JEV_BAN ? ev : JEV_BAN;
         }
 
@@ -374,7 +417,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
             stats->t_ms = t_ms;
             status_line(stat, sizeof(stat), stats,
                         det_state_name(det.state));
-            ipc_tick(ipc, tr, t_ms, stat, line);
+            ipc_tick(ipc, tr, sec_ms, stat, line);
         }
     }
     sensor_close(sn);
