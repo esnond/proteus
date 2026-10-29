@@ -30,6 +30,10 @@ updated: 2026-10-29
 | bench rerun bb051b8 | 18 pass / 1 fail / 1 skip | 1.4 green (ban 610 ms, source 10.0.0.5), 5.2 dump audit clean, 5.1 skip with reason; only 4.1 idle red: 1.03% at div 20 vs <1%, runs range 0.66-1.03% | bb051b8 | phase A decision |
 | phase A accumulator loop | implemented, gate green | docs/architecture_research.md: idle 0.67% at 10.8 ticks/s, scan ban fires (det_score 30.43, density 7.8%), auth ban 670 ms, wall-clock security timers, ipc pending-fd race closed | this commit | bench: rerun validate (4.1 new shape) |
 | phase A event-driven tick | reverted, falsified | idle 0.010% but det_score 6.25 after 121 scan events, sensor test banned nobody; empty ticks are part of the input model. data in docs/hypotheses.md h8 | (uncommitted, reverted) | owner decision: retune detector, 20x engine, or drop target |
+| bench validate 02baf77 | 18 pass / 0 fail / 2 skip | 1.4 ban 680 ms; 5.2 dump clean; 4.1 SKIP (wake probe insufficient, base cpu 8.81% window); 5.1 SKIP retracted criterion. owner ran sudo tools/validate_r2.sh | 02baf77 | 4.1 needs the h8 instrument for wake p99; SKIP is not a PASS, recorded |
+| h1-h6 registration | done, before runs | docs/hypotheses.md r3 phase B: h1-h6 mapped to г1-г7 + atlas_spec; seeds 101..110 cal / 1001..1100 train / 2001..2100 held out; alpha 0.0083 per h, power > 0.99 at d >= 0.5; г3 NOT_RUN (no population harness) | 051555a | runs |
+| phase B train run | running | atlas_runner bio 1001..1100 -> g1_g7_runner (flat/seeded/random + g1-g7 analysis); smoke: 30 s/party, 208-214 moves, all 3 conditions verified; ~400 parties ~4 h wall, checkpoint+resume | this commit | verdicts after the chain; then held-out validate 2001..2100 |
+| h5 sustained tool | written, registered first | tools/sustained_attack.py: 20 train seeds paired, dose-matched sustained schedule frozen in the tool, wilcoxon + CI + d; run launched | this commit | verdict into hypotheses_results |
 
 ## known gaps (no hiding)
 
@@ -43,7 +47,13 @@ updated: 2026-10-29
    (counter 0); tier A rests on the token path.
 3. FP<=5/10k is not yet proven: 0/1600 gives an upper bound of 18.8/10k.
 4. push is owner-only: the agent environment has no git credentials.
-5. ASan cannot start in the agent sandbox ("ASan runtime does not come
+5. the journal header written by the binary says `journal v1` while
+   docs/schemas.md declares v2 (columns match v2); fix deferred to
+   phase D because a header change invalidates old golden journals.
+6. bench 4.1 idle reports SKIP (wake probe insufficient), base cpu
+   8.81% in its window; sandbox evidence for the accumulator loop is
+   0.67% at 10.8 ticks/s; the SKIP must not be cited as a PASS.
+7. ASan cannot start in the agent sandbox ("ASan runtime does not come
    first in initial library list"); ubsan and the strict build are green,
    ASan is a bench item.
 
