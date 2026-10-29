@@ -53,6 +53,12 @@ on_exit() {
         sh tools/netns_teardown.sh "$NS" >> "$LOG" 2>&1 || true
         cleanup_done=1
     fi
+    # the suite runs under sudo and builds as root; hand the tree and the
+    # results back to the invoking user or every later non-root make
+    # fails on the root owned archive
+    if [ -n "${SUDO_UID:-}" ]; then
+        chown -R "$SUDO_UID:$SUDO_GID" . "$OUT" 2>/dev/null || true
+    fi
 }
 trap on_exit EXIT INT TERM
 {

@@ -10,6 +10,13 @@ set -e
 cd "$(dirname "$0")/.."
 D=${DUMP_DIR:-results/gcore}
 mkdir -p "$D"
+# running under sudo builds and writes as root; hand the tree back to the
+# invoking user or the next non-root make fails on the root owned archive
+if [ -n "${SUDO_UID:-}" ]; then
+    trap 'chown -R "$SUDO_UID:$SUDO_GID" "$D" . 2>/dev/null || true' EXIT
+fi
+# stale cores from an earlier run would let a failed dump look clean
+rm -f "$D"/memory_dump.* "$D"/*.core
 if ! command -v gcore >/dev/null 2>&1 && ! command -v gdb >/dev/null 2>&1; then
     echo "installing gdb"
     apt-get update -qq
@@ -30,8 +37,8 @@ else
         >> "$D/daemon.log" 2>&1 || true
 fi
 kill "$PD" 2>/dev/null || true
-CORE=$(ls "$D"/memory_dump*.core "$D"/*.core 2>/dev/null | head -n 1 || true)
-if [ -z "$CORE" ]; then
+CORE=$(ls -t "$D"/memory_dump.* "$D"/*.core 2>/dev/null | head -n 1 || true)
+if [ -z "$CORE" ] || [ ! -s "$CORE" ]; then
     echo "FAIL: no core produced, see $D/daemon.log"
     exit 1
 fi

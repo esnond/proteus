@@ -6,6 +6,7 @@ results/fa_*.csv
 results/det_burst_*.csv
 results/mv_*.csv
 results/r2_validation/
+results/gcore/
 src/seccomp_profile.h
 results/atlas_journals/
 results/atlas_train/
