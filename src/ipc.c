@@ -172,8 +172,12 @@ void ipc_tick(ipc_t* ipc, trust_t* tr, double now_ms,
             close(c);
             continue;
         }
-        n = recv(c, cmd, sizeof(cmd) - 1, MSG_DONTWAIT);
-        if (n <= 0) {
+        /* MSG_TRUNC reports the real datagram length, so an oversized
+           command is rejected here instead of being cut down to a valid
+           prefix ("log " + 4 kB would otherwise become a subscription
+           that holds the slot forever) */
+        n = recv(c, cmd, sizeof(cmd) - 1, MSG_DONTWAIT | MSG_TRUNC);
+        if (n <= 0 || n > (ssize_t)sizeof(cmd) - 1) {
             close(c);
             continue;
         }

@@ -14,3 +14,4 @@ is recorded and the run continues without it.
 | 7 | 3 | architect (inline) | fixed ipc unknown-command slot leak found by t7 | 378c5cf |
 | 8 | 4 | methodologist/architect (inline) | standards audit, exceptions published | docs/STANDARDS_AUDIT.md |
 | 9 | 5 | editor (inline) | bench handoff, state rows, manifests | docs/BENCH_HANDOFF.md, docs/STATE.md |
+| 10 | r3 | blue_team (new agent, smoke test via general-purpose) | validate red team t7 | finding valid in part: unknown fixed, oversized valid-prefix held 8 slots; src/ipc.c MSG_TRUNC fix + regression test added, gate green; residual (8 legit log subscribers) published |

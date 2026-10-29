@@ -246,6 +246,43 @@ if [ "$(grep -c data_sent "$TMP/s4_legit.csv" || true)" -lt 1 ]; then
 fi
 echo "PASS: auth burst banned, clean source accepted"
 
+echo "== ipc: oversized commands must not hold slots =="
+# red team t7 closed the unknown-command leak; the blue team found the
+# oversized variant: recv truncated "log " + 4 kB into a valid
+# subscription and the slot was never freed. the client table is 8 wide,
+# so 8 such peers must not blind the status channel.
+rm -f "$TMP/s5.sock"
+./proteusd -s 31 -d 20 -r --socket "$TMP/s5.sock" -o /dev/null 2>/dev/null &
+PD=$!
+sleep 1.5
+python3 - "$TMP/s5.sock" <<'PYEOF' || { kill -9 "$PD" 2>/dev/null; wait "$PD" 2>/dev/null; exit 1; }
+import socket, sys, time
+path = sys.argv[1]
+held = []
+for payload in (b"zzzz" * 1000, b"log " + b"x" * 4000):
+    for _ in range(8):
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        s.connect(path)
+        s.send(payload)
+        held.append(s)
+        time.sleep(0.01)
+time.sleep(0.3)
+t = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+t.settimeout(2)
+t.connect(path)
+t.send(b"status")
+try:
+    ok = t.recv(256).startswith(b"port=")
+except OSError:
+    ok = False
+if not ok:
+    print("FAIL: status blocked while oversized peers held the table")
+    sys.exit(1)
+print("PASS: oversized peers freed their slots")
+PYEOF
+kill -9 "$PD" 2>/dev/null || true; wait "$PD" 2>/dev/null || true
+echo "PASS: ipc oversized-command slot exhaustion closed"
+
 echo "== r2 netns =="
 if unshare -n true 2>/dev/null || ip netns add __probe 2>/dev/null; then
     ip netns del __probe 2>/dev/null || true

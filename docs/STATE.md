@@ -22,6 +22,8 @@ updated: 2026-10-29
 | bench gcore glob | fixed | gcore writes memory_dump.PID, the old glob only matched *.core; stale cores removed first | this commit | `sudo tools/bench_gcore_test.sh` |
 | sudo artifact ownership | fixed | validate_r2.sh and bench_gcore_test.sh chown the tree back to SUDO_UID at exit | this commit | owner: one-time `sudo chown -R esnond:esnond ~/proteus` for the current root owned build |
 | h7 auth failure ban | done, criterion met | docs/hypotheses.md measured: seed 7 ttb 620 ms, seed 8 ttb 2020 ms, legit 0/6 banned | this commit | bench test_1_4 |
+| blue_team agent | created, smoke tested | ~/.zcode/agents/blue_team.md (10th agent); test run validated t7, found the oversized variant | this commit | restart the session so the agent type is discovered |
+| ipc oversized command | fixed | MSG_TRUNC + length check; regression test fails pre-fix (status blocked) and passes post-fix | this commit | residual: 8 legit `log` subscribers still fill the table |
 
 ## known gaps (no hiding)
 
