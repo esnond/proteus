@@ -1,6 +1,7 @@
 #ifndef PROTEUS_IPC_H
 #define PROTEUS_IPC_H
 
+#include <poll.h>
 #include <stddef.h>
 
 #include "trust.h"
@@ -19,6 +20,10 @@
 typedef struct ipc ipc_t;
 
 ipc_t* ipc_init(const char* path, long group);
+/* fill pf with the listener and any peer still waiting for its first
+ * packet; returns the count, never above max. 0 when the channel is
+ * off */
+int    ipc_poll_fds(const ipc_t* ipc, struct pollfd* pf, int max);
 /* accept new peers, read commands, publish one journal line to log
  * subscribers */
 void   ipc_tick(ipc_t* ipc, trust_t* tr, double now_ms,
