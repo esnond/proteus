@@ -96,11 +96,13 @@
 /* matched filter threshold, units are summed command-pool deviations
  * over the one second window. r1 set 30.0 from the false alarm budget on
  * withheld seeds 101..110 (no events, 6000 s model time total); h10
- * (2026-10-29) moves the channel to avb for the petri v1.2 wiring and
- * re-derives the threshold by the same frozen procedure — the dated
- * value lands here after the calibration run. never refitted to a
+ * (2026-10-29) moved the channel to avb for the petri v1.2 wiring and
+ * re-derived the threshold by the same frozen procedure: 50.0, the
+ * lowest grid threshold with false alarms within the budget (8 FAs of
+ * 10 allowed, 10 seeds x 600 s; detection 8/10 burst journals, wilson
+ * ci [0.44, 0.97]; journals results/cal_v12/). never refitted to a
  * green gate */
-#define DET_THRESHOLD    30.0f
+#define DET_THRESHOLD    50.0f
 
 /* ---- r1: modulator injection ---- */
 
