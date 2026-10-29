@@ -649,14 +649,12 @@ echo "ban_latency,$STATS,missed=$MISSED,input_driven_variance" \
 
 SD=$(timeout 240 python3 tools/secret_dependence.py 2>>"$LOG" || true)
 echo "secret_dependence,$SD" >> "$OUT/raw_data/phase5_adversary.csv"
-if echo "$SD" | grep -q '"verdict": "PASS"'; then
-    t_result nice test_5_1_timing_side_channel 5 PASS \
-        "secret dependence: $SD; ban-latency cv is input-driven ($STATS), not a leak test"
-elif echo "$SD" | grep -q '"verdict": "SKIP"'; then
-    t_result nice test_5_1_timing_side_channel 5 SKIP "insufficient samples: $SD"
-else
-    t_result nice test_5_1_timing_side_channel 5 FAIL "secret dependence: $SD"
-fi
+# the criterion is retracted (docs/hypotheses.md f1.1): the probe times
+# TCP connect+send on the public, seed-chosen port, so the two
+# conditions do not share an input. the numbers stay in raw_data for the
+# record, the verdict is not PASS and not FAIL.
+t_result nice test_5_1_timing_side_channel 5 SKIP \
+    "criterion retracted, probe measures kernel RTT on the public port; data: $SD"
 
 # 5.2 state leakage through a core dump
 DUMPER=no

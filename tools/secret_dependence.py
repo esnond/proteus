@@ -22,6 +22,7 @@ import socket
 import statistics as st
 import subprocess
 import sys
+import tempfile
 import time
 
 ALPHA = 0.01
@@ -65,10 +66,9 @@ def probe(sock, count, out):
     return got
 
 
-def run_block(seed, sock, path, count):
+def run_block(seed, sock, path, count, err):
     """one daemon, one measurement block. raises when the daemon never
     serves: a silent zero sample block is a tool failure, not a SKIP."""
-    err = f"/tmp/sd_{seed}.err"
     eh = open(err, "w")
     p = subprocess.Popen(["./proteusd", "-s", str(seed), "-d", str(DUR + 5),
                           "-r", "--listen", "--socket", sock, "-o", path],
@@ -153,7 +153,10 @@ def cohen_d(a, b):
 
 
 def main():
-    sock_a, sock_b = "/tmp/sd_a.sock", "/tmp/sd_b.sock"
+    # a private directory per run: /tmp/sd_*.err from another uid made
+    # the bench run die with PermissionError before any sample
+    tmp = tempfile.mkdtemp(prefix="sd_")
+    sock_a, sock_b = f"{tmp}/a.sock", f"{tmp}/b.sock"
     a, b = [], []
     failed = None
     # alternate the order inside each pair so a systematic position bias
@@ -161,11 +164,11 @@ def main():
     try:
         for blk in range(BLOCKS):
             if blk % 2 == 0:
-                a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
-                b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
+                a += run_block(42, sock_a, f"{tmp}/a_{blk}.csv", PER_BLOCK, f"{tmp}/a_{blk}.err")
+                b += run_block(43, sock_b, f"{tmp}/b_{blk}.csv", PER_BLOCK, f"{tmp}/b_{blk}.err")
             else:
-                b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
-                a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
+                b += run_block(43, sock_b, f"{tmp}/b_{blk}.csv", PER_BLOCK, f"{tmp}/b_{blk}.err")
+                a += run_block(42, sock_a, f"{tmp}/a_{blk}.csv", PER_BLOCK, f"{tmp}/a_{blk}.err")
     except RuntimeError as e:
         failed = str(e)
     n_a, n_b = len(a), len(b)
