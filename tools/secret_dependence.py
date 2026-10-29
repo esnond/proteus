@@ -66,13 +66,26 @@ def probe(sock, count, out):
 
 
 def run_block(seed, sock, path, count):
+    """one daemon, one measurement block. raises when the daemon never
+    serves: a silent zero sample block is a tool failure, not a SKIP."""
+    err = f"/tmp/sd_{seed}.err"
+    eh = open(err, "w")
     p = subprocess.Popen(["./proteusd", "-s", str(seed), "-d", str(DUR + 5),
                           "-r", "--listen", "--socket", sock, "-o", path],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(1.5)
+                         stdout=subprocess.DEVNULL, stderr=eh)
+    eh.close()
+    live = False
+    for _ in range(30):
+        if p.poll() is not None:
+            break
+        if live_port(sock):
+            live = True
+            break
+        time.sleep(0.1)
     lat = []
     try:
-        probe(sock, count + WARMUP, lat)
+        if live:
+            probe(sock, count + WARMUP, lat)
     finally:
         p.terminate()
         try:
@@ -80,6 +93,10 @@ def run_block(seed, sock, path, count):
         except subprocess.TimeoutExpired:
             p.kill()
         time.sleep(0.3)
+    if not live:
+        with open(err) as fh:
+            tail = " | ".join(fh.read().strip().splitlines()[-2:])
+        raise RuntimeError(f"daemon seed {seed} never served {sock}: {tail}")
     return lat[WARMUP:]
 
 
@@ -138,22 +155,29 @@ def cohen_d(a, b):
 def main():
     sock_a, sock_b = "/tmp/sd_a.sock", "/tmp/sd_b.sock"
     a, b = [], []
+    failed = None
     # alternate the order inside each pair so a systematic position bias
     # (warm caches, lingering sockets) cancels instead of loading one seed
-    for blk in range(BLOCKS):
-        if blk % 2 == 0:
-            a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
-            b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
-        else:
-            b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
-            a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
+    try:
+        for blk in range(BLOCKS):
+            if blk % 2 == 0:
+                a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
+                b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
+            else:
+                b += run_block(43, sock_b, f"/tmp/sd_b_{blk}.csv", PER_BLOCK)
+                a += run_block(42, sock_a, f"/tmp/sd_a_{blk}.csv", PER_BLOCK)
+    except RuntimeError as e:
+        failed = str(e)
     n_a, n_b = len(a), len(b)
     out = {"n_a": n_a, "n_b": n_b,
            "mean_a_ms": round(st.mean(a), 3) if a else None,
            "mean_b_ms": round(st.mean(b), 3) if b else None,
            "sd_a_ms": round(st.pstdev(a), 3) if a else None,
            "sd_b_ms": round(st.pstdev(b), 3) if b else None}
-    if n_a >= N_MIN and n_b >= N_MIN:
+    if failed:
+        out["error"] = failed
+        verdict = "SKIP"
+    elif n_a >= N_MIN and n_b >= N_MIN:
         d, p_ks = ks_two_sample(a, b)
         _, p_t = welch(a, b)
         cd = cohen_d(a, b)

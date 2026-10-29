@@ -51,6 +51,19 @@ published with n, means, sd.
 security bug. ban latency is excluded by design (neural state drives it);
 its cv is published as input-driven variance only.
 
+**Reproduction 2026-10-29 (r3), criterion RETRACTED**: the r2.5 record
+claims PASS (n=210/210, KS p=0.66, d=0.057). four fresh runs -- two on
+88e2cf9, two on the r3 tree -- give d=+0.324, +0.345, -0.873, -0.384,
+KS p 0.0 to 0.0153, i.e. FAIL every time. the effect is not caused by
+the r3 sensor change (the pre-change binary shows it too).
+the test is invalid as designed: the probe measures TCP connect+send
+RTT on loopback, the daemon sends no response, and the seed chooses the
+advertised port, so the two conditions do NOT share an input. the probe
+measures the kernel and the public port, not the secret. the old PASS
+was not reproducible and must not be cited. the honest claim is
+narrower: the session path has no response channel to leak through.
+a valid test needs a server-side response (or a same-port design).
+
 ## f1.2 gcore_gap
 **Hypothesis**: a core dump of the running daemon contains no journal or
 token material in plaintext.

@@ -10,7 +10,7 @@ updated: 2026-10-29
 |---|---|---|---|---|
 | phase0 backup + anchor | done | tag r2-bench-anchor, docs/ROLLBACK.md, results/manifest_phase0.txt | 8e952bc | push (owner, no creds in agent env) |
 | neato scrub (HX-9) | done (no-op) | docs/NEATO_INVENTORY.md: zero hits, 4 scope notes kept | 8e952bc | none |
-| f1.1 side-channel criterion | done | tools/secret_dependence.py: n=210/210, KS p=0.66, d=0.057, PASS | b298bb0 | bench re-run with ADV_REPEATS=20 |
+| f1.1 side-channel criterion | RETRACTED, not reproducible | 4 fresh runs FAIL (d +0.32, +0.35, -0.87, -0.38); probe measures kernel RTT on the public port, conditions do not share an input. see docs/hypotheses.md | this commit | redesign: server-side response or same-port probe |
 | f1.2 gcore gap | done (bench script) | tools/bench_gcore_test.sh, tools/dump_audit.sh; sandbox has no dumper | b298bb0 | `sudo tools/bench_gcore_test.sh` |
 | f1.3 idle <1% | done (opt-in flag) | `--idle-divisor 20`: cpu 0.79%, wake p99 0.95 ms, sim clock 20x slower while quiet | bbe6b6e | bench 300 s confirmation |
 | f1.4 FP/ROC | partial, published | tools/roc_sweep.sh: live 0/1600 FP, 4/4 det, upper bound 18.8/10k (needs 6000) | 011b790 | `LEGIT_SECS=60 tools/roc_sweep.sh 10` |
