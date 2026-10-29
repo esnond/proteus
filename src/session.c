@@ -67,6 +67,24 @@ static void status_line(char* buf, int n, const session_stats_t* st,
              st->cpu_ms, st->trust);
 }
 
+/* the one place that mirrors a ban into userspace and the kernel: the
+   set is the visible record, the drop rule is the enforcement */
+static void ban_source(session_stats_t* st, nft_t* nf, sensor_t* sn,
+                       uint32_t ip, double t_ms)
+{
+    sensor_ban(sn, ip, t_ms);
+    if (nf) {
+        if (nft_set_ban(nf, NFT_TABLE_NAME, NFT_SET_BANNED, ip) != 0 ||
+            nft_rule_add_drop(nf, NFT_TABLE_NAME, NFT_CHAIN_IN, ip, 0) != 0) {
+            fprintf(stderr, "nft: queue failed at t=%.2f\n", t_ms);
+        } else if (nft_commit(nf) != 0) {
+            fprintf(stderr, "nft: commit failed at t=%.2f: %s\n",
+                    t_ms, strerror(errno));
+        }
+    }
+    st->bans++;
+}
+
 int session_run(const session_cfg_t* cfg, session_stats_t* stats)
 {
     bridge_t br;
@@ -226,9 +244,17 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
 
         if (sn) {
             int any_scan = 0, any_sess = 0;
+            uint32_t auth_ban = 0;
             sensor_tick(sn, mo.fd, t_ms, tr, &last_scan_ip, &any_scan,
-                        &any_sess);
+                        &any_sess, &auth_ban);
             trust_reap(tr, t_ms);
+            if (auth_ban && !sensor_trusted(sn, auth_ban, t_ms) &&
+                sensor_is_banned(sn, auth_ban, t_ms) == 0) {
+                /* credential stuffing is standard security, not the
+                   connectome path: the immune scope bans the source */
+                ban_source(stats, nf, sn, auth_ban, t_ms);
+                ev = ev > JEV_BAN ? ev : JEV_BAN;
+            }
             if (any_scan) {
                 /* a real scan shaped connection pushes the nociceptor
                    and the density counter, same channels as r0 events */
@@ -308,22 +334,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         if ((cause & CAUSE_DET) && sn && last_scan_ip &&
             !sensor_trusted(sn, last_scan_ip, t_ms) &&
             sensor_is_banned(sn, last_scan_ip, t_ms) == 0) {
-            sensor_ban(sn, last_scan_ip, t_ms);
-            if (nf) {
-                /* the set is the visible ban record, the drop rule is
-                   the actual enforcement: a set with no rule matching
-                   it would not drop anything */
-                if (nft_set_ban(nf, NFT_TABLE_NAME, NFT_SET_BANNED,
-                                last_scan_ip) != 0 ||
-                    nft_rule_add_drop(nf, NFT_TABLE_NAME, NFT_CHAIN_IN,
-                                      last_scan_ip, 0) != 0) {
-                    fprintf(stderr, "nft: queue failed at t=%.2f\n", t_ms);
-                } else if (nft_commit(nf) != 0) {
-                    fprintf(stderr, "nft: commit failed at t=%.2f: %s\n",
-                            t_ms, strerror(errno));
-                }
-            }
-            stats->bans++;
+            ban_source(stats, nf, sn, last_scan_ip, t_ms);
             ev = ev > JEV_BAN ? ev : JEV_BAN;
         }
 

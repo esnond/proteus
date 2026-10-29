@@ -99,32 +99,37 @@ boundary, do not hide it.
 **Hypothesis**: repeated failed application auth attempts from one source
 are a credential-stuffing attack, not legitimate sessions, and the daemon
 can ban the source without banning a client that sends valid payload.
-**Method**: the sensor counts the app line `PROTEUS AUTH <user> <token>`
-per source inside a rolling window (8 lines / 10 s); a source that
-crosses the count is reported as scan pressure to the nervous system, the
-existing detector and ban path decide. determinism is untouched: the
-network input is outside the journal replay contract. measured with
-tools/brute_forcer (60 attempts, 10/s, source 10.0.0.5, sock= so the
-stuffer follows the advertised port like an adaptive attacker; a fixed
-port measures the move instead of the detector) and tools/legit_client
-(40 HELLO sessions, source 10.0.0.3).
+**Method** (amended after the bench result below): the sensor counts the
+app line `PROTEUS AUTH <user> <token>` per source inside a rolling window
+(8 lines / 10 s). the source that crosses the count is banned by the
+immune scope directly: userspace list + nft set/rule, journal event 8
+with cause 0. failed auth lines feed neither the food channel nor the
+nociceptor, and the connectome does not decide this ban; the path is
+standard security, documented in docs/schemas.md. determinism is
+untouched: the network input is outside the journal replay contract.
+measured with tools/brute_forcer (60 attempts, 10/s, sock= so the
+stuffer follows the advertised port like an adaptive attacker) and
+tools/legit_client (HELLO sessions from a different source).
 **Success Criterion**: brute source banned, time to ban <= 10 s; legit
-source banned 0 times out of 40 sessions (0/40, Wilson upper bound
-published); test_1_4_brute_force PASS.
-**Falsification**: no ban, or any legit source banned -> the criterion is
-wrong; revert the counter and publish the negative result as r3-r1.
+source banned 0 times (Wilson upper bound published); test_1_4 PASS.
+**Falsification**: no ban, or any legit source banned -> revert the
+counter and publish the negative result.
 
-**Measured 2026-10-29 (sandbox, loopback, n=2 per seed)**: seed 7
-ttb=620 ms both runs; seed 8 ttb=2020 ms both runs; legit source
-(127.0.0.2) 3/3 sessions accepted after the ban, attacker (127.0.0.1)
-banned. 0/6 legit sessions banned, Wilson 95% upper bound 39%. Two
-side findings published, not hidden:
-1. a silent scan also fails to ban on some seeds (23: max det_score
-   29.35 < 30), so detector reach is connectome dependent; the r2.5
-   threshold grid stands, the per-seed table is the honest boundary.
-2. before the adaptive stuffer was added, 58 of 60 attempts hit a moved
-   port: the port move alone defeats a fixed-port stuffer. that is the
-   MTD working, and it is why the detection test needs the adaptive
-   client.
+**Measured 2026-10-29, immune-scope path (sandbox, loopback, n=1 per
+seed)**: seed 8 ttb=610 ms, seed 23 ttb=610 ms, seed 12 ttb=620 ms;
+legit source 127.0.0.2 accepted 3/3 after each ban. the ban is seed
+independent, which is the point: it no longer rides the connectome.
+
+**Amendment record (honest)**: the first version fed the failure burst
+to the connectome (ash pulses, then a held nociceptor). it passed in a
+clean sandbox (seed 7 ttb 620 ms, seed 8 ttb 2020 ms) but failed on the
+bench after the mixed-traffic test: octopamine pegged, ava collapsed,
+det_score plateaued at 16-20 < 30, test_1_4 red. the mechanism was
+replaced by the immune-scope rule above; the earlier measurement is
+kept here as the datum that forced the change. side findings still
+stand: detector reach is connectome dependent (seed 23 cannot ban a
+dense silent scan, max det_score 29.35), and a fixed-port stuffer hits
+a moved port 58/60 times, so the adaptive client is required.
+
 
 

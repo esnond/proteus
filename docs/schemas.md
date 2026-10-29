@@ -59,8 +59,13 @@ are r1 design constants, assumptions are documented in src/config.h.
 ## r2 additions (2026-10-28)
 
 event codes 6..8 are the live wire events of the --listen mode:
-6 scan shaped connection, 7 peer session with payload, 8 ban applied by
-the detector. the column set is unchanged, v2 readers parse the file.
+6 scan shaped connection, 7 peer session with payload, 8 ban applied.
 journals recorded with --listen carry nondeterministic network input
 and are not replayable by proteusctl party; the bitwise contract holds
 for scheduled sessions without --listen.
+
+event 8 has two producers since r3: the connectome detector (cause 2)
+and the immune-scope credential-stuffing counter (cause 0, the
+connectome is not in that path). cause stays a 2-bit mask and the
+column set is unchanged; readers that need the producer test cause.
+

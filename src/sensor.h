@@ -58,9 +58,11 @@ typedef struct sensor sensor_t;
 sensor_t* sensor_init(void);
 /* wire in one engine tick: accept on fd, classify, expire. event codes:
  * 1 scan event, 2 session event. *last_scan_ip carries the newest
- * scanning peer */
+ * scanning peer. *ban_ip is set to the source of a credential-stuffing
+ * burst (standard security, not the connectome path) or 0 */
 int  sensor_tick(sensor_t* sn, int fd, double t_ms, trust_t* tr,
-                 uint32_t* last_scan_ip, int* any_scan, int* any_session);
+                 uint32_t* last_scan_ip, int* any_scan, int* any_session,
+                 uint32_t* ban_ip);
 /* 1 when the source presented a live registration token recently */
 int  sensor_trusted(const sensor_t* sn, uint32_t ip, double t_ms);
 /* ban an ip for the ttl, 1 when the list changed */

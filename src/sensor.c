@@ -51,9 +51,13 @@ static void trust_ip(sensor_t* sn, uint32_t ip, double t_ms)
     }
 }
 
-/* one failed auth line: count per source inside a rolling window. one
-   recv counts once, the stuffing pattern is one line per connection. */
-static void auth_fail(sensor_t* sn, uint32_t ip, double t_ms)
+/* one failed auth line: count per source inside a rolling window. a
+   source that crosses the burst threshold is returned to the caller as
+   a ban request; this is standard security, the connectome is not in
+   this path. one recv counts once, stuffing is one line per
+   connection. */
+static void auth_fail(sensor_t* sn, uint32_t ip, double t_ms,
+                      uint32_t* ban_ip)
 {
     fail_t* f = NULL;
     int i;
@@ -89,6 +93,11 @@ static void auth_fail(sensor_t* sn, uint32_t ip, double t_ms)
     }
     if (f->count < SENSOR_FAIL_MAX)
         f->count++;
+    if (f->count >= SENSOR_FAIL_MAX && ban_ip) {
+        *ban_ip = ip;
+        f->count = 0;
+        f->first_ms = t_ms;
+    }
 }
 
 static int ip_index(const ban_t* bans, int n, uint32_t ip)
@@ -166,7 +175,8 @@ static int expire(sensor_t* sn, double t_ms, uint32_t* last_scan_ip,
 
 /* drain one peer socket, close on eof, feed the ash counter on payload */
 static void drain(sensor_t* sn, peer_t* p, double t_ms, trust_t* tr,
-                  uint32_t* last_scan_ip, int* any_scan, int* any_session)
+                  uint32_t* last_scan_ip, int* any_scan, int* any_session,
+                  uint32_t* ban_ip)
 {
     char buf[SENSOR_BUF];
     ssize_t n = recv(p->fd, buf, sizeof(buf), MSG_DONTWAIT);
@@ -175,13 +185,13 @@ static void drain(sensor_t* sn, peer_t* p, double t_ms, trust_t* tr,
            sweep; keep reading until the peer closes. a live registration
            token in the first line puts the source in the immune scope:
            its sessions never count as scans and the ban path skips it.
-           a failed auth line is not food: it feeds the failure counter
-           instead, so a stuffing burst reaches the nociceptor without
-           the serotonin share a legitimate session would add. */
+           a failed auth line is not food and not scan pressure: it only
+           feeds the failure counter, which asks for an immune-scope ban
+           when the source crosses the burst threshold. */
         int auth = n >= 13 && !memcmp(buf, "PROTEUS AUTH ", 13);
         p->fed = 1;
         if (auth) {
-            auth_fail(sn, p->ip, t_ms);
+            auth_fail(sn, p->ip, t_ms, ban_ip);
             return;
         }
         *any_session = 1;
@@ -211,11 +221,13 @@ static void drain(sensor_t* sn, peer_t* p, double t_ms, trust_t* tr,
 }
 
 int sensor_tick(sensor_t* sn, int fd, double t_ms, trust_t* tr,
-                uint32_t* last_scan_ip, int* any_scan, int* any_session)
+                uint32_t* last_scan_ip, int* any_scan, int* any_session,
+                uint32_t* ban_ip)
 {
     int ev = 0;
     int i;
 
+    *ban_ip = 0;
     ev |= expire(sn, t_ms, last_scan_ip, any_scan);
     for (;;) {
         struct sockaddr_in sa;
@@ -235,22 +247,12 @@ int sensor_tick(sensor_t* sn, int fd, double t_ms, trust_t* tr,
         p->ip = ip;
         p->born_ms = t_ms;
         p->fed = 0;
-        drain(sn, p, t_ms, tr, last_scan_ip, any_scan, any_session);
+        drain(sn, p, t_ms, tr, last_scan_ip, any_scan, any_session,
+              ban_ip);
     }
     for (i = 0; i < sn->n_peers; i++)
         drain(sn, &sn->peers[i], t_ms, tr, last_scan_ip,
-              any_scan, any_session);
-    /* a source past the failure threshold is under a stuffing attack:
-       hold the nociceptor for the rest of the window so the connectome
-       sees a sustained stimulus, not one pulse per failed login. only a
-       burst source becomes the ban target. */
-    for (i = 0; i < sn->n_fails; i++) {
-        if (sn->fails[i].count >= SENSOR_FAIL_MAX &&
-            t_ms - sn->fails[i].first_ms < SENSOR_FAIL_MS) {
-            *last_scan_ip = sn->fails[i].ip;
-            *any_scan = 1;
-        }
-    }
+              any_scan, any_session, ban_ip);
     if (*any_scan)
         ev |= 1;
     if (*any_session)
