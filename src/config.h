@@ -72,8 +72,11 @@
  * TICK_CATCHUP_MAX ticks per IDLE_POLL_MS, which bounds idle cpu near
  * TICK_CATCHUP_MAX * tick_cost / IDLE_POLL_MS (~0.5% at 0.46 ms/tick),
  * and a burst still brings the empty ticks the detector statistics were
- * calibrated on. the reaper shares the poll deadline. */
-#define TICK_CATCHUP_MAX 10
+ * calibrated on. the reaper shares the poll deadline. h10: the varshney
+ * core costs ~1.25 ms/tick (was 0.46), so the clamp drops 10 -> 6 to
+ * hold the idle bound under 0.8 percent (6 x 1.25 ms / 1000 ms), part
+ * of the declared engine bump, recalibration runs under this value */
+#define TICK_CATCHUP_MAX 6
 #define IDLE_POLL_MS     1000
 
 /* ---- r1: threat detector ---- */
