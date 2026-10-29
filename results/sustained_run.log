@@ -1,0 +1,22 @@
+seed 1001: burst fires=1 sustained fires=2
+seed 1002: burst fires=2 sustained fires=1
+seed 1003: burst fires=2 sustained fires=2
+seed 1004: burst fires=1 sustained fires=1
+seed 1005: burst fires=2 sustained fires=2
+seed 1006: burst fires=0 sustained fires=0
+seed 1007: burst fires=0 sustained fires=0
+seed 1008: burst fires=2 sustained fires=2
+seed 1009: burst fires=0 sustained fires=0
+seed 1010: burst fires=0 sustained fires=0
+seed 1011: burst fires=0 sustained fires=0
+seed 1012: burst fires=1 sustained fires=1
+seed 1013: burst fires=2 sustained fires=1
+seed 1014: burst fires=2 sustained fires=2
+seed 1015: burst fires=2 sustained fires=2
+seed 1016: burst fires=1 sustained fires=1
+seed 1017: burst fires=0 sustained fires=0
+seed 1018: burst fires=1 sustained fires=1
+seed 1019: burst fires=0 sustained fires=0
+seed 1020: burst fires=1 sustained fires=1
+verdict: NOT FALSIFIED: detector not degraded under sustained matched dose
+wrote results/sustained/sustained_results.json

@@ -1,0 +1,268 @@
+{
+  "hypothesis": "h5 sustained_load_fatigue",
+  "registration": "docs/hypotheses.md r3 phase B",
+  "burst_fixture": "tests/fixtures/burst.csv",
+  "dose_match": {
+    "n_events": 31,
+    "total_amp": 31.0,
+    "per_event_amp": 1.0
+  },
+  "n_seeds": 20,
+  "seeds": "1001..1020",
+  "duration_s": 600,
+  "alpha": 0.0083,
+  "outcomes": [
+    {
+      "seed": 1001,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.044388453718208806
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.0038207726409120574
+      }
+    },
+    {
+      "seed": 1002,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.05575024165861214
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.1927302089930331
+      }
+    },
+    {
+      "seed": 1003,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.03992403586547203
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.041280490650311696
+      }
+    },
+    {
+      "seed": 1004,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.04831092296923479
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.07109939668677628
+      }
+    },
+    {
+      "seed": 1005,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.04359678010732949
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.045435452151594745
+      }
+    },
+    {
+      "seed": 1006,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.030259491350287954
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.05748881703943208
+      }
+    },
+    {
+      "seed": 1007,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.015001233292223746
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.02854891503616557
+      }
+    },
+    {
+      "seed": 1008,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.011067464417853582
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.0029786340455321804
+      }
+    },
+    {
+      "seed": 1009,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.07350874970834465
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.02838015399486662
+      }
+    },
+    {
+      "seed": 1010,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.04996910102996549
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.06737095430152333
+      }
+    },
+    {
+      "seed": 1011,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.05328742375254156
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.0803760541315293
+      }
+    },
+    {
+      "seed": 1012,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.07253738208726371
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.051437385420486
+      }
+    },
+    {
+      "seed": 1013,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": -0.03825475817472717
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.08438318722709284
+      }
+    },
+    {
+      "seed": 1014,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.10825475817472918
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.07822142595246806
+      }
+    },
+    {
+      "seed": 1015,
+      "burst": {
+        "det_fired": 2,
+        "mean_det_score_last300s": 0.010947801739941967
+      },
+      "sustained": {
+        "det_fired": 2,
+        "mean_det_score_last300s": -0.018953201559946932
+      }
+    },
+    {
+      "seed": 1016,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.07843245225159155
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.05312159594680165
+      }
+    },
+    {
+      "seed": 1017,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.08641775274157548
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.030799406686443858
+      }
+    },
+    {
+      "seed": 1018,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.03465747808406393
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.1372642578580714
+      }
+    },
+    {
+      "seed": 1019,
+      "burst": {
+        "det_fired": 0,
+        "mean_det_score_last300s": 0.03548081730609048
+      },
+      "sustained": {
+        "det_fired": 0,
+        "mean_det_score_last300s": -0.016778607379754396
+      }
+    },
+    {
+      "seed": 1020,
+      "burst": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.07728049065031128
+      },
+      "sustained": {
+        "det_fired": 1,
+        "mean_det_score_last300s": 0.01146655111496322
+      }
+    }
+  ],
+  "stats": {
+    "det_fired": {
+      "mean_diff_sustained_minus_burst": -0.05,
+      "ci95": [
+        -0.2,
+        0.1
+      ],
+      "n": 20,
+      "sd_diff": 0.3940344628262061,
+      "cohens_dz": -0.1268924541304732,
+      "wilcoxon_W": 2.0,
+      "wilcoxon_p": 0.5637028616507731
+    },
+    "mean_det_score_last300s": {
+      "mean_diff_sustained_minus_burst": 0.0007958784707174967,
+      "ci95": [
+        -0.02587261378787396,
+        0.029998986450451775
+      ],
+      "n": 20,
+      "sd_diff": 0.06864873915640816,
+      "cohens_dz": 0.011593489997014806,
+      "wilcoxon_W": 91.0,
+      "wilcoxon_p": 0.6215133666992188
+    }
+  },
+  "verdict": "NOT FALSIFIED: detector not degraded under sustained matched dose",
+  "verdict_detail": {
+    "burst_fires_total": 20,
+    "sustained_fires_total": 19,
+    "degradation_test": "wilcoxon p < 0.0083 AND mean diff < 0"
+  }
+}

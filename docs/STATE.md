@@ -34,6 +34,7 @@ updated: 2026-10-29
 | h1-h6 registration | done, before runs | docs/hypotheses.md r3 phase B: h1-h6 mapped to г1-г7 + atlas_spec; seeds 101..110 cal / 1001..1100 train / 2001..2100 held out; alpha 0.0083 per h, power > 0.99 at d >= 0.5; г3 NOT_RUN (no population harness) | 051555a | runs |
 | phase B train run | running | atlas_runner bio 1001..1100 -> g1_g7_runner (flat/seeded/random + g1-g7 analysis); smoke: 30 s/party, 208-214 moves, all 3 conditions verified; ~400 parties ~4 h wall, checkpoint+resume | this commit | verdicts after the chain; then held-out validate 2001..2100 |
 | h5 sustained tool | written, registered first | tools/sustained_attack.py: 20 train seeds paired, dose-matched sustained schedule frozen in the tool, wilcoxon + CI + d; run launched | this commit | verdict into hypotheses_results |
+| h5 verdict | NOT FALSIFIED, first phase B verdict | fires 20 burst vs 19 sustained, n=20 paired, dz=-0.13, p=0.564; det_score last 300 s diff +0.001. bench desensitization = mixed/order effect, not sustained-rate | this commit | h1-h4, h6 from the training chain |
 
 ## known gaps (no hiding)
 

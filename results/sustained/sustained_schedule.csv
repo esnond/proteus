@@ -1,0 +1,34 @@
+# proteus events v1
+# t_ms,kind,amp
+# sustained: 31 events, total amp 31.0000 matched to tests/fixtures/burst.csv
+19354,burst,1.0000
+38708,burst,1.0000
+58062,burst,1.0000
+77416,burst,1.0000
+96770,burst,1.0000
+116124,burst,1.0000
+135478,burst,1.0000
+154832,burst,1.0000
+174186,burst,1.0000
+193540,burst,1.0000
+212894,burst,1.0000
+232248,burst,1.0000
+251602,burst,1.0000
+270956,burst,1.0000
+290310,burst,1.0000
+309664,burst,1.0000
+329018,burst,1.0000
+348372,burst,1.0000
+367726,burst,1.0000
+387080,burst,1.0000
+406434,burst,1.0000
+425788,burst,1.0000
+445142,burst,1.0000
+464496,burst,1.0000
+483850,burst,1.0000
+503204,burst,1.0000
+522558,burst,1.0000
+541912,burst,1.0000
+561266,burst,1.0000
+580620,burst,1.0000
+599974,burst,1.0000

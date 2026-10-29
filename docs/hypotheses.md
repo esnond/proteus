@@ -324,6 +324,17 @@ the sustained direction; means, CI, d published.
 published as a negative result and a defense boundary (the bench h7
 datum already hints at desensitization).
 
+**Measured 2026-10-29 (headless, n=20 paired, train seeds 1001..1020)**:
+NOT falsified. fires burst 20 vs sustained 19 (per-party mean diff
+-0.05, 95% CI [-0.20, 0.10], dz = -0.13, wilcoxon p = 0.564); mean
+det_score over the last 300 s diff +0.001 (CI [-0.026, 0.030],
+dz = 0.01, p = 0.622). dose matched by construction (31 events, total
+amp equal, frozen in tools/sustained_attack.py before the run). the
+bench desensitization (h7 amendment: mixed traffic left det_score at
+16-20) is therefore an ORDER/mixed-input effect, not a sustained-rate
+effect; the two records stand side by side. data:
+results/sustained/sustained_results.json.
+
 ## h6 observer_models (theory г2, г4, г6)
 **Hypothesis**: (a, г2) a prediction attacker beats a current-state
 attacker on the same surface; (b, г4) active probing lowers L below
