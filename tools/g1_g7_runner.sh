@@ -138,7 +138,7 @@ run_g1() {
         > "$OUT_DIR/g1_flat.json" 2>>"$LOG_FILE"
 
     # Compare
-    python3 << 'PYEOF' >> "$LOG_FILE" 2>&1
+    python3 << PYEOF >> "$LOG_FILE" 2>&1
 import json, sys
 with open('$OUT_DIR/g1_bio.json') as f: bio = json.load(f)
 with open('$OUT_DIR/g1_flat.json') as f: flat = json.load(f)
@@ -166,7 +166,7 @@ run_g2() {
     # Attacker model 1: predicts next port (prediction attack)
     # Attacker model 2: knows current port (state knowledge)
     # Run on bio journals
-    python3 << 'PYEOF' > "$OUT_DIR/g2_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g2_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import analyze_learnability_batch, compare_conditions
@@ -198,7 +198,7 @@ run_g3() {
     # For each seed (scheme instance), compute L
     # Regress L against scheme frequency in population
     # Since each seed is unique, frequency = 1/N; but we can group by schedule type
-    python3 << 'PYEOF' > "$OUT_DIR/g3_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g3_results.json" 2>>"$LOG_FILE"
 import json, sys, os, numpy as np
 sys.path.insert(0, 'tools')
 from learnability import compute_learnability_all
@@ -237,7 +237,7 @@ run_g4() {
     local exp_name="g4"
     is_completed "$exp_name" && { log "G4 already done, skipping"; return 0; }
 
-    python3 << 'PYEOF' > "$OUT_DIR/g4_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g4_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import compute_learnability_all
@@ -278,7 +278,7 @@ run_g5() {
     local exp_name="g5"
     is_completed "$exp_name" && { log "G5 already done, skipping"; return 0; }
 
-    python3 << 'PYEOF' > "$OUT_DIR/g5_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g5_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import analyze_learnability_batch
@@ -332,7 +332,7 @@ run_g6() {
         --duration "$DURATION_S" \
         >> "$LOG_FILE" 2>&1
 
-    python3 << 'PYEOF' > "$OUT_DIR/g6_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g6_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from observer_reconstruction import GeneratorReconstructionObserver, read_journal
@@ -383,7 +383,7 @@ run_g7() {
     # Seeded already run for g6
     local seeded_dir="$JOURNALS_DIR/seeded_train"
 
-    python3 << 'PYEOF' > "$OUT_DIR/g7_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g7_results.json" 2>>"$LOG_FILE"
 import json, sys, os, numpy as np
 sys.path.insert(0, 'tools')
 from learnability import compare_conditions
@@ -446,7 +446,7 @@ run_g7
 # AGGREGATE RESULTS
 # ============================================================
 log "=== AGGREGATING RESULTS ==="
-python3 << 'PYEOF' > "$OUT_DIR/g1_g7_results.csv" 2>>"$LOG_FILE"
+python3 << PYEOF > "$OUT_DIR/g1_g7_results.csv" 2>>"$LOG_FILE"
 import json, csv, os, glob
 
 rows = []

@@ -139,7 +139,7 @@ validate_g1() {
     log "=== VALIDATE G1 ==="
     is_completed "g1" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g1_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g1_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import analyze_learnability_batch
@@ -167,7 +167,7 @@ validate_g2() {
     log "=== VALIDATE G2 ==="
     is_completed "g2" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g2_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g2_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import analyze_learnability_batch
@@ -185,7 +185,7 @@ validate_g3() {
     log "=== VALIDATE G3 ==="
     is_completed "g3" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g3_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g3_results.json" 2>>"$LOG_FILE"
 import json, sys, os, numpy as np
 sys.path.insert(0, 'tools')
 from learnability import compute_learnability_all
@@ -211,7 +211,7 @@ validate_g4() {
     log "=== VALIDATE G4 ==="
     is_completed "g4" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g4_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g4_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import compute_learnability_all
@@ -244,7 +244,7 @@ validate_g5() {
     log "=== VALIDATE G5 ==="
     is_completed "g5" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g5_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g5_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from learnability import analyze_learnability_batch
@@ -271,7 +271,7 @@ validate_g6() {
     log "=== VALIDATE G6 ==="
     is_completed "g6" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g6_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g6_results.json" 2>>"$LOG_FILE"
 import json, sys, os
 sys.path.insert(0, 'tools')
 from observer_reconstruction import GeneratorReconstructionObserver
@@ -293,7 +293,7 @@ validate_g7() {
     log "=== VALIDATE G7 (GATE CRITERION) ==="
     is_completed "g7" && return 0
 
-    python3 << 'PYEOF' > "$OUT_DIR/g7_results.json" 2>>"$LOG_FILE"
+    python3 << PYEOF > "$OUT_DIR/g7_results.json" 2>>"$LOG_FILE"
 import json, sys, os, numpy as np
 sys.path.insert(0, 'tools')
 from learnability import compare_conditions
@@ -357,7 +357,7 @@ validate_g7
 
 # Aggregate
 log "=== AGGREGATING VALIDATION RESULTS ==="
-python3 << 'PYEOF' > "$OUT_DIR/g1_g7_results.csv" 2>>"$LOG_FILE"
+python3 << PYEOF > "$OUT_DIR/g1_g7_results.csv" 2>>"$LOG_FILE"
 import json, csv, os, glob
 
 rows = []
@@ -396,7 +396,7 @@ PYEOF
 if [[ -f "results/hypotheses/g1_g7_results.csv" ]]; then
     log ""
     log "=== TRAIN vs VALIDATION COMPARISON ==="
-    python3 << 'PYEOF' 2>>"$LOG_FILE"
+    python3 << PYEOF 2>>"$LOG_FILE"
 import pandas as pd
 train = pd.read_csv('results/hypotheses/g1_g7_results.csv')
 valid = pd.read_csv('$OUT_DIR/g1_g7_results.csv')
