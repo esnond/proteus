@@ -39,6 +39,12 @@
  * noise (0.4 mv per sqrt ms), mirrors readme limitations */
 #define NOISE_SCALE      1.0f
 
+/* r2.5 idle clock: after this much quiet wall time the tick period is
+ * multiplied by idle_divisor. the biological clock slows, the listener is
+ * polled so a SYN still wakes the loop immediately. divisor 1 disables */
+#define IDLE_WINDOW_MS   1000
+#define IDLE_DIVISOR_MAX 100
+
 /* ---- r1: threat detector ---- */
 
 /* dense matched filter window, ms of simulated time, r1 spec */
@@ -80,3 +86,6 @@
 #define SER_INJ_PER_SHARE 0.120f
 
 #endif
+
+/* ban ttl, ms of session time */
+#define BAN_TTL_MS 60000

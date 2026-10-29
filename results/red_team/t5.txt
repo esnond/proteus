@@ -1,0 +1,1 @@
+registered=32 last_reply=denied

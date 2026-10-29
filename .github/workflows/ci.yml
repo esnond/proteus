@@ -1,0 +1,33 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update && sudo apt-get install -y libmnl-dev pkg-config strace cppcheck
+      - name: build
+        run: make
+      - name: full gate
+        run: make test
+      - name: seccomp profile from strace
+        run: sh tools/seccomp_gen.sh && make clean && make SECCOMP=1 && ./proteusd -s 1 -d 1 -o /dev/null --seccomp
+  netns-attacks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update && sudo apt-get install -y libmnl-dev pkg-config
+      - name: build
+        run: make tools
+      - name: netns and attack scenarios
+        run: sh tests/run_attack_scenarios.sh
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update && sudo apt-get install -y libmnl-dev pkg-config cppcheck
+      - name: cppcheck
+        run: cppcheck --std=c99 --enable=warning,portability --error-exitcode=2 --inline-suppr -Isrc -Isrc/petri src/ tools/ --suppress=missingIncludeSystem

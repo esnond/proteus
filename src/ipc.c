@@ -15,8 +15,10 @@
 
 #include "ipc.h"
 #include "config.h"
+#include "trust.h"
 
-enum { CMD_STATUS, CMD_LOG, CMD_LOG_JSON, CMD_LOG_QUIET, CMD_UNKNOWN };
+enum { CMD_STATUS, CMD_LOG, CMD_LOG_JSON, CMD_LOG_QUIET, CMD_REGISTER,
+       CMD_UNKNOWN };
 
 struct ipc {
     int fd;
@@ -120,6 +122,8 @@ static int parse_cmd(const char* buf, ssize_t n)
         return CMD_UNKNOWN;
     if (strncmp(buf, "status", 6) == 0 && n >= 6)
         return CMD_STATUS;
+    if (strncmp(buf, "register", 8) == 0)
+        return CMD_REGISTER;
     if (strncmp(buf, "log", 3) == 0) {
         const char* rest = buf + 3;
         if (strstr(rest, "json"))
@@ -150,7 +154,8 @@ static void json_line(const char* line, char* out, size_t outn)
              t, ava, avb, ash, ser, oct, dop, score, port, cause, ev);
 }
 
-void ipc_tick(ipc_t* ipc, const char* status_line, const char* line)
+void ipc_tick(ipc_t* ipc, trust_t* tr, double now_ms,
+              const char* status_line, const char* line)
 {
     int i;
 
@@ -173,6 +178,35 @@ void ipc_tick(ipc_t* ipc, const char* status_line, const char* line)
             continue;
         }
         cmd[n] = '\0';
+        if (parse_cmd(cmd, n) == CMD_REGISTER) {
+            /* registration is stricter than status: owner or root only,
+               never a plain socket-group member */
+            char token[65];
+            const char* prof = cmd + 8;
+            char reply[96];
+            int ok = 0;
+            uid_t euid = geteuid();
+            while (*prof == ' ')
+                prof++;
+            if ((cr.uid == 0 || cr.uid == euid) &&
+                trust_register(tr, cr.pid, cr.uid, *prof ? prof : NULL,
+                               now_ms, token, sizeof(token)))
+                ok = 1;
+            if (ok)
+                snprintf(reply, sizeof(reply), "token=%s ttl_ms=%d\n",
+                         token, (int)TRUST_TOKEN_TTL_MS);
+            else
+                snprintf(reply, sizeof(reply), "denied\n");
+            send(c, reply, strlen(reply), 0);
+            close(c);
+            continue;
+        }
+        if (parse_cmd(cmd, n) == CMD_UNKNOWN) {
+            /* an unknown or oversized command must not occupy a slot:
+               the peer never gets a reply, so holding it is a leak */
+            close(c);
+            continue;
+        }
         for (i = 0; i < IPC_CLIENTS_MAX; i++) {
             if (ipc->client[i] < 0) {
                 ipc->client[i] = c;

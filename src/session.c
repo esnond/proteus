@@ -1,4 +1,6 @@
+#include <errno.h>
 #include <math.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,12 +17,17 @@
 #include "motor.h"
 #include "rate.h"
 #include "reflex.h"
+#include "nft.h"
+#include "seccomp.h"
+#include "sensor.h"
+#include "trust.h"
 #include "session.h"
 
 /* journal event codes, see docs/schemas.md */
 enum {
     JEV_NONE = 0, JEV_BURST, JEV_LEGIT,
-    JEV_DET_ARMED, JEV_DET_FIRED, JEV_DET_COOL
+    JEV_DET_ARMED, JEV_DET_FIRED, JEV_DET_COOL,
+    JEV_NET_SCAN, JEV_NET_SESSION, JEV_BAN
 };
 enum { CAUSE_NONE = 0, CAUSE_ENDO = 1, CAUSE_DET = 2 };
 
@@ -51,11 +58,13 @@ static void status_line(char* buf, int n, const session_stats_t* st,
 {
     snprintf(buf, (size_t)n,
              "port=%d det=%s ser=%.3f oct=%.3f moves_a=%ld moves_b=%ld "
-             "moves_ab=%ld det_firings=%ld t_ms=%.0f rss_kb=%ld "
-             "cpu_ms=%.0f\n",
+             "moves_ab=%ld det_firings=%ld scans=%ld sessions=%ld "
+             "bans=%ld nft=%d t_ms=%.0f rss_kb=%ld cpu_ms=%.0f trust=%ld\n",
              st->port, det_state, st->ser, st->oct, st->moves_a,
-             st->moves_b, st->moves_ab, st->det_firings, st->t_ms,
-             st->rss_kb, st->cpu_ms);
+             st->moves_b, st->moves_ab, st->det_firings, st->net_scans,
+             st->net_sessions, st->bans, st->nft_up, st->t_ms,
+             st->rss_kb,
+             st->cpu_ms, st->trust);
 }
 
 int session_run(const session_cfg_t* cfg, session_stats_t* stats)
@@ -68,8 +77,13 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
     rate_t r_burst, r_legit;
     journal_t jr;
     ipc_t* ipc = NULL;
+    sensor_t* sn = NULL;
+    trust_t* tr = NULL;
+    nft_t* nf = NULL;
+    uint32_t last_scan_ip = 0;
     double t_ms = 0.0;
     double last_tick_real = 0.0;
+    double last_net_wall = 0.0;   /* 0: quiet since start */
     int n_events = 0;
     int rc = 0;
 
@@ -84,7 +98,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         fprintf(stderr, "bridge: engine init failed\n");
         return 1;
     }
-    if (motor_init(&mo) != 0) {
+    if (motor_init(&mo, cfg->bind_addr, cfg->listen) != 0) {
         fprintf(stderr, "motor: no free port in the window\n");
         bridge_free(&br);
         return 1;
@@ -101,6 +115,70 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
     rate_init(&r_burst);
     rate_init(&r_legit);
     journal_open(&jr, cfg->journal_out, cfg->seed, n_events);
+    if (cfg->listen && (sn = sensor_init()) == NULL) {
+        fprintf(stderr, "sensor: init failed\n");
+        rc = 1;
+    }
+    tr = trust_init();
+    if (!tr) {
+        fprintf(stderr, "trust: init failed\n");
+        rc = 1;
+    }
+    if (cfg->nft) {
+        /* the real firewall backend; without cap_net_admin it fails and
+           the daemon says so, the userspace ban list carries on */
+        const char* step = "open";
+        int bad = 0;
+        nf = nft_open();
+        if (nf == NULL) {
+            bad = 1;
+        } else if (nft_table_create(nf, NFT_TABLE_NAME) != 0) {
+            step = "table";
+            bad = 1;
+        } else if (nft_chain_add(nf, NFT_TABLE_NAME, NFT_CHAIN_PRE,
+                                 P_NF_INET_PRE_ROUTING, -300,
+                                 P_NF_ACCEPT) != 0) {
+            step = "chain prerouting";
+            bad = 1;
+        } else if (nft_chain_add(nf, NFT_TABLE_NAME, NFT_CHAIN_TRUST,
+                                 P_NF_INET_LOCAL_IN, -300,
+                                 P_NF_ACCEPT) != 0) {
+            step = "chain trust";
+            bad = 1;
+        } else if (nft_chain_add(nf, NFT_TABLE_NAME, NFT_CHAIN_IN,
+                                 P_NF_INET_LOCAL_IN, 0,
+                                 P_NF_ACCEPT) != 0) {
+            step = "chain input";
+            bad = 1;
+        } else if (nft_set_add(nf, NFT_TABLE_NAME, NFT_SET_BANNED) != 0) {
+            step = "set";
+            bad = 1;
+        } else if (nft_rule_add_mark_accept(nf, NFT_TABLE_NAME,
+                                            NFT_CHAIN_TRUST,
+                                            TRUST_MARK) != 0) {
+            step = "mark rule";
+            bad = 1;
+        } else if (nft_commit(nf) != 0) {
+            step = "commit";
+            bad = 1;
+        }
+        if (bad) {
+            fprintf(stderr, "nft: backend unavailable at %s (%s), "
+                    "userspace bans only\n", step, strerror(errno));
+            nft_close(nf);
+            nf = NULL;
+        }
+    }
+    stats->nft_up = nf != NULL;
+    if (cfg->seccomp && seccomp_install() != 0) {
+        fprintf(stderr, "seccomp: refused to run without a filter\n");
+        nft_close(nf);
+        sensor_close(sn);
+        trust_close(tr);
+        motor_close(&mo);
+        bridge_free(&br);
+        return 1;
+    }
 
     while (t_ms < cfg->duration_s * 1000.0 && rc == 0) {
         char line[JOURNAL_LINE_MAX];
@@ -114,20 +192,61 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         if (ipc || cfg->realtime)
             clock_gettime(CLOCK_MONOTONIC, &now);
         if (cfg->realtime) {
-            /* pace the tick loop at one wall clock tick, the live ipc
-               channel is only useful in this mode */
-            double due = last_tick_real + (double)TICK_MS / 1000.0;
+            /* pace the tick loop at one wall clock tick. while the network
+               has been quiet for IDLE_WINDOW_MS the period stretches by
+               idle_divisor: the biological clock slows down (documented
+               trade-off), but the listener stays in poll so a SYN wakes
+               the loop at once, not after the stretched period */
             double cur = now.tv_sec + now.tv_nsec * 1e-9;
+            int idle = cfg->idle_divisor > 1 &&
+                       (cur - last_net_wall) * 1000.0 >= IDLE_WINDOW_MS;
+            double period = (double)TICK_MS * (idle ? cfg->idle_divisor : 1)
+                            / 1000.0;
+            double due = last_tick_real + period;
             if (cur < due) {
-                struct timespec slp;
-                slp.tv_sec = 0;
-                slp.tv_nsec = (long)((due - cur) * 1e9);
-                nanosleep(&slp, NULL);
+                double wait = due - cur;
+                if (idle && mo.fd >= 0) {
+                    struct pollfd pf;
+                    pf.fd = mo.fd;
+                    pf.events = POLLIN;
+                    pf.revents = 0;
+                    poll(&pf, 1, (int)(wait * 1000.0));
+                } else {
+                    struct timespec slp;
+                    slp.tv_sec = (time_t)wait;
+                    slp.tv_nsec = (long)((wait - (double)slp.tv_sec) * 1e9);
+                    nanosleep(&slp, NULL);
+                }
             }
         }
         if (ipc || cfg->realtime) {
             clock_gettime(CLOCK_MONOTONIC, &now);
             last_tick_real = now.tv_sec + now.tv_nsec * 1e-9;
+        }
+
+        if (sn) {
+            int any_scan = 0, any_sess = 0;
+            sensor_tick(sn, mo.fd, t_ms, tr, &last_scan_ip, &any_scan,
+                        &any_sess);
+            trust_reap(tr, t_ms);
+            if (any_scan) {
+                /* a real scan shaped connection pushes the nociceptor
+                   and the density counter, same channels as r0 events */
+                bridge_ash(&br, 1.0f);
+                rate_add(&r_burst, t_ms);
+                stats->net_scans++;
+                ev = ev > JEV_NET_SCAN ? ev : JEV_NET_SCAN;
+            }
+            if (any_sess) {
+                rate_add(&r_legit, t_ms);
+                stats->net_sessions++;
+                ev = ev > JEV_NET_SESSION ? ev : JEV_NET_SESSION;
+            }
+            if (any_scan || any_sess) {
+                struct timespec nw;
+                clock_gettime(CLOCK_MONOTONIC, &nw);
+                last_net_wall = nw.tv_sec + nw.tv_nsec * 1e-9;
+            }
         }
 
         while (sc.cursor < sc.n &&
@@ -186,6 +305,28 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
         if (reflex_update(&rf, ava, t_ms))
             cause |= CAUSE_ENDO;
 
+        if ((cause & CAUSE_DET) && sn && last_scan_ip &&
+            !sensor_trusted(sn, last_scan_ip, t_ms) &&
+            sensor_is_banned(sn, last_scan_ip, t_ms) == 0) {
+            sensor_ban(sn, last_scan_ip, t_ms);
+            if (nf) {
+                /* the set is the visible ban record, the drop rule is
+                   the actual enforcement: a set with no rule matching
+                   it would not drop anything */
+                if (nft_set_ban(nf, NFT_TABLE_NAME, NFT_SET_BANNED,
+                                last_scan_ip) != 0 ||
+                    nft_rule_add_drop(nf, NFT_TABLE_NAME, NFT_CHAIN_IN,
+                                      last_scan_ip, 0) != 0) {
+                    fprintf(stderr, "nft: queue failed at t=%.2f\n", t_ms);
+                } else if (nft_commit(nf) != 0) {
+                    fprintf(stderr, "nft: commit failed at t=%.2f: %s\n",
+                            t_ms, strerror(errno));
+                }
+            }
+            stats->bans++;
+            ev = ev > JEV_BAN ? ev : JEV_BAN;
+        }
+
         if (cause) {
             if (motor_move(&mo) < 0) {
                 fprintf(stderr, "motor: window exhausted at t=%.2f\n",
@@ -213,6 +354,7 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
 
         if (ipc) {
             stats->port = mo.port;
+            stats->trust = trust_active(tr);
             stats->det_state = det.state;
             stats->ser = ser;
             stats->oct = oct;
@@ -221,9 +363,12 @@ int session_run(const session_cfg_t* cfg, session_stats_t* stats)
             stats->t_ms = t_ms;
             status_line(stat, sizeof(stat), stats,
                         det_state_name(det.state));
-            ipc_tick(ipc, stat, line);
+            ipc_tick(ipc, tr, t_ms, stat, line);
         }
     }
+    sensor_close(sn);
+    trust_close(tr);
+    nft_close(nf);
     ipc_close(ipc);
     motor_close(&mo);
     bridge_free(&br);

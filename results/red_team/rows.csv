@@ -1,0 +1,12 @@
+t1_token_forgery,PASS,8 registrations, unique 256-bit tokens, getrandom source (src/trust.c random_bytes)
+t2_replay_after_death,PASS,registrar exited, token revoked within 800 ms
+t12_restart_persistence,PASS,fresh daemon has an empty token table, stale tokens cannot work
+t5_table_exhaustion,PASS,cap honoured at 32 entries, extra registration denied
+t2b_reaper_window,PASS,after the dead registrars: trust=0 (reap period 500 ms)
+t7_registration_fuzz,PASS,7 malformed cases, daemon alive, cases=7, trust=2
+t4_foreign_uid,BENCH,needs a second uid: sudo -u nobody ./proteusctl register --socket /tmp/rt.sock must print denied (script: docs/BENCH_HANDOFF.md)
+t6_token_timing,BENCH,unit harness not in the sandbox tree; method fixed: valid vs invalid token, KS p>=0.01 and |d|<0.2
+t8_seccomp_growth,PASS,profile regenerated with registration in the trace: 36 syscalls (getrandom, geteuid added), daemon survives under the filter
+t9_mark_bypass,PASS,mark is local metadata, cannot arrive from the wire; measured counter 0 on a marked local client, so the rule does not enforce today (published in docs/immune_scope.md)
+t10_detector_blindness,DOCUMENTED,a registered source is exempt by construction within the 60 s trust window; defense is the registration allowlist (owner/root), not the detector
+t11_downgrade,DOCUMENTED,unregistered traffic keeps the f1.4 numbers: 0 bans in 1600 legit sessions, 4/4 attacks banned at 30.0; the 5/10k bound needs 6000 sessions (tools/roc_sweep.sh)

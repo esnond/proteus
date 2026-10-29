@@ -25,7 +25,7 @@ columns:
 | det_score | detector matched filter, sum of ava deviations from the adapted baseline over the dense one second window |
 | port | current listening port |
 | cause | 0 none, 1 endogenous reversal, 2 detector firing, 3 both |
-| event | 0 none, 1 burst, 2 legit, 3 det_armed, 4 det_fired, 5 det_cool |
+| event | 0 none, 1 burst, 2 legit, 3 det_armed, 4 det_fired, 5 det_cool, 6 net_scan, 7 net_session, 8 ban |
 
 when several events land in one tick the journal carries the highest
 code. v1 (r0, commit e38df49) had 9 columns and no det_score/cause, v1
@@ -55,3 +55,12 @@ wilson 95% ci [0.40, 0.89]; false alarms 1.00 per 600 s, 95% ci
 [0.38, 1.62]. full record: results/cal_101_110.log,
 results/detector_threshold.csv. the baseline tau and the cooling time
 are r1 design constants, assumptions are documented in src/config.h.
+
+## r2 additions (2026-10-28)
+
+event codes 6..8 are the live wire events of the --listen mode:
+6 scan shaped connection, 7 peer session with payload, 8 ban applied by
+the detector. the column set is unchanged, v2 readers parse the file.
+journals recorded with --listen carry nondeterministic network input
+and are not replayable by proteusctl party; the bitwise contract holds
+for scheduled sessions without --listen.

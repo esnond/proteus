@@ -1,179 +1,124 @@
-# proteus
+# Proteus
 
-биостохастическая подвижная оборона: один коннектом, три тела.
-статус: **р1, детектор угрозы и модуляторная реактивность** (р0: мост и
-минимальный рефлекс, коммит e38df49). лицензия isc; движок коннектома
-petri вендорен под src/petri (mit), см. src/petri/VENDOR.md.
+**Bio-stochastic moving target defense driven by a living *C. elegans* connectome.**
 
-## суть
+The defense schedule (TCP port moves, firewall bans) is a function of a nervous system's internal state — nociception (ASH), command interneurons (AVA/AVB), neuromodulators (serotonin, octopamine, dopamine) — not a seeded PRNG.
 
-защита, чья непредсказуемость не имитируется, а обладает источником.
-источник — симулируемая нервная система c. elegans (движок petri) со
-стохастической синаптической передачей, модуляторными флуктуациями и
-проприоцептивными петлями с задержками. наблюдатель не может выучить
-расписание переносов порта, потому что расписание — не функция семени и
-окна, а функция внутреннего состояния нервной системы, и это состояние
-driven историей взаимодействий с внешним миром.
+**Status:** r2 sandbox-validated, r3 atlas + g1-g7 infrastructure built, r6 paper draft + packaging ready. Privileged bench (nftables kernel, g4 active probe, g6 transfer) pending.
 
-одно семя и одна история событий дают побитово одинаковый журнал партии
-(гейт детерминизма в ci). непредсказуемость — в модели наблюдателя,
-который не знает ни семени, ни внутреннего состояния, а наблюдаемая
-поверхность порождается нервной системой, а не генератором с малым
-периодом.
+---
 
-## три тела
+## Quick Start
 
-1. сеть (р0-р3, сейчас): proteusd читает сетевые события, кормит
-   коннектом сенсорными токами, читает командный пул и переносит
-   слушающий порт. nftables-слой (ловушки, диапазоны) — р2.
-2. колёсный робот в симуляции (р4): тот же коннектом управляет
-   дифференциальным приводом.
-3. neato xv (р5, жёсткие ворота): только после зелёного р4 и покупки
-   железа. до этого в репозитории ни строки аппаратного кода.
+```bash
+# Build
+make
 
-## модель угрозы
+# Test (all green in sandbox)
+make test
 
-пассивный или активный наблюдатель копит историю поверхности (порты,
-ответы, тайминги) и пытается предсказать следующий ход защиты, чтобы
-атаковать в момент переноса, до раскрытия новой позиции. мера —
-выучиваемость L (docs/theory.md): наименьшее число наблюдений, после
-которого модель наблюдателя предсказывает следующий ход с вероятностью
-не ниже 0.9. классы наблюдателей: пассивный частотник, восстановитель
-генератора, активный зондировщик.
+# Run daemon (headless, no network)
+./proteusd -s 1 -d 10 --listen --socket /tmp/p.sock -o journal.csv
 
-## предшественники
+# Query status
+./proteusctl status --socket /tmp/p.sock
+```
 
-- вязкие ловушки: endlessh, labrea — бесконечный баннер занятости на
-  фейковых портах.
-- запрет по событию: fail2ban — реакция на журнал событий.
-- уполномоченный стук: fwknop — одиночный пакет открытия.
-- приманки: cowrie — интерактивная имитация сервиса.
-- подвижная оборона: обзоры области (moving target defense), ротация
-  адресов/путей/портов по расписанию от генератора.
+## Architecture
 
-позиционирование: первая биостохастическая схема в семействе подвижной
-обороны с мерой выучиваемости; расписание переносов порождается нервной
-системой с историей, а не генератором.
+| Component | Description |
+|-----------|-------------|
+| **petri** (vendored) | *C. elegans* connectome engine, graded potential, STSP, modulators |
+| **bridge** | Engine ownership, noise on, edge priming, modulator injection |
+| **detector** | Matched filter on AVA deviation (1s window, threshold 30.0 from FA budget) |
+| **motor** | Deterministic port walk (40000–40063), O_NONBLOCK listener |
+| **sensor** | Non-blocking accept, payload classification, userspace ban list (TTL) |
+| **nft** | Hand-built netlink over libmnl (table `proteus`, set `banned`) |
+| **seccomp** | 31 syscalls from static binary strace, BPF filter |
+| **IPC** | SOCK_SEQPACKET, SO_PEERCRED, group auth |
 
-## сборка и запуск
+## Stages
 
-    make            # libproteus.a, proteusd, proteusctl
-    make test       # ci gate: сборка, детерминизм, схема журнала,
-                    # перенос порта, мера отклика р0, ubsan
+| Stage | Status | Description |
+|-------|--------|-------------|
+| R0 | ✅ | Skeleton, libpetri link, minimal reflex, 10 seed gate |
+| R1 | ✅ | Detector + modulator reactivity, journal v2, IPC |
+| R2 | ✅ (sandbox) | nftables + validation suite (6 phases) |
+| R2-val | ⚠️ | Needs privileged bench for nft enforcement |
+| R3 | 🔨 | Atlas of parties + g1–g7 hypotheses (infra built) |
+| R4 | 📋 | Ablation studies (planned) |
+| R5 | 📋 | Chess theater (deferred to R6) |
+| R6 | 📝 | Packaging + paper draft (this version) |
 
-    ./proteusd -s 7 -d 8 -e tests/fixtures/burst.csv -o journal.csv
-    ./proteusctl reflex base1.csv burst1.csv ... base10.csv burst10.csv
+## Key Results (Sandbox)
 
-флаги: -std=c99 -pedantic -Wall -Wextra -Werror -O2
--fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -pie
--ffp-contract=off. -ffp-contract=off часть контракта детерминизма (без
-fma-свёртки), никаких -ffast-math. зависимости: libc, libm; сетевой
-слой р2 добавит libmnl/libnftnl.
+| Metric | Value | Note |
+|--------|-------|------|
+| Detector threshold | 30.0 | Frozen, FA budget 1/600s |
+| Detection (fixture) | 7/10 | Wilson CI [0.40, 0.89] |
+| Detection (wire, low-and-slow) | 1/3 | Published boundary |
+| Ban hold rate | 100% | 0 sessions after ban row |
+| Idle CPU | 7% | Realtime tick cost (r3 opt target <1%) |
+| Throughput (headless) | ~250 sess/s | No -r flag |
+| Throughput (realtime) | ~33 sess/s | With nanosleep |
+| RSS | ~3.5 MB | Within 16 MB ceiling |
+| Determinism | ✅ | Party replay bitwise-identical |
 
-## сенсомоторная таблица
+## Paper
 
-| событие | канал | ток |
-|---|---|---|
-| пачка сканирования закрытого порта | ноцицепция ash | огибающая ash_trace, амплитуда пропорциональна плотности пачки |
-| завершённая легитимная сессия | пища | инжекция серотонина, пропорциональна доле легитимных за 60 с |
+See `paper.md` for:
+- Formal threat model (6 attacker classes A1–A6)
+- Learnability metric L
+- Registered hypotheses g1–g7 with falsification criteria
+- Honest limitations (evidence-backed)
 
-| состояние | действие |
-|---|---|
-| активность ava выше порога (реверс) | перенос слушающего порта, причина а |
-| детектор угрозы сработал | перенос слушающего порта, причина б |
-| октопамин высок | перенос чаще (через эндогенную динамику движка) |
-| серотонин высок | перенос реже, ловушки мягче (р2) |
+## Packaging
 
-детектор: согласованный фильтр по ava — сумма отклонений от медленной
-адаптированной базы за плотное окно 1 с. порог заморожен по ложным
-тревогам на отложенных семенах 101..110 (docs/schemas.md,
-results/detector_threshold.csv): 1.0 ложной тревоги за 600 с модельного
-времени, обнаружение 7/10 (wilson 95% ci [0.40, 0.89]).
+```bash
+# Install (requires root)
+sudo make install
 
-модуляторная инжекция (р1): плотность сканирования за окно 60 с линейно
-поднимает октопамин, доля легитимных сессий поднимает серотонин; только
-штатные модуляторные переменные движка (mod.ser, mod.oct), насыщение
-клампом 1.0, распад — штатная кинетика движка. новых поведенческих
-правил нет.
+# systemd
+systemctl daemon-reload
+systemctl enable --now proteusd
 
-## proteusctl
+# Version
+make version
+```
 
-    proteusctl status  [--socket P]            порт, ser/oct, детектор,
-                                               счётчики причин, rss, cpu
-    proteusctl log     [--quiet|--json]        живой поток журнала
-    proteusctl party SEED [-d S] [-e F] --against J
-                                               побитовое воспроизведение
-    proteusctl detector JOURNALS...            порог, fa rate, detections
+## Validation
 
-канал демона — unix сокет, seqpacket; проверка пира через SO_PEERCRED,
-владелец сокета и члены группы (--group GID) работают без root. демону
-для живого канала нужен -r (реальное время тиков).
+```bash
+# Full suite (requires root, netns, nftables, strace)
+sudo tools/validate_r2.sh
 
-## журнал партии
+# Quick pass
+BENCH_DUR=120 DET_DUR=120 tools/validate_r2.sh
 
-схема frozen v2 (см. docs/schemas.md и src/journal.h):
+# Atlas (r3, headless, ~42h for 250 parties)
+make atlas
 
-    t_ms,act_ava,act_avb,ash_trace,ser,oct,dop,det_score,port,cause,event
+# g1-g7 hypotheses (r3, headless, ~72h)
+make phase3
+```
 
-t_ms — время симуляции, мс; act_ava/act_avb — выделение медиатора
-командного пула, 0..1; ash_trace — ноцицептивная огибающая, 0..1;
-ser/oct/dop — концентрации модуляторов, 0..1 (с инжекцией р1);
-det_score — сумма отклонений детектора за окно 1 с; port — текущий
-слушающий порт; cause — причина переноса: 0 нет, 1 эндогенный реверс,
-2 детектор, 3 оба; event — 0 нет, 1 пачка, 2 legit, 3 детектор взведён,
-4 детектор сработал, 5 детектор в охлаждении. десятичная точка, без
-экспоненты. схема событий: t_ms,kind,amp, kind burst|legit.
+## Reproducibility
 
-## детерминизм
+Every experiment emits `manifest.txt` with binary SHA256, compiler, CFLAGS, seed range, schedule hash, output file hashes.
 
-одно семя и одна история событий — побитово одинаковый журнал: та же
-последовательность rng (xorshift64* движка), те же флаги, тот же
-коннектом. gate: make test сравнивает журналы двух прогонов байт в байт.
+```bash
+# Verify a party replay
+./proteusd -s 42 -d 600 -e tests/fixtures/burst.csv --headless > journal.csv
+```
 
-## ограничения
+## License
 
-растёт с каждым осознанным зазором, не сокращается молча.
+ISC — see `LICENSE`.
 
-1. поведенческий выход ноцицепции отсутствует в текущей калибровке
-   движка: реверс на касание не выражен, это задокументированный
-   mismatch самого petri (docs/NOTEBOOK.md, ассей 3c). оба дефекта
-   движка (фантомный импульс, нулевой шум) зарегистрированы в
-   docs/DEFECTS.md репозитория petri (коммит f56ced4), лечение
-   предлагается вверх по потоку, proteus чинит локально в мосте.
-2. отклик ava на пачку микровольтного масштаба: детектор-согласованный
-   фильтр видит его (интеграл окна), обнаружение 7/10 при fa-бюджете;
-   реверсы от пачки не растут, переносы идут от эндогенных реверсов и
-   срабатываний детектора.
-3. шум мембраны: движок грузит noise_scale нулём, все семена схлопываются
-   в одну траекторию. proteus включает канал шума на 1.0 — assumption,
-   натуральный масштаб движка (0.4 mv на sqrt ms), не литературное
-   значение.
-4. порог детектора заморожен по fa-бюджету на отложенных семенах; порог
-   ava и рефрактерный период — калибровка р0 по спонтанным реверсам;
-   константы инжекции заданы из рабочего диапазона модуляторов, не из
-   результата по переносам. ничего не подгонялось под зелёный.
-5. доверительный интервал детекции — wilson 95%; интервал fa —
-   нормальная аппроксимация по пуассоновскому счёту, грубая при малых n.
-6. октопаминовая инжекция избыточна на голодном мире: движок сам тянет
-   oct к 1.0 (мировая цель), вклад инжекции виден только у серотонина и
-   в сытых состояниях. кривая переносов публикуется с ser_eq/oct_eq по
-   семенам, примесь штатной еды движка видна в колонках.
-7. доверительный интервал в proteusctl использует фиксированный
-   критический t (2.262, df 9) под 10-семенный гейт; другое число пар
-   отвергается.
-8. тесты сетевого слоя требуют изолированного сетевого пространства
-   имён; в песочнице без unshare тест деградирует до loopback-bind
-   собственного процесса с громкой пометкой, конфигурация хоста не
-   трогается никогда. до р2 нужна площадка с настоящим netns.
-9. протокол пачки — sustained-приложение максимальной амплитуды;
-   реальное сканирование — поезд пакетов, stsp-динамика поезда
-   отличается (docs/roadmap.md).
-10. стратегический наблюдатель, знающий схему целиком (белый ящик),
-    вне модели угрозы р1.
+## Citation
 
-## воспроизводимость
-
-make test строит, проверяет детерминизм и печатает меру р0 в
-results/reflex_r0.log: per-seed дельты, count_pos, среднее,
-доверительный интервал, dz. все числа воспроизводятся одной командой;
-каждый прогон задаётся семенем, длительностью и файлом событий.
+If you use Proteus in research, please cite the preprint (arXiv forthcoming) and the primary sources for the connectome engine:
+- Yemini et al. 2013 (speed/curvature)
+- Pierce-Shimomura et al. 1999 (ASH nociceptor)
+- Kato et al. 2015 (AVA transient)
+- Tsodyks & Markram 1997 (STSP)

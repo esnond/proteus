@@ -28,6 +28,7 @@ static void usage(FILE* out)
         "  log     [--quiet|--json] [--socket P] live journal stream\n"
         "  party SEED [-d SEC] [-e SCHED] --against JOURNAL\n"
         "                                       bitwise replay check\n"
+        "  register [HEX64] [--socket P]        immune scope token\n"
         "  detector FA1..N BURST1..M             fa rate and detections\n");
 }
 
@@ -74,6 +75,37 @@ static int cmd_status(const char* path)
     fputs(buf, stdout);
     close(fd);
     return 0;
+}
+
+/* register: ask the daemon for an immune scope token. the caller must be
+ * the daemon owner (or root); the first payload line of every session
+ * then carries "PROTEUS TOKEN <hex>". */
+static int cmd_register(const char* path, const char* profile)
+{
+    char cmd[96];
+    char buf[128];
+    int fd = connect_sock(path);
+    ssize_t n;
+    if (fd < 0) {
+        fprintf(stderr, "proteusctl: cannot connect %s: %s\n", path,
+                strerror(errno));
+        return 1;
+    }
+    snprintf(cmd, sizeof(cmd), "register %s", profile ? profile : "");
+    if (send(fd, cmd, strlen(cmd), 0) < 0) {
+        fprintf(stderr, "proteusctl: send failed\n");
+        close(fd);
+        return 1;
+    }
+    n = recv(fd, buf, sizeof(buf) - 1, 0);
+    close(fd);
+    if (n <= 0) {
+        fprintf(stderr, "proteusctl: no registration reply\n");
+        return 1;
+    }
+    buf[n] = '\0';
+    fputs(buf, stdout);
+    return strncmp(buf, "token=", 6) == 0 ? 0 : 1;
 }
 
 static int cmd_log(const char* path, const char* mode)
@@ -374,6 +406,19 @@ int main(int argc, char** argv)
                 return usage(stderr), 1;
         }
         return cmd_log(sock, mode);
+    }
+    if (!strcmp(argv[1], "register")) {
+        const char* prof = NULL;
+        int i;
+        for (i = 2; i < argc; i++) {
+            if (!strcmp(argv[i], "--socket") && i + 1 < argc)
+                sock = argv[++i];
+            else if (prof == NULL)
+                prof = argv[i];
+            else
+                return usage(stderr), 1;
+        }
+        return cmd_register(sock, prof);
     }
     if (!strcmp(argv[1], "party"))
         return cmd_party(argc - 2, argv + 2);

@@ -1,0 +1,46 @@
+sh tests/run_tests.sh
+== build strict ==
+PASS: clean build
+== determinism, with events ==
+PASS: bitwise identical party journals
+== determinism, baseline ==
+PASS: baseline identical
+== journal schema freeze ==
+PASS: journal header frozen
+== nan guard ==
+PASS: finite values
+== port move ==
+NOTE: loopback fallback, netns unavailable, no host config touched
+PASS: port move fires, ports stay in the window (loopback fallback, netns unavailable, no host config touched)
+== detector measurement, ten seeds ==
+threshold=30.0 cool_ms=10000 window_ms=1000
+burst burst_1.csv: detected (1 firings in the response window)
+burst burst_10.csv: detected (1 firings in the response window)
+burst burst_2.csv: detected (1 firings in the response window)
+burst burst_3.csv: detected (1 firings in the response window)
+burst burst_4.csv: missed (0 firings in the response window)
+burst burst_5.csv: detected (1 firings in the response window)
+burst burst_6.csv: detected (1 firings in the response window)
+burst burst_7.csv: detected (1 firings in the response window)
+burst burst_8.csv: detected (1 firings in the response window)
+burst burst_9.csv: missed (0 firings in the response window)
+detected=8/10
+PASS: detector report published in results/detector_r1.log
+== party bitwise replay ==
+party seed 7: identical, 39984 bytes
+PASS: party replay identical
+== ipc status and memory gate ==
+port=40000 det=armed ser=0.000 oct=0.328 moves_a=0 moves_b=0 moves_ab=0 det_firings=0 scans=0 sessions=0 bans=0 nft=0 t_ms=1990 rss_kb=3532 cpu_ms=341
+PASS: status serves, rss 3532 kb within the 16 mb ceiling
+== detector report ==
+PASS: detector report prints
+== r2 sensor: targeted scan then ban ==
+PASS: scan detected and ip banned (userspace)
+== r2 netns ==
+SKIP: netns unavailable in this sandbox, no cap_net_admin,
+the privileged bench is the acceptance gate for the real
+firewall rules, see tools/netns_setup.sh requirements
+== ubsan ==
+PASS: ubsan clean
+
+ALL TESTS GREEN

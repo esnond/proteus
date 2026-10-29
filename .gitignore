@@ -5,3 +5,12 @@ libproteus.a
 results/fa_*.csv
 results/det_burst_*.csv
 results/mv_*.csv
+results/r2_validation/
+src/seccomp_profile.h
+results/atlas_journals/
+results/atlas_train/
+results/atlas_validate/
+results/hypotheses/
+results/hypotheses_validate/
+results/v1.2-*.txt
+tools/__pycache__/

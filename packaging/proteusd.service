@@ -1,0 +1,31 @@
+[Unit]
+Description=Proteus bio-stochastic moving target defense daemon
+Documentation=https://github.com/esnond/proteus
+After=network.target nftables.service
+Wants=nftables.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/proteusd --listen --nft --seccomp --socket /run/proteus/proteusd.sock --group proteus -d 0
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryLimit=16M
+CPUQuota=10%
+# Capabilities (nftables needs CAP_NET_ADMIN)
+CapabilityBoundingSet=CAP_NET_ADMIN
+AmbientCapabilities=CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target
