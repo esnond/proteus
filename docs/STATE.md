@@ -27,6 +27,7 @@ updated: 2026-10-29
 | v1.0 execution plan | written | docs/PLAN_V1.md: 5 phases, per-phase token caps 550/800/600/450/200k, all skills and 10 agents mapped | this commit | start phase A after the owner gate |
 | h8_idle registration | done | docs/hypotheses.md h8; four numeric criteria; live-mode `-d` must become wall seconds (design point recorded) | this commit | implement event-driven tick |
 | token ledger A | 577k / cap 550k | methodologist call 577k for a 25-line block; plan rule revised to at most two calls per phase, 600k each, rest inline | - | no further agent calls this phase |
+| bench rerun bb051b8 | 18 pass / 1 fail / 1 skip | 1.4 green (ban 610 ms, source 10.0.0.5), 5.2 dump audit clean, 5.1 skip with reason; only 4.1 idle red: 1.03% at div 20 vs <1%, runs range 0.66-1.03% | bb051b8 | phase A decision |
 | phase A event-driven tick | reverted, falsified | idle 0.010% but det_score 6.25 after 121 scan events, sensor test banned nobody; empty ticks are part of the input model. data in docs/hypotheses.md h8 | (uncommitted, reverted) | owner decision: retune detector, 20x engine, or drop target |
 
 ## known gaps (no hiding)
