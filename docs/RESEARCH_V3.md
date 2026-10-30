@@ -169,7 +169,7 @@ python3 tools/check_paper_claims.py /tmp/RESEARCH_V3.md --root /home/esnond/prot
 
 output: `ok: 126 distinct numeric tokens, all traceable to the repository sources`.
 
-style scan: i replicated the four banned patterns of ~/.zcode/scripts/humanize_gate.sh (long dash, angle quotes, capital at line start, with the same allowlist) over every line of the draft, and the count was 0 violations. the official script reads only staged git diffs; the file was not staged, so the official script was not run. this is a replication, not the official gate.
+style scan: i replicated the four banned patterns of the repository style gate (long dash, angle quotes, capital at line start, with the same allowlist) over every line of the draft, and the count was 0 violations. the official script reads only staged git diffs; the file was not staged, so the official script was not run. this is a replication, not the official gate.
 
 post-write note: docs/RESEARCH_V3.md matches the docs/*.md glob, so a second run of the official numeric checker after the write is self referential; the run reported above is the meaningful one because the corpus at that moment did not contain this file.
 
