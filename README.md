@@ -129,10 +129,14 @@ cmp a.csv b.csv && echo "bitwise identical"
 
 ## Status
 
+**Closed at v1.0.1 (2026-10-30).** The repository is frozen. A closing
+report with the measured claims, the refutations, the open defects and the
+three things a successor should do first is in `docs/CLOSE.md`.
+
 R0–R2 sandbox-validated. R3 measurement layer complete. Phase C (red/blue
-team) and Phase D (packaging) in progress. The privileged bench (kernel
-nftables enforcement, active-probe measurements) has not been run; anything
-requiring it is marked pending, not claimed.
+team) and Phase D (packaging) were stopped at close. The privileged bench
+(kernel nftables enforcement, active-probe measurements) was never run;
+anything requiring it is marked pending, not claimed.
 
 ## License and citation
 

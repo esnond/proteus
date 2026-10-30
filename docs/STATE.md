@@ -1,5 +1,9 @@
 # STATE.md — r2.5 immune scope + hardening
 
+> **CLOSED 2026-10-30 at tag v1.0.1.** this file is a historical log of the
+> r2.5 branch and is no longer maintained. current state and the handoff
+> are in docs/CLOSE.md; the v1.1 program (not started) is docs/PLAN_V11.md.
+
 branch: r2.5-immune
 anchor: tag r2-bench-anchor at 19de9e4 (bench-validated r2)
 updated: 2026-10-29
