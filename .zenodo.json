@@ -1,0 +1,30 @@
+{
+  "title": "Proteus: a closed-loop network defense driven by a simulated C. elegans connectome",
+  "upload_type": "software",
+  "description": "A deterministic C99 simulator of a 279-neuron C. elegans connectome (graded potentials, short-term synaptic plasticity, neuromodulators, body physics) runs inside a network daemon. Port moves and firewall bans are a readout of that nervous system's state rather than a seeded PRNG. The release includes the vendored biophysical engine, the detection/reflex layer, journals with bitwise replay, preregistered hypotheses with falsification criteria, and the negative results: biology is not more random than a PRNG at a 64-symbol alphabet, the PRNG arm's seed is recoverable from three observations, and the current connectome readout is rank one.",
+  "creators": [
+    {
+      "name": "Esnond",
+      "affiliation": "independent"
+    }
+  ],
+  "license": "ISC",
+  "access_right": "open",
+  "version": "1.0.0",
+  "language": "eng",
+  "keywords": [
+    "C. elegans",
+    "connectome",
+    "computational neuroscience",
+    "moving target defense",
+    "closed-loop control",
+    "reproducibility"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/esnond/proteus",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

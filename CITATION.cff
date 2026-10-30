@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this software, cite it as below."
+title: "Proteus: a closed-loop network defense driven by a simulated C. elegans connectome"
+abstract: >-
+  A deterministic C99 simulator of a 279-neuron C. elegans connectome
+  (graded potentials, short-term synaptic plasticity, neuromodulators,
+  body physics) drives the port schedule and firewall actions of a network
+  daemon, so that the defense is a readout of nervous-system state rather
+  than a seeded PRNG. The release ships preregistered hypotheses,
+  falsification criteria and negative results alongside the code.
+authors:
+  - family-names: "Esnond"
+    affiliation: "independent"
+version: "1.0.0"
+date-released: "2026-10-30"
+license: ISC
+repository-code: "https://github.com/esnond/proteus"
+keywords:
+  - C. elegans
+  - connectome
+  - computational neuroscience
+  - moving target defense
+  - closed-loop control
+  - reproducibility
+references:
+  - type: article
+    title: "The structure of the nervous system of the nematode Caenorhabditis elegans"
+    authors:
+      - family-names: "White"
+      - family-names: "Southgate"
+      - family-names: "Thomson"
+      - family-names: "Brenner"
+    year: 1986
+    journal: "Philosophical Transactions of the Royal Society B"
+  - type: article
+    title: "Structural properties of the Caenorhabditis elegans neuronal network"
+    authors:
+      - family-names: "Varshney"
+      - family-names: "Chen"
+      - family-names: "Paniagua"
+      - family-names: "Hall"
+      - family-names: "Chklovskii"
+    year: 2011
+    journal: "PLoS Computational Biology"
+    note: "source of the wiring sheet vendored as src/petri/data/varshney_full.csv"
