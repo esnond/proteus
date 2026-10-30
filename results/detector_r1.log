@@ -1,12 +1,12 @@
-threshold=30.0 cool_ms=10000 window_ms=1000
-burst burst_1.csv: detected (1 firings in the response window)
-burst burst_10.csv: detected (1 firings in the response window)
-burst burst_2.csv: detected (1 firings in the response window)
+threshold=50.0 cool_ms=10000 window_ms=1000
+burst burst_1.csv: missed (0 firings in the response window)
+burst burst_10.csv: missed (0 firings in the response window)
+burst burst_2.csv: missed (0 firings in the response window)
 burst burst_3.csv: detected (1 firings in the response window)
-burst burst_4.csv: missed (0 firings in the response window)
+burst burst_4.csv: detected (1 firings in the response window)
 burst burst_5.csv: detected (1 firings in the response window)
 burst burst_6.csv: detected (1 firings in the response window)
-burst burst_7.csv: detected (1 firings in the response window)
+burst burst_7.csv: missed (0 firings in the response window)
 burst burst_8.csv: detected (1 firings in the response window)
-burst burst_9.csv: missed (0 firings in the response window)
-detected=8/10
+burst burst_9.csv: detected (1 firings in the response window)
+detected=6/10
