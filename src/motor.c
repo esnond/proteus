@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/random.h>
 
 #include "motor.h"
 #include "config.h"
@@ -57,6 +58,26 @@ fail:
     return -1;
 }
 
+static void perm_init(motor_t* m, uint64_t seed)
+{
+    /* Fisher-Yates shuffle of 0..63 using xorshift seeded with seed */
+    for (int i = 0; i < 64; i++)
+        m->perm[i] = (uint8_t)i;
+    uint64_t s = seed ^ 0xBF58476D1CE4E5B9ULL;
+    if (!s) s = 0x9E3779B97F4A7C15ULL;
+    for (int i = 63; i > 0; i--) {
+        s ^= s >> 12;
+        s ^= s << 25;
+        s ^= s >> 27;
+        s *= 2685821657736338717ULL;
+        int j = (int)(s % (uint64_t)(i + 1));
+        uint8_t tmp = m->perm[i];
+        m->perm[i] = m->perm[j];
+        m->perm[j] = tmp;
+    }
+    m->perm_ready = 1;
+}
+
 int motor_init(motor_t* m, const char* addr, int live, uint64_t seed)
 {
     memset(m, 0, sizeof(*m));
@@ -73,6 +94,8 @@ int motor_init(motor_t* m, const char* addr, int live, uint64_t seed)
         m->port = PORT_BASE;
         return 0;
     }
+    /* live mode: generate secret permutation for DEST_BIO obfuscation */
+    perm_init(m, seed);
     /* the worm enters the window at its head, one walk step per bind */
     while (m->binds < PORT_WINDOW) {
         int port = PORT_BASE + m->binds;
@@ -133,8 +156,16 @@ int motor_move_to(motor_t* m, int index)
     index %= PORT_WINDOW;
     if (index < 0)
         index += PORT_WINDOW;
+    /* h9a amendment: no-op elimination — if secret permutation maps
+     * back to current port, advance forward until port changes */
+    if (m->perm_ready)
+        index = m->perm[index];
     for (tried = 0; tried < PORT_WINDOW; tried++) {
         int port = PORT_BASE + (index + tried) % PORT_WINDOW;
+        if (m->port == port) {
+            /* no-op: destination equals current port, advance */
+            continue;
+        }
         m->binds++;
         m->fd = bind_listen(port);
         if (m->fd >= 0) {

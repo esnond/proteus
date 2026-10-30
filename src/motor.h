@@ -17,6 +17,8 @@ typedef struct {
     int      moves; /* completed moves */
     int      live;  /* 1: bind real sockets, 0: headless port walk only */
     uint64_t rr;    /* xorshift64* state for DEST_RANDOM, engine rng untouched */
+    uint8_t  perm[64]; /* secret permutation for live DEST_BIO, PORT_WINDOW=64 */
+    int      perm_ready;
 } motor_t;
 
 /* bind the first port of the window on addr (dotted quad or 0.0.0.0
