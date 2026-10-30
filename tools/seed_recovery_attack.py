@@ -71,13 +71,42 @@ def replay(seed, count):
     return out
 
 
+def candidates_for_prefix(prefix, lo, hi):
+    """seeds in [lo, hi] whose replay starts with `prefix`."""
+    return [s for s in range(lo, hi + 1) if replay(s, len(prefix)) == prefix]
+
+
+def n_obs_to_recover(journal, lo=0, hi=200000, max_k=5):
+    """first k at which the candidate seed set has size one.
+
+    paper-local construct: the number of observed ports needed for a unique
+    seed, not the learnability threshold L. returns (k, seed) or (None, None).
+    """
+    observed = observed_ports(journal)
+    for k in range(1, min(max_k, len(observed)) + 1):
+        cands = candidates_for_prefix(observed[:k], lo, hi)
+        if len(cands) == 1:
+            return k, cands[0]
+    return None, None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("journal")
     ap.add_argument("--lo", type=int, default=0)
     ap.add_argument("--hi", type=int, default=200000)
     ap.add_argument("--k", type=int, default=3)
+    ap.add_argument("--nobs", action="store_true",
+                    help="report n_obs_to_recover instead of the k prefix run")
     args = ap.parse_args()
+
+    if args.nobs:
+        k, seed = n_obs_to_recover(args.journal, args.lo, args.hi)
+        if k is None:
+            print("n_obs_to_recover: no unique seed within the tested prefix")
+            return 1
+        print(f"n_obs_to_recover = {k}, seed {seed}")
+        return 0
 
     observed = observed_ports(args.journal)
     if len(observed) < args.k:

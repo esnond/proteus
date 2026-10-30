@@ -229,17 +229,18 @@ def main():
     fa_total = sum(len(firings(rows(f))) for f in fa_files)
     exposure_s = 600.0 * len(fa_files)
     per600 = fa_total / exposure_s * 600.0
-    plo, phi = poisson_ci(fa_total, exposure_s / 600.0)
     say()
     say(f"false alarms at threshold {THR:.1f}, {len(fa_files)} seeds, "
         f"{exposure_s:.0f} s model time:")
-    say(f"  total {fa_total}, rate {per600:.2f} per 600 s, "
-        f"95% Poisson CI [{plo:.2f}, {phi:.2f}] per 600 s")
+    say(f"  total {fa_total}, rate {per600:.2f} per 600 s")
+    say("  no interval: every quiet journal has deterministic det_fired "
+        "events at 1000 ms and a fixed later time, so the alarms are not "
+        "independent")
     say(f"  budget {BUDGET_FA} over {exposure_s:.0f} s: "
         f"{'within' if fa_total <= BUDGET_FA else 'exceeded'}")
 
     burst_files = sorted(glob.glob("results/cal_v12/det_burst_*.csv"))
-    strict = lenient = 0
+    strict = lenient = firmware_after = raw_after = 0
     for f in burst_files:
         rs = rows(f)
         ev = [t for t, _s, _p, _c, e in rs if e in (1, 2, 4)]
@@ -248,6 +249,11 @@ def main():
             lenient += 1
             if ev and any(ev[0] <= h <= ev[0] + DET_WINDOW_MS for h in hits):
                 strict += 1
+        if any(e == 4 and 2010.0 <= t <= 2010.0 + DET_WINDOW_MS
+               for t, _s, _p, _c, e in rs):
+            firmware_after += 1
+        if any(t >= 2010.0 and s >= THR for t, s, _p, _c, _e in rs):
+            raw_after += 1
     n = len(burst_files)
     say()
     say(f"burst detection at threshold {THR:.1f}, n={n} journals:")
@@ -255,13 +261,18 @@ def main():
         f"wilson 95% CI [{wilson(lenient, n)[0]:.3f}, "
         f"{wilson(lenient, n)[1]:.3f}], "
         f"clopper-pearson [{clopper_pearson(lenient, n)[0]:.3f}, "
-        f"{clopper_pearson(lenient, n)[1]:.3f}]")
-    say(f"  firing inside the {DET_WINDOW_MS / 1000:.0f} s window after "
-        f"stimulus onset: {strict}/{n} = {strict / n:.2f}, "
-        f"wilson 95% CI [{wilson(strict, n)[0]:.3f}, "
-        f"{wilson(strict, n)[1]:.3f}], "
-        f"clopper-pearson [{clopper_pearson(strict, n)[0]:.3f}, "
-        f"{clopper_pearson(strict, n)[1]:.3f}]")
+        f"{clopper_pearson(lenient, n)[1]:.3f}]; retracted as a detection "
+        f"rate, the events precede the burst")
+    say(f"  firing inside the nominal {DET_WINDOW_MS / 1000:.0f} s window "
+        f"after the first event in (1,2,4): {strict}/{n} = "
+        f"{strict / n:.2f}, wilson 95% CI "
+        f"[{wilson(strict, n)[0]:.3f}, {wilson(strict, n)[1]:.3f}]; the "
+        f"window starts at t0 = 1000 ms, before the burst at 2010 ms, so "
+        f"this is not a burst detection rate")
+    say(f"  firmware det_fired within {DET_WINDOW_MS / 1000:.0f} s after "
+        f"2010 ms: {firmware_after}/{n}")
+    say(f"  raw det_score at or above {THR:.1f} after 2010 ms: "
+        f"{raw_after}/{n}; the offline cooldown may mask these crossings")
 
     say()
     say("party lengths, moves per 600 s party:")

@@ -8,12 +8,15 @@ quiet move rate, n=10 seeds x 600 s:
   preregistered band [100, 300]: mean is below it, the CI overlaps 100
 
 false alarms at threshold 50.0, 10 seeds, 6000 s model time:
-  total 8, rate 0.80 per 600 s, 95% Poisson CI [0.34, 1.58] per 600 s
+  total 8, rate 0.80 per 600 s
+  no interval: every quiet journal has deterministic det_fired events at 1000 ms and a fixed later time, so the alarms are not independent
   budget 10 over 6000 s: within
 
 burst detection at threshold 50.0, n=10 journals:
-  any firing anywhere: 8/10 = 0.80, wilson 95% CI [0.490, 0.943], clopper-pearson [0.444, 0.975]
-  firing inside the 3 s window after stimulus onset: 3/10 = 0.30, wilson 95% CI [0.108, 0.603], clopper-pearson [0.067, 0.652]
+  any firing anywhere: 8/10 = 0.80, wilson 95% CI [0.490, 0.943], clopper-pearson [0.444, 0.975]; retracted as a detection rate, the events precede the burst
+  firing inside the nominal 3 s window after the first event in (1,2,4): 3/10 = 0.30, wilson 95% CI [0.108, 0.603]; the window starts at t0 = 1000 ms, before the burst at 2010 ms, so this is not a burst detection rate
+  firmware det_fired within 3 s after 2010 ms: 0/10
+  raw det_score at or above 50.0 after 2010 ms: 2/10; the offline cooldown may mask these crossings
 
 party lengths, moves per 600 s party:
   bio: n=100, min 44, median 84, max 141

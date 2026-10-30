@@ -2,8 +2,11 @@
 
 the git repository carries code, tools, small analysis artifacts and the
 release manifest. the bulk measurement data (about 1.3 GB) left the git
-tree after v1.0.3 and ships as a zenodo archive instead; the doi is
-pending and will be recorded here.
+tree after v1.0.3 and is intended for a zenodo archive. the doi is
+pending, the archive is not yet publicly available, and no artifact
+reproducibility claim is made until the doi resolves. the h9 journals are
+still present in this working tree, so the paper tables are checkable
+here; that is not the same as an archived artifact.
 
 ## what is in the archive
 
@@ -20,9 +23,18 @@ journals), and the sweep summary `results/entropy_n30/summary.csv`.
 
 ## integrity
 
-`results/manifest.txt` (729 lines, commit 91cabe5a, binary 60b04860...)
-contains the sha256 of every archived h9 journal and calibration file:
-the archive files can be verified against it after download.
+`results/manifest.txt` (732 lines, 724 sha256 entries, commit 91cabe5a,
+binary 60b04860...) contains the sha256 of every archived h9 journal and
+calibration file. a `sha256sum -c` run after the revision 5 edits reports
+697 OK, 11 mismatched and 16 missing entries; all 300 h9 journal csv files
+are among the OK entries. the 11 mismatches are docs/CLOSE.md,
+docs/PLAN_V11.md, docs/RESEARCH_V2.md, docs/STATE.md,
+docs/hypotheses_results.md, results/manifest.txt, results/paper_stats.txt,
+results/schedule_attack/REPORT.md, tools/check_paper_claims.py,
+tools/paper_stats.py and tools/seed_recovery_attack.py. the missing files
+are docs removed before the archive split. the archive files can be
+verified against the manifest after download, but the manifest is not
+regenerated and the doi is pending.
 
 ## reproduction
 

@@ -61,6 +61,50 @@
 20. международный комитет редакторов медицинских журналов (ICMJE).
     recommendations: use of ai by authors. 2023 и далее.
     https://www.icmje.org/recommendations/browse/artificial-intelligence/ai-use-by-authors.html
+21. larsen; gont. recommendations for transport-protocol port
+    randomization. IETF best current practice. 2011.
+22. lee; thing. port hopping for resilient networks. IEEE vehicular
+    technology conference. 2004.
+23. luo; wang; cai. effectiveness of port hopping as a moving target
+    defense. IEEE international conference on security technology. 2014.
+24. hari; dohi. sensitivity analysis of random port hopping. IEEE
+    international conference on ubiquitous intelligence and computing and
+    international conference on autonomic and trusted computing. 2010.
+25. jafarian; al-shaer; duan. openflow random host mutation. ACM SIGCOMM
+    workshop on hot topics in software defined networking. 2012.
+26. jafarian; al-shaer; duan. an effective address mutation approach for
+    disrupting reconnaissance attacks. IEEE transactions on information
+    forensics and security. 2015.
+27. moghaddam; yang; thapa; camtepe; kim. mtd in plain sight: hiding
+    network behavior in moving target defenses. IEEE/IFIP international
+    conference on dependable systems and networks, supplemental volume.
+    2024.
+28. mani; haliem; bhargava; manickam; kochpatcharin; kim; vugrin; wang;
+    jenkins; angin; yu. machine learning based resilience testing of an
+    address randomization cyber defense. IEEE transactions on dependable
+    and secure computing. 2023.
+29. man; zhou; qian. dns cache poisoning attack: resurrections with side
+    channels. ACM SIGSAC conference on computer and communications
+    security. 2021.
+30. carroll; crouse; fulp; berenhaut. analysis of network address
+    shuffling as a moving target defense. IEEE international conference on
+    communications. 2014.
+31. zhuang; deloach; ou. towards a theory of moving target defense. ACM
+    workshop on moving target defense. 2014.
+32. cho; sharma; alavizadeh; yoon; ben-asher; moore; kim; lim; nelson.
+    toward proactive, adaptive defense: a survey on moving target defense.
+    IEEE communications surveys and tutorials. 2020.
+33. sengupta; chowdhary; sabur; alshamrani; huang; kambhampati. a survey
+    of moving target defenses for network security. IEEE communications
+    surveys and tutorials. 2020.
+34. cai; wang; hu; wang. moving target defense: state of the art and
+    characteristics. frontiers of information technology and electronic
+    engineering. 2016.
+35. boffetta; cencini; falcioni; vulpiani. predictability: a way to
+    characterize complexity. physics reports. 2001.
+36. vigna. an experimental exploration of marsaglia's xorshift
+    generators, scrambled. ACM transactions on mathematical software.
+    2016. vol. 42. no. 4.
 
 standard on the structure of this report: the russian annotation block,
 the declaration block and the references list follow ГОСТ 7.32-2017 in

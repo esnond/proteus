@@ -1,5 +1,11 @@
 # proteus: bio-stochastic moving target defense driven by a living connectome
 
+**status: superseded by paper/FINAL.md.** this file records the v1.2 preprint
+claims and is kept for provenance only. it is not the current scientific
+record: the closed-loop and 7/10 detection claims below were refuted in
+paper/FINAL.md (timing is mode independent, the readout is a hand written
+functional, and the detector does not establish the burst).
+
 **authors:** esnond (270344656+esnond@users.noreply.github.com)  
 **venue:** workshop / arXiv preprint (main-track only if g-results are strong)  
 **version:** v1.2-preprint  
@@ -226,11 +232,11 @@ t_ms,act_ava,act_avb,ash_trace,ser,oct,dop,det_score,port,cause,event
 
 ## 9. conclusion
 
-proteus demonstrates that a **living connectome can drive a moving target defense** with measurable learnability properties. the r2 validation passes in sandbox with documented environment blocks. the r3 atlas + g1–g7 framework provides a **falsifiable experimental pipeline**: every hypothesis has a registered falsification criterion, held-out seeds are strictly separated, and negative results are published with data.
+the v1.2 preprint claimed that a **living connectome can drive a moving target defense**. the current record does not support that claim: the move tick is set by the body speed reflex and the detector, the label is a hand written six-scalar readout, and timing is mode independent. the r2 validation ran in sandbox with documented environment blocks; its 7/10 detection figure is superseded by the 8/10 retraction and the 0/10 firmware det_fired result after 2010 ms in paper/FINAL.md. the r3 atlas + g1 to g7 framework provides a **falsifiable experimental pipeline**: every hypothesis has a registered falsification criterion, held-out seeds are strictly separated, and negative results are published with data.
 
 **what was learned (not claimed proven):**
 - bio-stochastic schedules have measurable L against passive observers.
-- detector threshold calibrated on FA budget yields probabilistic detection (7/10 fixture, 1/3 wire).
+- the r2 fixture reported 7/10 detection at a calibrated threshold; this is a historical r2 number, superseded by the 8/10 retraction and the 0/10 firmware det_fired result after 2010 ms in paper/FINAL.md.
 - ban mechanism holds 100% where it fires.
 - realtime tick cost dominates idle CPU (7% vs <1% target).
 - nftables netlink protocol works in userspace; kernel acceptance unvalidated.

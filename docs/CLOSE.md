@@ -8,24 +8,32 @@ next, including me in six months.
 
 a deterministic C99 simulator of a 279-neuron *C. elegans* connectome
 (graded potentials, short-term plasticity, serotonin/octopamine/dopamine,
-body physics) running inside a network daemon, where TCP port moves and
-firewall bans are a readout of that nervous system's state instead of a
-seeded PRNG. ~3.6k lines of layer code over ~3.5k lines of vendored
-engine, 16 registered hypotheses, three schedule modes, bitwise party
-replay.
+body physics) running inside a headless network daemon. the move tick is
+set by the body speed reflex and the detector; in bio mode the TCP port
+label is a hand written six-scalar readout of engine state, not a
+closed-loop motor command. ~3.6k lines of layer code over ~3.5k lines of
+vendored engine, 16 registered hypotheses, three schedule modes, bitwise
+party replay.
 
 ## what holds
 
-- **the loop closes.** a scan burst drives ASH, ASH drives the body, the
-  body drives AVA/AVB, command activity moves the port. no policy layer.
+- **the loop does not close.** timing is identical across bio, cycle and
+  random on 100 of 100 seeds; the readout includes the event trace and
+  two event counters. there is a hand written policy layer.
 - **determinism is real.** same seed, same event file, same binary,
-  journal identical byte for byte (one pair verified at seed 42; the 100 party replay was not run).
-- **detection works at a frozen threshold.** 50.0 derived from a false
-  alarm budget: 8 false alarms across 10 seeds × 600 s; burst detection
-  8/10 any firing (Wilson 95% CI [0.490, 0.943]) but only 3/10 inside 3 s of stimulus onset (Wilson [0.108, 0.603]): the early fires precede the stimulus.
+  journal identical byte for byte (one pair verified at seed 42; all 300
+  h9 journals match the manifest hashes).
+- **detection does not establish the burst.** threshold 50.0 comes from a
+  false alarm budget: 8 false alarms across 10 seeds x 600 s, no interval
+  because the events are not independent. every journal records firmware
+  det_fired at 1000 ms, before the burst; 0 of 10 record it within 3 s
+  after 2010 ms; the recorded 3/10 is an artifact of t0 = 1000 ms and the
+  8/10 is retracted. 2 of 10 journals have raw det_score crossings after
+  2010 ms, masked by an earlier cooldown.
 - **one metric spans both fields.** *L*, observations until the next
   action is predicted with p ≥ 0.9, is reported for worm behaviour and
-  for the defense schedule alike.
+  for the defense schedule alike; it is a sample complexity threshold,
+  not an attack success probability.
 
 ## what was refuted (kept on purpose)
 
@@ -33,20 +41,25 @@ replay.
    is 6 bits per move and a PRNG already reaches it. the L metric
    saturates for almost uniform sources, so "0/100 vs 0/100" measured the
    metric, not a tie.
-2. **the PRNG arm is broken.** `DEST_RANDOM`'s xorshift64\* seed is
-   recoverable from **3 observed ports** in 0.6 s over 2 × 10⁵ candidates;
-   the recovered seed replays all 80 moves exactly
-   (`tools/seed_recovery_attack.py`).
+2. **the xorshift64\* arm is broken.** `DEST_RANDOM`'s xorshift64\* seed is
+   recoverable from **3 observed ports** in under one second over 200001
+   candidates; the recovered seed replays all 80 moves exactly
+   (`tools/seed_recovery_attack.py`). no CSPRNG baseline was implemented,
+   and no blind seed-recovery attack was implemented: the 0/20 result is
+   four structural tests, 0/20 each.
 3. **the secret permutation buys nothing.** a fixed bijection of the
    output alphabet is absorbed by any learner; measured accuracy is
    identical before and after relabeling. it also created the live/
    headless divergence, which invalidated measurements of the live
    schedule based on journals.
 4. **the bio readout is rank one**, a mean of six scalars, giving 16
-   distinct ports and 3.672 bits/move, *more* predictable than the PRNG
-   under a held out order-1 attacker (0.185 vs 0.000).
+   distinct ports and 3.672 bits/move in the n = 1 reconnaissance. the
+   n = 20 order 1 log-loss is 5.851 for bio against 6.025 for random,
+   paired interval [-0.221, -0.129]; the marginal H comparison is
+   confounded by alphabet size. the readout is a sufficient bottleneck;
+   the connectome contribution is untested.
 5. **h2 was falsified mid-run**: the destination was a counter, not the
-   connectome. the honest follow-up (h9) is what produced items 1–4.
+   connectome. the honest follow-up (h9) is what produced items 1 to 4.
 
 ## open defects at close
 
@@ -60,8 +73,9 @@ as a **security** artifact: modest. no crypto proof, no external
 validation, and the headline is a negative result.
 
 as a **computational neuroscience** artifact: stronger than it looks. a
-connectome simulator written from scratch, closed onto a real socket,
-fully replayable, with preregistration and published refutations. that
+connectome simulator written from scratch, replayable bitwise, with
+preregistration and published refutations. the measured path is headless
+and the live path diverges from the journal; the loop is not closed. that
 combination is rare and is the reason to keep the repo rather than delete
 it.
 

@@ -51,14 +51,22 @@ as is, nothing re-run to make a gate green.
 
 reflex := engine-native reversal episode (speed < -0.02 mm/s sustained
 500 ms; constants from petri metrics.c). detector channel := avb; r1
-matched filter design kept. frozen threshold 50.0 (lowest grid value
-with FA within budget: 8 FAs of 10 allowed on seeds 101..110, 6000 s
-model time; 30: 25, 40: 16, 50: 8, 55: 3, 60: 1, 70: 0). detection
-8/10 burst journals show any firing (wilson 95% CI [0.490, 0.943]) but only 3/10 fire inside the 3 s window after stimulus onset (wilson [0.108, 0.603]); the five early fires precede the stimulus and are not detections.
+matched filter design kept. frozen threshold 50.0 (lowest shipped grid
+value with FA within budget: 8 FAs of 10 allowed on seeds 101..110,
+6000 s model time; 45: 12, 50: 8, 60: 1, 70: 0). the 55: 3 entry in
+earlier revisions is a docs record and does not reproduce with the
+shipped tool. detection is not established: every burst journal records
+firmware det_fired at 1000 ms, before the burst; 0/10 record it within
+3 s after 2010 ms; the recorded 3/10 inside the nominal window is an
+artifact of t0 = 1000 ms; the 8/10 any firing is retracted. 2/10 journals
+have raw det_score crossings after 2010 ms, masked by an earlier
+cooldown.
 criterion 1 (quiet move rate in [100, 300]/600 s): fail at the mean,
 mean 97.5, 95% CI [79.7, 115.3], range [62, 152]. the failure mode the band guarded (dead coupling, no
 moves) is excluded by the data; recorded as is, owner escalation noted.
-criterion 2 (FA budget met): pass, 8 alarms over 6000 s. burst detection measured: 8/10 any firing, 3/10 inside the window.
+criterion 2 (FA budget met): pass as a count, 8 alarms over 6000 s;
+no interval is attached because the events are not independent. burst
+detection is not established (see above).
 data: results/cal_v12/, journals in results/journals_v12/.
 
 ## h1-h4, h6: not measured on the current core

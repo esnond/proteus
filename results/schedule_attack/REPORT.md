@@ -26,7 +26,11 @@ inter-move intervals are memoryless in all families (ljung-box p>0.26, lag-1 ACF
 | bio | 0.0712 [0.0540, 0.0901] | 0.0768 [0.0603, 0.0948] | 0.0156 | 4.6x | +0.0056 [0.0000, 0.0150] | >87 (0/20) | >87 (0/20) |
 | cycle | 0.7188 [0.5891, 0.8368] | 0.7188 [0.5891, 0.8368] | 0.0156 | 46.0x | 0.0000 | 62 moves (14/20), >99 (6/20) | 2 moves (20/20) |
 | random | 0.0100 [0.0047, 0.0158] | 0.0089 [0.0037, 0.0148] | 0.0156 | 0.64x | -0.0011 [-0.0034, 0.0000] | >99 (0/20) | >99 (0/20) |
-obs-to-0.90 = first prefix length whose model predicts the next 20 moves with >=0.90 accuracy. bio order-1 is 1.54x the uniform baseline over the observed alphabet (1/21.7), so its edge is mostly alphabet shrinkage. cycle order-1/2 needs 62 moves because symbols do not repeat until the counter wraps; a delta rule attacker (predict prev+1 mod 64) reaches 0.90 after 2 moves, 20/20.
+obs-to-0.90 = first prefix length whose model predicts the next 20 moves with >=0.90 accuracy. bio order-1 is 1.54x the uniform baseline over the observed alphabet (1/21.7), so its edge is mostly alphabet shrinkage. cycle order-1/2 needs 62 moves in 14 of 20 journals and more than 99 in 6 of 20 because symbols do not repeat until the counter wraps; a delta rule attacker (predict prev+1 mod 64) reaches 0.90 after 2 moves, 20/20.
+
+the order-2 increment for bio is +0.0056 with a 95% interval [0.0000, 0.0150]; the interval includes zero at its endpoint, so the gain is not distinguishable from zero. the margin is exploratory.
+
+paired bootstrap 95% intervals over the 20 journals, 4000 resamples: marginal H difference bio minus random [-1.519, -1.321]; order 1 accuracy difference [0.0407, 0.0832]. order 0 held out log-loss with the same split and alpha 0.5: bio 5.058, cycle 6.306, random 6.364; uniform is 6.000. order 1 log-loss: bio 5.851, cycle 4.869, random 6.025; bio minus random [-0.221, -0.129], effect 0.174 bits.
 
 ## 4. generator reconstruction
 | family | test | result (n=20 journals) |
@@ -36,7 +40,7 @@ obs-to-0.90 = first prefix length whose model predicts the next 20 moves with >=
 | random | GF(2) affine 6-bit map | consistent 0/20 |
 | random | xorshift64* state recovery from low-6 output | inconsistent 0/20 (rank-64 GF(2) system, strides 1-16, offsets 0-3, state and low6(product) extraction); synthetic xorshift64* positive control 20/20 |
 | bio | affine LCG mod 64 | perfect 0/20; best explains 0.143 [0.128, 0.160] (favorite-port pairing, not a generator) |
-random is therefore consistent with an i.i.d. uniform draw over 64 ports at every observable level (H, chi2, ACF, LCG/Galois fits). the 6-bit port projection does not expose the 64-bit xorshift state under tested conventions.
+no distinguisher among the four structural tests succeeded for random (affine LCG mod 64, GF(2) affine 6 bit map, xorshift64* state recovery from the low 6 output bits under the tested conventions, and the LCG check on bio). this is absence of evidence at a stated test set, not consistency with an i.i.d. uniform draw at every observable level: the four tests do not exhaust the cryptanalysis of a truncated xorshift output. the 6-bit port projection does not expose the 64-bit xorshift state under the tested conventions.
 
 ## 5. leak / learnability verdict
 | family | property that leaked | minimum observations | observations_to_90pct | vs uniform | verdict |
@@ -45,4 +49,4 @@ random is therefore consistent with an i.i.d. uniform draw over 64 ports at ever
 | cycle | constant +1 counter mod 64 from 40000 | 2 moves, 3.52 s [3.11, 4.02] from journal start | 2 moves | 64x (delta), 46x (order-1) | claim_refuted (fully predictable) |
 | random | none found | >99 moves within window; ~303 moves estimated to enumerate all 64 (coupon collector, estimate beyond window; 41.4 [40.3, 42.5] distinct seen by move 64) | >99 moves | 0.64x | claim_supported |
 
-notes: for a fixed seed the move-instant sets are 97-100% shared across families (bio vs cycle/random), so timing is scenario-driven and family-independent; the port draw itself carries the family difference. all figures are within the 600 s window; the random enumeration figure is the only extrapolation and is labelled an estimate. no repo files other than this report were written; computations are in /tmp (main_attack.py, attack2.py, attack3.py, attack4.py, final_summary.py).
+notes: for a fixed seed the move-instant sets are 97-100% shared across families (bio vs cycle/random), so timing is scenario-driven and family-independent; the port draw itself carries the family difference. the sample is seeds 1001 to 1010 and 1091 to 1100, two contiguous blocks chosen before the attack, not a random sample; the other 80 seeds are not analysed by this pipeline. a sensitivity check over all 100 seeds with the same estimators gives marginal H mean and sd 3.963 and 0.416 (bio), 5.943 and 0.027 (cycle), 5.477 and 0.151 (random), and order 1 accuracy mean and sd 0.0983 and 0.1057, 0.7533 and 0.2867, 0.0164 and 0.0192. the top port in bio seed 1001 is 40031 with 8705 of 60000 ticks, share 0.145; the pooled top-1 move share is 0.139 [0.124, 0.156]. all figures are within the 600 s window; the random enumeration figure is the only extrapolation and is labelled an estimate. no repo files other than this report were written; computations are in /tmp (main_attack.py, attack2.py, attack3.py, attack4.py, final_summary.py).

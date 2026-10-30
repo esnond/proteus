@@ -1,13 +1,14 @@
 cff-version: 1.2.0
 message: "If you use this software, cite it as below."
-title: "Proteus: a closed-loop network defense driven by a simulated C. elegans connectome"
+title: "Proteus: a headless port schedule labelled by a reduced C. elegans connectome readout"
 abstract: >-
   A deterministic C99 simulator of a 279-neuron C. elegans connectome
-  (graded potentials, short-term synaptic plasticity, neuromodulators,
-  body physics) drives the port schedule and firewall actions of a network
-  daemon, so that the defense is a readout of nervous-system state rather
-  than a seeded PRNG. The release ships preregistered hypotheses,
-  falsification criteria and negative results alongside the code.
+  (graded potentials, short-term synaptic plasticity, neuromodulators)
+  supplies a reduced six-scalar readout that labels a headless TCP port
+  schedule in bio mode. The move tick is set by the body speed reflex and
+  the detector, not by the connectome, so the artifact does not establish a
+  closed loop. The release ships preregistered hypotheses, falsification
+  criteria and negative results alongside the code.
 authors:
   - family-names: "Esnond"
     affiliation: "independent"
@@ -20,7 +21,7 @@ keywords:
   - connectome
   - computational neuroscience
   - moving target defense
-  - closed-loop control
+  - negative results
   - reproducibility
 references:
   - type: article
