@@ -69,6 +69,23 @@ under results/atlas_journals and results/hypotheses (g1 partial). h1-h4
 and h6 must be re-run on the v1.2 core after h9a; their registrations
 stand unchanged. no verdicts are claimed for them.
 
+## h11 reconstruction_attacker — CONFIRMED (reconnaissance, post-hoc registration)
+
+DEST_RANDOM is seed-recoverable far below the h9 cap. measured on seed
+1001, 600 s, tests/fixtures/burst.csv, binary sha256 60b04860…, commit
+e58a92c: a replay search over seeds 0..200000 leaves 3177 candidates
+after 1 observed port, 52 after 2, and exactly 1 (seed 1001) after 3;
+0.6 s. the recovered seed reproduces all 80 moves exactly.
+reproducer: tools/seed_recovery_attack.py. sequences:
+results/research_v2/*_moves.csv. same run, headless: cycle H(port)
+5.920 bits but order-1 deterministic (accuracy 1.000 on states seen in
+training, L=65); bio 16 distinct ports, H=3.672 bits, held-out order-1
+0.185; random 45 distinct, H=5.290, held-out order-1 0.000 — and L=3
+against reconstruction. therefore: the h9 result "random L >= 500"
+holds only inside the weak attacker class used there; against a
+generator reconstruction attacker random is the WEAKEST of the three.
+see docs/RESEARCH_V2.md.
+
 ## honest summary
 
 the central question of the project — "is the biological schedule
@@ -77,3 +94,10 @@ answered YES against the counter cycle (d = 3.81) and EQUAL to uniform
 random at this instrument's resolution. biology does not beat a PRNG
 at unpredictability; it matches it while adding scan response, audit
 and replay. that is the publishable claim.
+
+CORRECTION 2026-10-30: the "EQUAL to uniform random" half of the last
+paragraph is superseded by h11. at the instrument used here random is
+not equal, it is strictly weaker (L = 3 by seed recovery); the "equal"
+statement was an artifact of the attacker class. the "biology does not
+beat a PRNG at unpredictability" half stands and is now supported by
+the bio readout measurement (3.672 bits/move, held-out 0.185).

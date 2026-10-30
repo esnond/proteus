@@ -449,3 +449,75 @@ its direction (the claim is the gap exists and is measured, not that
 it is small).
 **Falsification**: (a) or (b) reversed at p < 0.0083; (c) has no
 falsifier beyond tool failure (inconclusive then, published).
+
+## h11 reconstruction_attacker — registered 2026-10-30 AFTER reconnaissance
+
+disclosure: the measurement below was made during deep-research
+reconnaissance (docs/RESEARCH_V2.md) BEFORE this registration; the
+registration is therefore post-hoc and the verdict is published as a
+reconnaissance finding, not as a pre-registered test.
+
+**Hypothesis**: the DEST_RANDOM schedule is recoverable by a generator
+reconstruction attacker far below the h9 censoring cap, because the
+schedule state is a xorshift64* seeded from the same small integer
+passed on the command line.
+**Method**: tools/seed_recovery_attack.py replays the exact motor rng
+(no-op moves skipped, as headless bind does) over a candidate seed
+range and matches the observed port prefix.
+**Success Criterion** (frozen): unique seed within a 2e5 search space
+from <= 5 observed ports, and the recovered seed reproduces the whole
+journalled sequence.
+**Falsification**: no unique candidate at <= 5 observations, or the
+recovered seed does not reproduce the full sequence.
+**Verdict**: CONFIRMED, L = 3 (docs/RESEARCH_V2.md F1).
+
+## h12 readout_bandwidth — registered 2026-10-30, not yet run
+
+**Hypothesis**: the current bio readout (`floor(64*mean of six journal
+scalars)`) is rank one, so its entropy is bounded by one scalar; a
+readout over a high-dimensional state vector raises the per-move
+information without touching the sim path.
+**Method**: replace the mean readout with a frozen hash over K neuron
+activations plus body state (K published, weights frozen before the
+run); 30 seeds x >= 2000 moves per mode; H(next|history) estimated on
+held-out halves, order-1 and order-2 attacker, L per attacker class.
+**Success Criterion** (frozen): H(next|hist) >= 5.0 bits/move and
+held-out order-1 accuracy <= 0.05 in >= 27 of 30 seeds.
+**Falsification**: H(next|hist) < 4.0 bits/move (the readout is not
+the bottleneck), or accuracy > 0.10 (structure survives widening).
+
+## h13 active_coupling — registered 2026-10-30, not yet run
+
+**Hypothesis**: because destination and detection read the same
+dynamical state, an active probe shifts the next-move distribution;
+this is the property a seeded PRNG cannot have by construction.
+**Method**: paired parties, with and without a scripted probe burst at
+a fixed offset from the previous move; estimate the KL divergence
+between next-move distributions (bits), bootstrap 95% CI over 30
+seeds; same seed, same event stream except the probe.
+**Success Criterion**: KL >= 0.1 bit with CI excluding zero.
+**Falsification**: CI contains zero, or the effect disappears once the
+detector path is removed (i.e. it is only the extra move, not a
+state-dependent change).
+
+## h14 nonstationarity — registered 2026-10-30, not yet run
+
+**Hypothesis**: live-only STDP makes the schedule's statistics drift,
+so an observer's learned model decays with time.
+**Method**: held-out order-1 accuracy per time quartile, STDP on vs
+off, 30 seeds.
+**Success Criterion**: last-quartile accuracy <= first-quartile minus
+0.05 absolute.
+**Falsification**: no decay beyond the CI.
+
+## h15 permutation_null — registered 2026-10-30, not yet run
+
+**Hypothesis**: a fixed secret permutation of the port alphabet is
+security-neutral: prediction accuracy on the permuted sequence equals
+accuracy on the unpermuted one for every learner.
+**Method**: relabel-invariance check (any bijection), same parties.
+**Success Criterion**: accuracy difference exactly zero for a
+bijective relabeling.
+**Falsification**: any learner whose accuracy differs (would mean the
+permutation carries information beyond relabeling). a confirmed null
+removes the feature from the design (docs/RESEARCH_V2.md F3).
