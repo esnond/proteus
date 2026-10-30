@@ -1,6 +1,6 @@
-# deep research: can bio exceed PRNG? — 2026-10-30
+# deep research: can bio exceed PRNG? 2026-10-30
 
-> **RETRACTED IN PART — 2026-10-30.** this document was written before
+> **RETRACTED IN PART, 2026-10-30.** this document was written before
 > any measurement. the following are WITHDRAWN as unsourced: every
 > entropy rate in the table below ("~10^4 bits/s per neuron", "~10^3
 > bits/s per synapse", "~10^2 bits/s per field", "~10^7 bits/s"),
@@ -15,17 +15,17 @@
 
 ## executive answer
 
-**yes, but not with the current coarse-graining**. the port output (6 bits/move) is the bottleneck. the connectome IS a high-dimensional chaotic system with microscopic thermal noise injecting continuous entropy. a PRNG has finite state (64/128/256 bits) and zero entropy rate. the bio system with true channel noise has positive KS entropy — it generates fresh entropy every microsecond. the problem: we throw it away by mapping to 64 ports.
+**yes, but not with the current coarse-graining**. the port output (6 bits/move) is the bottleneck. the connectome is a high-dimensional chaotic system with microscopic thermal noise injecting continuous entropy. a PRNG has finite state (64/128/256 bits) and zero entropy rate. the bio system with true channel noise has positive KS entropy, it generates fresh entropy every microsecond. the problem: we throw it away by mapping to 64 ports.
 
 ## where the entropy lives (physics, not handwaving)
 
 | source | physical origin | entropy rate estimate | in current petri? |
 |--------|----------------|----------------------|-------------------|
-| **voltage-gated Na/K channel gating** | thermal kT, ~1000 channels/neuron, two-state Markov | ~10^4 bits/s per neuron (aggregate) | NO — additive Gaussian on Vm only |
-| **synaptic vesicle release** | Ca-dependent binomial, p=0.1-0.5, ~10 vesicles/active zone | ~10^3 bits/s per synapse | NO — deterministic weights |
-| **neuromodulator diffusion** | volume transmission, diffusion + reuptake stochasticity | ~10^2 bits/s per field | NO — deterministic ODE |
-| **dendritic NMDA/Ca spikes** | stochastic channel clusters in spines | ~10^3 bits/s per branch | NO — point neuron |
-| **proprioceptive feedback loop** | body physics + muscle noise + sensory transduction | couples all above | YES (body physics) but noise only at Vm |
+| **voltage-gated Na/K channel gating** | thermal kT, ~1000 channels/neuron, two-state Markov | ~10^4 bits/s per neuron (aggregate) | no, additive Gaussian on Vm only |
+| **synaptic vesicle release** | Ca-dependent binomial, p=0.1-0.5, ~10 vesicles/active zone | ~10^3 bits/s per synapse | no, deterministic weights |
+| **neuromodulator diffusion** | volume transmission, diffusion + reuptake stochasticity | ~10^2 bits/s per field | no, deterministic ODE |
+| **dendritic NMDA/Ca spikes** | stochastic channel clusters in spines | ~10^3 bits/s per branch | no, point neuron |
+| **proprioceptive feedback loop** | body physics + muscle noise + sensory transduction | couples all above | yes (body physics) but noise only at Vm |
 
 **total bio entropy injection**: ~10^7 bits/s (279 neurons × channels + synapses). **PRNG entropy rate**: 0 (deterministic finite state). this is the fundamental gap.
 
@@ -34,9 +34,9 @@
 the measurement `L(port sequence)` is coarse-graining from 10^7 bits/s → 6 bits per move (~0.1 bits/s at 1 move/6s). the entropy is **there** but the readout throws 99.9999% away.
 
 to make bio exceed PRNG **on the port metric**, we must either:
-(A) **increase readout bandwidth** — more ports, or multi-bit encoding per move (e.g., port + timing + direction)
-(B) **concentrate entropy into the readout variables** — make the port choice depend on high-entropy microscopic state
-(C) **change the metric** — measure entropy rate directly, not predictability of a 6-bit symbol
+(A) **increase readout bandwidth**, more ports, or multi-bit encoding per move (e.g., port + timing + direction)
+(B) **concentrate entropy into the readout variables**, make the port choice depend on high-entropy microscopic state
+(C) **change the metric**, measure entropy rate directly, not predictability of a 6-bit symbol
 
 ## concrete engine modifications (petri v1.3 target)
 

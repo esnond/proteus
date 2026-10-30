@@ -1,10 +1,10 @@
-# release v1.0.0 — 2026-10-30
+# release v1.0.0, 2026-10-30
 
 ## what this release is
 
-a research prototype, packaged so results can be cited and re-run. it is
+a research prototype, packaged so results can be cited and rerun. it is
 not a hardened security product. the privileged bench (kernel nftables
-enforcement, active-probe measurement) has not been run.
+enforcement, active probe measurement) has not been run.
 
 included:
 
@@ -14,10 +14,10 @@ included:
 - detection and reflex layer (matched filter on AVB, engine-native
   reversal episodes), journal with bitwise party replay;
 - three destination generators: `cycle`, `bio`, `random` (`--dest-mode`);
-- pre-registered hypotheses h1–h15 with success and falsification criteria
-  (`docs/hypotheses.md`), verdicts including failures and one post-hoc
+- preregistered hypotheses h1–h15 with success and falsification criteria
+  (`docs/hypotheses.md`), verdicts including failures and one post hoc
   disclosure (`docs/hypotheses_results.md`);
-- deep-research report with a working reconstruction attack and explicit
+- deep research report with a working reconstruction attack and explicit
   retractions of unsourced numbers (`docs/RESEARCH_V2.md`);
 - v1.1 plan with four provable claims and a frozen experiment budget
   (`docs/PLAN_V11.md`);
@@ -33,8 +33,8 @@ included:
    describes a different stream than deployment.
 3. the bio readout is rank one (`floor(64 · mean of six scalars)`), which
    caps it at 16 distinct ports in practice.
-4. move rate 98 per 600 s sits below the pre-registered 100–300 band
-   (recorded as a miss, not re-run to fit).
+4. move rate 98 per 600 s sits below the preregistered 100–300 band
+   (recorded as a miss, not run again to fit).
 
 defects 1–3 are scheduled for removal in v1.1 (`docs/PLAN_V11.md` §3).
 

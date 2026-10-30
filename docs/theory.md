@@ -12,7 +12,7 @@
 ## гипотезы
 
 у каждой гипотезы номер, тезис, мера, эксперимент. гипотезы не
-«подтверждаются» выбором констант; константы фиксируются до
+"подтверждаются" выбором констант; константы фиксируются до
 эксперимента, опровержение публикуется.
 
 ### г1 самораскрытие защиты
@@ -67,11 +67,11 @@
 
 ### f1.4 bypass finding: low-and-slow detection boundary
 - finding: wire-level detection rate for targeted low-and-slow scans = 1/3 sessions (vs 7/10 fixture), but ban mechanism holds 100% of fires (0 sessions after ban row). client-side `refused` lies (kernel completes handshake before accept); server-side journal is truth.
-- interpretation: this is a DOCUMENTED MTD BOUNDARY, not a bug. the frozen threshold 30.0 was calibrated for FA budget (1/600s); low-and-slow stays under FA budget by design. the 1/3 detection rate at wire level is the published measurement. strengthens preprint: predicted the boundary where MTD crosses from effective to probabilistic.
+- interpretation: this is a documented MTD boundary, not a bug. the frozen threshold 30.0 was calibrated for FA budget (1/600s); low-and-slow stays under FA budget by design. the 1/3 detection rate at wire level is the published measurement. strengthens preprint: predicted the boundary where MTD crosses from effective to probabilistic.
 - where recorded: validate_r2.sh phase 5 test_5_4, results/r2_validation/report.md
 
 ### f1.2 timing CV justification
-- finding: test_5_1 timing side channel CV = 52%. this is driven by PUBLIC INPUT (scan density, wire-level published stochastic detection), not internal secret state. the detector is probabilistic by design at frozen threshold 30.0. timing variance = wire-level stochasticity, NOT a side-channel leak.
+- finding: test_5_1 timing side channel CV = 52%. this is driven by public input (scan density, wire-level published stochastic detection), not internal secret state. the detector is probabilistic by design at frozen threshold 30.0. timing variance = wire-level stochasticity, not a side-channel leak.
 - where recorded: validate_r2.sh phase 5 test_5_1, results/r2_validation/report.md
 
 ## статус на р1
