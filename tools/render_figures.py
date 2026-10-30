@@ -162,17 +162,18 @@ def fig_moves():
     x0, y0, x1, y1 = 70, h - 60, w - 30, 40
     sx = lambda v: x0 + (x1 - x0) * v / 320.0
     sy = lambda v: y0 - (y0 - y1) * v / 320.0
-    for a, b, col, lab in ((100, 300, ACC, "registered band 100..300"),):
-        L.append(f'<rect x="{sx(a):.0f}" y="{y1 + 6}" width="{sx(b) - sx(a):.0f}" '
+    extra = []
+    a, b, col, lab = 100, 300, ACC, "registered band 100..300"
+    extra.append(f'<rect x="{sx(a):.0f}" y="{y1 + 6}" width="{sx(b) - sx(a):.0f}" '
                  f'height="{y0 - y1 - 6}" fill="{col}" opacity="0.08"/>')
-        L.append(f'<text x="{sx((a + b) / 2):.0f}" y="{y1 + 24}" text-anchor="middle" '
+    extra.append(f'<text x="{sx((a + b) / 2):.0f}" y="{y1 + 24}" text-anchor="middle" '
                  f'font-size="10" fill="{col}">{lab}</text>')
-    L.append(f'<line x1="{sx(97.5):.0f}" y1="{sy(79.7):.0f}" x2="{sx(97.5):.0f}" '
-             f'y2="{sy(115.3):.0f}" stroke="{INK}" stroke-width="2"/>')
+    extra.append(f'<line x1="{sx(97.5):.0f}" y1="{sy(79.7):.0f}" x2="{sx(97.5):.0f}" '
+                 f'y2="{sy(115.3):.0f}" stroke="{INK}" stroke-width="2"/>')
     for v in (79.7, 115.3):
-        L.append(f'<line x1="{sx(97.5) - 8:.0f}" y1="{sy(v):.0f}" x2="{sx(97.5) + 8:.0f}" '
-                 f'y2="{sy(v):.0f}" stroke="{INK}" stroke-width="2"/>')
-    return L + ["</svg>"]
+        extra.append(f'<line x1="{sx(97.5) - 8:.0f}" y1="{sy(v):.0f}" x2="{sx(97.5) + 8:.0f}" '
+                     f'y2="{sy(v):.0f}" stroke="{INK}" stroke-width="2"/>')
+    return L[:-1] + extra + [L[-1]]
 
 
 if __name__ == "__main__":

@@ -19,7 +19,6 @@
 <text x="300" y="201" text-anchor="middle" font-size="11">97.5</text>
 <text x="300" y="296" text-anchor="middle" font-size="11">mean</text>
 <text x="70" y="328" font-size="10" fill="#8d99ae">n = 10, sd 24.9, t interval [79.7, 115.3]; registered band 100..300</text>
-</svg>
 <rect x="214" y="46" width="288" height="234" fill="#e63946" opacity="0.08"/>
 <text x="358" y="64" text-anchor="middle" font-size="10" fill="#e63946">registered band 100..300</text>
 <line x1="210" y1="220" x2="210" y2="194" stroke="#1a1a2e" stroke-width="2"/>
