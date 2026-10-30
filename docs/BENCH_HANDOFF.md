@@ -1,15 +1,15 @@
-# BENCH_HANDOFF.md — sudo checklist for owner
+# BENCH_HANDOFF.md: sudo checklist for owner
 
-## What this unlocks
-Running these commands on a privileged bench (real hardware, CAP_NET_ADMIN, netns) upgrades the empirical story:
+## what this unlocks
+running these commands on a privileged bench (real hardware, CAP_NET_ADMIN, netns) upgrades the empirical story:
 - **r2 validation**: from "sandbox-passed with env blocks" → "bench-validated"
 - **g4 active probe**: from "blocked" → measured L_active vs L_passive on real netns
-- **g6 transfer gap**: from "blocked" → synthetic-trained observer on independent stand
-- **Paper**: from "preprint with caveats" → "bench-complete, main-track eligible if g7 holds"
+- **g6 transfer gap**: from "blocked" → synthetic trained observer on independent stand
+- **paper**: from "preprint with caveats" → "bench complete, main track eligible if g7 holds"
 
 ---
 
-## 1. r2 Full Validation (30-45 min)
+## 1. r2 full validation (30-45 min)
 
 ```bash
 cd /home/esnond/proteus
@@ -17,16 +17,16 @@ git pull
 sudo tools/validate_r2.sh
 ```
 
-**What it proves:**
-- Phase 1: nftables backend AVAILABLE (kernel accepts hand-built netlink), bans persist across daemon restart
-- Phase 2: nft set persistence + rule correctness (kernel ruleset matches daemon intent)
-- Phase 6: Full scenario A legit → B scan ban (nft) → C legit survives → D brute ban
+**what it proves:**
+- phase 1: nftables backend available (kernel accepts hand built netlink), bans persist across daemon restart
+- phase 2: nft set persistence + rule correctness (kernel ruleset matches daemon intent)
+- phase 6: full scenario A legit → B scan ban (nft) → C legit survives → D brute ban
 
-**Exit criteria:** `report.md` shows `VERDICT: r2 validated, proceed to r3` (all CRITICAL green, IMPORTANT > 80%)
+**exit criteria:** `report.md` shows `VERDICT: r2 validated, proceed to r3` (all CRITICAL green, IMPORTANT > 80%)
 
 ---
 
-## 2. g4 Active Probe on Real Netns (15 min)
+## 2. g4 active probe on real netns (15 min)
 
 ```bash
 cd /home/esnond/proteus
@@ -38,11 +38,11 @@ sudo sh tools/netns_setup.sh proteus_bench
 sudo sh tools/netns_teardown.sh proteus_bench
 ```
 
-**What it proves:** Whether probing reduces learnability below passive bound (g4 thesis) on real kernel path.
+**what it proves:** whether probing reduces learnability below passive bound (g4 thesis) on real kernel path.
 
 ---
 
-## 3. g6 Transfer Gap on Independent Stand (1 h)
+## 3. g6 transfer gap on independent stand (1 h)
 
 ```bash
 # Requires: second machine / VM with different kernel / hardware
@@ -51,11 +51,11 @@ sudo sh tools/netns_teardown.sh proteus_bench
 # Measure transfer gap = L_stand - L_proteus
 ```
 
-**What it proves:** Model-collapse caveat (g6) — synthetic-trained observer generalization.
+**what it proves:** model collapse caveat (g6): synthetic trained observer generalization.
 
 ---
 
-## 4. Full Phase 3 Sweep (72 h, can run overnight)
+## 4. full phase 3 sweep (72 h, can run overnight)
 
 ```bash
 cd /home/esnond/proteus
@@ -63,16 +63,16 @@ git pull
 make phase3
 ```
 
-**What it produces:**
+**what it produces:**
 - `results/hypotheses/g1_g7_results.csv` (training 1001..1100)
 - `results/hypotheses_validate/g1_g7_results.csv` (held-out 2001..2100)
-- Manifests with SHA256
+- manifests with SHA256
 
-**If g7 holds** (L_bio ≥ 10×L_seeded, legit disruption < 1%): paper is main-track eligible.
+**if g7 holds** (L_bio ≥ 10×L_seeded, legit disruption < 1%): paper is main track eligible.
 
 ---
 
-## 5. Push Results
+## 5. push results
 
 ```bash
 cd /home/esnond/proteus
@@ -85,28 +85,28 @@ git push --force-with-lease origin v1.2-autonomous
 
 ---
 
-## What each result upgrades
+## what each result upgrades
 
-| Bench result | Paper claim upgraded |
+| bench result | paper claim upgraded |
 |--------------|---------------------|
 | r2 VERDICT=validated | "nftables enforcement works" (not just userspace) |
 | g4 L_active < L_passive | "active probing reduces learnability" (not just synthetic) |
-| g6 transfer gap > 0 | "model-collapse caveat quantified" (not just assumed) |
-| g7 L_bio ≥ 10×L_seeded + disruption < 1% | Central thesis confirmed → main-track submission |
+| g6 transfer gap > 0 | "model collapse caveat quantified" (not just assumed) |
+| g7 L_bio ≥ 10×L_seeded + disruption < 1% | central thesis confirmed → main track submission |
 
 ---
 
-## If bench unavailable
+## if bench unavailable
 
-The paper.md, atlas, g1-g7 infrastructure, and sandbox-validated r2 are **complete and honest**. The limitations section explicitly states what's unvalidated. This is a valid workshop/arXiv contribution as-is.
+the paper.md, atlas, g1-g7 infrastructure, and sandbox validated r2 are **complete and honest**. the limitations section explicitly states what is unvalidated. this is a valid workshop/arXiv contribution as is.
 
-**No silent "needs owner" items** — every blocker has a ready script above. Run what you can, publish what you get.
+**no silent "needs owner" items**: every blocker has a ready script above. run what You can, publish what You get.
 
 ---
 
 ## r2.5 additions (2026-10-29)
 
-four bench-only items, each a ready command. no item is "needs owner".
+four bench only items, each a ready command. no item is "needs owner".
 
 | item | command | what upgrades |
 |---|---|---|

@@ -68,4 +68,3 @@ event 8 has two producers since r3: the connectome detector (cause 2)
 and the immune-scope credential-stuffing counter (cause 0, the
 connectome is not in that path). cause stays a 2-bit mask and the
 column set is unchanged; readers that need the producer test cause.
-

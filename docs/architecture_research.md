@@ -1,6 +1,6 @@
-# Architecture research: the tick, idle CPU, and industry patterns
+# architecture research: the tick, idle CPU, and industry patterns
 
-date: 2026-10-29, r3 phase A. inputs: gprof of 30k ticks, poor-man
+date: 2026-10-29, r3 phase A. inputs: gprof of 30k ticks, poor man
 backtrace sampling, strace -c, web literature pass (sources inline).
 
 ## measured baseline
@@ -17,21 +17,21 @@ backtrace sampling, strace -c, web literature pass (sources inline).
 
 ## how production systems solve "fixed logical rate vs idle cpu"
 
-1. Fixed-timestep accumulator with a clamp (game loops): accumulate wall
-   time, step once per dt of it, and CLAMP the accumulator so a wake
-   never catches up unboundedly ("spiral of death" guard). The logical
-   clock runs slow whenever the loop is idle; bursts bring catch-up
+1. fixed timestep accumulator with a clamp (game loops): accumulate wall
+   time, step once per dt of it, and clamp the accumulator so a wake
+   never catches up unboundedly ("spiral of death" guard). the logical
+   clock runs slow whenever the loop is idle; bursts bring catch up
    bounded by the clamp.
    [Fiedler, Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep)
    [GameDev SE](https://gamedev.stackexchange.com/questions/187660/fixed-timestep-game-loop-why-interpolation)
-2. Discrete-event simulation advances the clock to the next scheduled
-   event; between events nothing runs. Correct for event-sparse models,
+2. discrete event simulation advances the clock to the next scheduled
+   event; between events nothing runs. correct for event sparse models,
    wrong for a controller whose stimulus statistics are defined per
-   tick: proteus tried a pure event-driven loop and the detector broke
+   tick: proteus tried a pure event driven loop and the detector broke
    (det_score 6.25 with 121/134 ticks carrying input; the calibrated
    regime is ~6-8% of ticks carrying input).
-3. Tickless kernels stop the periodic tick when idle but keep scheduled
-   timers; work with deadlines runs when its timer fires. Maps to: the
+3. tickless kernels stop the periodic tick when idle but keep scheduled
+   timers; work with deadlines runs when its timer fires. maps to: the
    token reaper owns a coarse deadline, the simulation is not a deadline
    worker.
 
@@ -54,29 +54,29 @@ backtrace sampling, strace -c, web literature pass (sources inline).
 
 ## decisions taken (r3 phase A)
 
-1. Accumulator event loop with clamp: poll on listener + control peers
+1. accumulator event loop with clamp: poll on listener + control peers
    (including peers that connected before they sent), IDLE_POLL_MS=1000
    deadline shared with the token reaper, TICK_CATCHUP_MAX=10 steps per
    wake. idle ~10 ticks/s ~ 0.5% cpu; burst wakes are instant and bring
    empty ticks, so the detector sees the calibrated stimulus density.
    `-d` is wall seconds in live mode.
-2. Security timers moved to the wall clock: ban ttl, token ttl, reaper.
+2. security timers moved to the wall clock: ban ttl, token ttl, reaper.
    a security timer must not stretch with a slowed simulation clock;
-   this was a latent bug of every quiet-time scheme including the old
+   this was a latent bug of every quiet time scheme including the old
    --idle-divisor. headless mode keeps sim time and stays bitwise
    replayable.
-3. Subscriber/peer tables stay bounded (IPC_CLIENTS_MAX) with loud
-   rejection; the oversized-command slot leak and the connect-before-
+3. subscriber/peer tables stay bounded (IPC_CLIENTS_MAX) with loud
+   rejection; the oversized command slot leak and the connect before
    send race are closed with regression tests.
 
 ## residuals
 
 - sim-time processes (the connectome) run up to 100x slower in long
   quiet; endogenous port moves then also pause. a port move during
-  quiet is not defense-relevant (nobody is scanning), but it is a
-  published behavior change vs the wall-paced clock.
-- wake latency target p99 < 1 ms is client-side measured; the daemon
-  side needs the h8 instrument on the bench.
+  quiet is not relevant for defense (nobody is scanning), but it is a
+  published behavior change compared with the clock paced by wall time.
+- wake latency target p99 < 1 ms is measured on the client side; the
+  daemon side needs the h8 instrument on the bench.
 - 8 legitimate short log subscribers can still hold the control table;
   a subscriber cap that reserves a status slot is the closing design
   (blue team residual).
@@ -92,9 +92,9 @@ stability (Li, Information Sciences 2025); Rlaph (Springer 2025)
 compares static vs fixed-time vs dynamic hopping; federated multi-agent
 MTD (arXiv 2506.07392).
 
-schedule learnability in the literature: NOT a standard measurement.
+schedule learnability in the literature: not a standard measurement.
 closest work: Mani et al. 2023 (LSTM predicts the next address of
-RT-MTD from update messages), ieee 802.15.4 channel-hopping sequence
+RT-MTD from update messages), IEEE 802.15.4 channel-hopping sequence
 cracking (prediction probability of schedule slots), Cai et al.
 (unpredictability as attacker key-information coverage). none publish
 an L-style observation-count metric against defined observer classes.
@@ -104,18 +104,18 @@ four defensible differentiators for proteus, in order of strength:
    observer classes (passive markov, active prober, reconstruction);
    proteus ships the instrument and measured numbers. industry has
    nothing comparable.
-2. closed-loop schedule: the generator state is an organism that
-   REACTS to attack pressure (oct/ser injection shifts timing);
-   competitor schedules are open-loop time functions. mid-attack
-   prediction breaks by construction.
+2. closed loop schedule: the generator state is an organism that
+   reacts to attack pressure (oct/ser injection shifts timing);
+   competitor schedules are open loop time functions. prediction in the
+   middle of an attack breaks by construction.
 3. host-specific schedules from per-host connectome state without a
    shared generator (the г3 k-anonymity angle, harness pending).
-4. bitwise-replayable live daemon: every schedule decision auditable
+4. bitwise replayable live daemon: every schedule decision auditable
    post hoc from the journal, which no polymorphic endpoint product
    offers.
 
 honest threats: MTD reviewers will ask why biology beats a good PRNG
-at unpredictability — the answer must come from the h9 data (equal
+at unpredictability: the answer must come from the h9 data (equal
 L to random would justify the design on detection coupling + audit,
-not on unpredictability); the closed-loop claim needs a live-surface
+not on unpredictability); the closed loop claim needs a live surface
 experiment, journals alone show the coupling exists.

@@ -1,4 +1,4 @@
-# PLAN_V1 — from r3 tail to v1.0, token-constrained
+# PLAN_V1: from r3 tail to v1.0, token-constrained
 
 status at plan time: master 38411ca, r2.5 shipped, r3 tail fixes done
 (ci, gcore, h7 auth ban, ipc oversized, blue_team agent). idle 0.96% at
@@ -48,12 +48,12 @@ sudo tools/validate_r2.sh
 
 phase A does not start until the bench run shows 1.4 and 5.2 green.
 
-## PHASE A — idle < 0.5% (must-have, priority 1)
+## phase a: idle < 0.5% (must-have, priority 1)
 
 goal: event-driven tick, no periodic timer, `--idle-divisor` removed.
 
 1. methodologist (80k): register h8_idle before code. criterion: idle cpu
-   < 0.5% over 600 s, wake p99 < 1 ms, PARTY REPLAY cmp identical, zero
+   < 0.5% over 600 s, wake p99 < 1 ms, party replay cmp identical, zero
    dropped network events under a 1000 ev/s burst. falsification: any
    one fails.
 2. architect (200k): poll() over listener + ipc socket + a timeout that
@@ -72,7 +72,7 @@ goal: event-driven tick, no periodic timer, `--idle-divisor` removed.
 exit: all four numbers; adversarial+blue reports clean or residuals
 published. commit `feat(r3): event-driven tick`.
 
-## PHASE B — science h1-h6 (priority 2: h2, then h1)
+## phase b: science h1-h6 (priority 2: h2, then h1)
 
 1. methodologist (120k): register h1-h6 with success/falsification, held
    out seeds (dev 1-50, holdout 51-100), power analysis, multiple
@@ -96,7 +96,7 @@ published. commit `feat(r3): event-driven tick`.
 exit: every h1-h6 has confirmed / refuted-with-data / inconclusive, with
 numbers. negative results published.
 
-## PHASE C — red team t13-t17 + blue team (priority 4)
+## phase c: red team t13-t17 + blue team (priority 4)
 
 1. adversary (200k): t13 predictability, t14 sustained fatigue, t15 tick
    race, t16 immune bypass, t17 nft bypass. results/red_team/REPORT_r3.md.
@@ -107,7 +107,7 @@ numbers. negative results published.
 
 exit: every t has verdict + mitigation or documented residual.
 
-## PHASE D — release r4 (priority 6)
+## phase d: release r4 (priority 6)
 
 1. methodologist (100k): paper skeleton, 6 attacker models, honest
    limitations, venue decision (workshop/arXiv unless h2 is strong).
@@ -120,7 +120,7 @@ exit: every t has verdict + mitigation or documented residual.
 exit: paper draft complete with the h2 verdict; packaging green;
 reproducibility manifest present.
 
-## PHASE E — final validation and v1.0 (priority 7)
+## phase e: final validation and v1.0 (priority 7)
 
 1. main (0): full gate, bench validate, ROC to 6000, ASan on bench.
 2. adversary (60k) + blue_team (60k): final pass, only if C/D changed

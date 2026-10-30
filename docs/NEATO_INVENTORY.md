@@ -1,4 +1,4 @@
-# NEATO_INVENTORY — working-tree inventory, 2026-10-29
+# NEATO_INVENTORY: working-tree inventory, 2026-10-29
 
 owner order: delete every neato mention from the working repository,
 robotics lane cancelled (HX-9). history keeps its traces as provenance
@@ -33,9 +33,9 @@ are true and the paper must state what it does not cover.
 | file:line | text | disposition |
 |---|---|---|
 | paper.md:12 | "robot body excluded" | keep, scope limit |
-| paper.md:210 | table row "Robot body excluded" | keep, scope limit |
+| paper.md:210 | table row "robot body excluded" | keep, scope limit |
 | paper.md:258 | "scope cuts (robot excluded)" | keep, scope limit |
-| docs/decisions.md:6 | "Robot body EXCLUDED (AGENTS.md)" | keep, superseded by HX-9 note |
+| docs/decisions.md:6 | "robot body excluded (AGENTS.md)" | keep, superseded by HX-9 note |
 
 ## verdict
 

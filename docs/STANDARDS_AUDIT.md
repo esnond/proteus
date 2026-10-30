@@ -1,9 +1,9 @@
-# standards audit — r2.5
+# standards audit, r2.5
 
 | skill | check | result |
 |---|---|---|
 | c99-posix-strict | `-std=c99 -pedantic -Wall -Wextra -Werror` on every build | clean, including trust.c |
-| clean-c | functions <= 60 lines | **exception**: `session_run` 307 lines (pre-existing). justified: the tick loop is one ordered state machine (sensor, rate, detector, reflex, ban, move, journal); splitting scatters the ordering invariant. protuesd main 67, cmd_party 87: small overruns, noted |
+| clean-c | functions <= 60 lines | **exception**: `session_run` 307 lines (existing before). justified: the tick loop is one ordered state machine (sensor, rate, detector, reflex, ban, move, journal); splitting scatters the ordering invariant. protuesd main 67, cmd_party 87: small overruns, noted |
 | clean-c | snake_case, UPPER_CASE macros | ok |
 | suckless-core | no abstraction used < 3 times | trust module is used by ipc, sensor, session, proteusctl (>=3); no config files added |
 | determinism-gate | bitwise replay | untouched: trust/registration never enters the sim path; party replay green |

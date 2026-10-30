@@ -1,6 +1,6 @@
-# r2 validation record — 2026-10-29
+# r2 validation record, 2026-10-29
 
-> NOTE: tests 1.3 and 1.4 in the first two runs below were invalid, see
+> note: tests 1.3 and 1.4 in the first two runs below were invalid, see
 > "correction" at the end. the corrected phase 1 result is there too.
 
 environment: kernel 6.12.113+deb13-amd64, Intel(R) Core(TM) i5-2520M CPU @ 2.50GHz, root in unshare -Urnm (userns+netns+mountns), nft 1.1.3, strace present
@@ -10,13 +10,13 @@ binary sha256: 779c4d2f7afd6f9cdd7ca076b2d9ed0f98865742597e2e8df36ec1479a630501
 
 ## result
 
-- Tests run (passed+failed): 18
-- Passed: 18
-- Failed: 0
-- Skipped: 2 (environment limits, listed below)
-- CRITICAL: all green
-- IMPORTANT pass rate: 100% (gate: above 80 percent)
-- VERDICT: r2 validated, proceed to r3 (benchmarks gaps documented)
+- tests run (passed+failed): 18
+- passed: 18
+- failed: 0
+- skipped: 2 (environment limits, listed below)
+- critical: all green
+- important pass rate: 100% (gate: above 80 percent)
+- verdict: r2 validated, proceed to r3 (benchmarks gaps documented)
 
 ## per test
 
@@ -46,7 +46,7 @@ binary sha256: 779c4d2f7afd6f9cdd7ca076b2d9ed0f98865742597e2e8df36ec1479a630501
 - two skips: timing side channel (only 3 repeats in this pass) and gcore state leak (no gcore)
 - the same script on the lab with ADV_REPEATS=20 covers the timing run
 
-## full-timing run on the lab, root
+## full timing run on the lab, root
 
 environment: root on the bench, BENCH_DUR=300, DET_DUR=300,
 ADV_REPEATS=20, runtime 21 min, commit 1a1e9b5
@@ -77,16 +77,16 @@ ADV_REPEATS=20, runtime 21 min, commit 1a1e9b5
 ## correction: 1.3 and 1.4 in that run were not evidence
 
 - 1.3 read the port once before the sweep and passed it to the mixed
-  client. the worm had already moved, so all 51 refusals were stale-port
-  refusals, not false positives. the PASS came from `bans>=1` counted
+  client. the worm had already moved, so all 51 refusals came from the
+  stale port, not false positives. the PASS came from `bans>=1` counted
   over the whole journal, including the 1.1 ban.
 - 1.4 read netns_journal.csv, the journal of the daemon stopped at the
-  start of 1.2. it could only re-read the 1.1 ban. brute force was never
+  start of 1.2. it could only read the 1.1 ban again. brute force was never
   actually tested.
-- the IMPORTANT pass-rate accounting counted only failures and nice
+- the important pass rate accounting counted only failures and nice
   tests, so the "100%" was computed over a broken denominator.
 
-## defects found by the corrected mixed-traffic test
+## defects found by the corrected mixed traffic test
 
 1. sensor: eof from a peer that had sent payload was counted as a scan
    and set last_scan_ip. under mixed traffic the legitimate source
@@ -118,5 +118,5 @@ was fitted to this test here.
 
 ## pending
 
-- lab re-run of phase 1 with the corrected tests (sudo tools/validate_r2.sh)
-- r3: brute-force input for the detector (hypothesis, not a patch)
+- lab rerun of phase 1 with the corrected tests (sudo tools/validate_r2.sh)
+- r3: brute force input for the detector (hypothesis, not a patch)

@@ -1,4 +1,4 @@
-# immune scope — r2.5 trust layer
+# immune scope: r2.5 trust layer
 
 purpose: registered local services get zero false positives; the
 behavioral detector keeps its full input for everything unregistered.
@@ -17,7 +17,7 @@ logic in neuron/sim code).
                                     source IP trusted for 60 s
 
 - token: 32 bytes from getrandom() (kernel CSPRNG). the connectome rng is
-  a schedule generator and is NOT used for keys; that would be dishonest
+  a schedule generator and is not used for keys; that would be dishonest
   and the red team checks it (t1).
 - lifetime: bounded by the process. the reaper stats /proc/<pid> every
   500 ms and drops dead or expired entries; a helper process cannot
@@ -48,13 +48,13 @@ syscalls; the daemon survives registration under the filter.
 | token guess | 256-bit getrandom | infeasible |
 | replay after death | reaper stats the pid | revoked, tested |
 | helper registers for a service | token bound to peer pid | no (observed) |
-| same-uid attacker | same uid = same trust domain | MODEL BOUNDARY, documented |
+| same-uid attacker | same uid = same trust domain | model boundary, documented |
 | table exhaustion | 32 entries, registration needs owner/root | cap, denied |
 | token timing | constant-time compare | see t6 |
 | malformed registration | hex validation, fixed buffers | t7 |
 | seccomp growth | regenerated profile, 36 syscalls | documented |
 | nft mark spoof from wire | mark is local metadata | impossible by design |
-| mark fast path actually fires | measured counter | **NOT observed** (see t9) |
+| mark fast path actually fires | measured counter | **not observed** (see t9) |
 
 ## limitations, published
 

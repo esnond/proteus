@@ -1,4 +1,4 @@
-# ROLLBACK.md — exact undo per phase
+# ROLLBACK.md, exact undo per phase
 
 ## r2.5 run (branch r2.5-immune)
 
