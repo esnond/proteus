@@ -23,6 +23,7 @@ SOURCE_GLOBS = (
     "docs/*.md",
     "results/research_v2/*.md",
     "results/manifest.txt",
+    "results/paper_stats.txt",
 )
 
 TOKEN = re.compile(r"\d+(?:[.,]\d+)?")

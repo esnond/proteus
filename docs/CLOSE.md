@@ -19,10 +19,10 @@ replay.
 - **the loop closes.** a scan burst drives ASH, ASH drives the body, the
   body drives AVA/AVB, command activity moves the port. no policy layer.
 - **determinism is real.** same seed, same event file, same binary,
-  journal identical byte for byte (100 parties × 600 s).
+  journal identical byte for byte (one pair verified at seed 42; the 100 party replay was not run).
 - **detection works at a frozen threshold.** 50.0 derived from a false
   alarm budget: 8 false alarms across 10 seeds × 600 s; burst detection
-  8/10, Wilson 95% CI [0.44, 0.97].
+  8/10 any firing (Wilson 95% CI [0.490, 0.943]) but only 3/10 inside 3 s of stimulus onset (Wilson [0.108, 0.603]): the early fires precede the stimulus.
 - **one metric spans both fields.** *L*, observations until the next
   action is predicted with p ≥ 0.9, is reported for worm behaviour and
   for the defense schedule alike.
@@ -51,7 +51,7 @@ replay.
 ## open defects at close
 
 listed in `docs/RELEASE_V1.md`: seed recovery, live/headless divergence,
-rank one readout, move rate 98 per 600 s below the preregistered 100–300
+rank one readout, move rate mean 97.5 per 600 s, 95% CI [79.7, 115.3], below the preregistered 100-300
 band (recorded as a miss, never run again to fit).
 
 ## value, honestly

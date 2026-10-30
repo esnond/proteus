@@ -1,0 +1,27 @@
+# paper statistics, regenerated from shipped journals
+# command: tools/paper_stats.py --out results/paper_stats.txt
+
+connectome nodes after the loader rule (NMJ dropped, BWM gap dropped): 279
+
+quiet move rate, n=10 seeds x 600 s:
+  mean 97.5, sd 24.9, 95% t-CI [79.7, 115.3], range [62, 152]
+  preregistered band [100, 300]: mean is below it, the CI overlaps 100
+
+false alarms at threshold 50.0, 10 seeds, 6000 s model time:
+  total 8, rate 0.80 per 600 s, 95% Poisson CI [0.34, 1.58] per 600 s
+  budget 10 over 6000 s: within
+
+burst detection at threshold 50.0, n=10 journals:
+  any firing anywhere: 8/10 = 0.80, wilson 95% CI [0.490, 0.943], clopper-pearson [0.444, 0.975]
+  firing inside the 3 s window after stimulus onset: 3/10 = 0.30, wilson 95% CI [0.108, 0.603], clopper-pearson [0.067, 0.652]
+
+party lengths, moves per 600 s party:
+  bio: n=100, min 44, median 84, max 141
+  cycle: n=100, min 58, median 97, max 155
+  random: n=100, min 57, median 96, max 154
+
+no-op proxy, bio parties (a move tick whose port did not change):
+  move ticks 10048, port unchanged 1517, share 15.1%
+
+idle cpu: not measured in this tree; the 0.75% figure is the arithmetic bound 6 x 1.25 ms per 1000 ms poll, not a measurement
+bitwise replay: verified on seed 42 (one pair, cmp identical); a 100 party replay claim needs its own run

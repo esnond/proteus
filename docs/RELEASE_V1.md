@@ -33,7 +33,7 @@ included:
    describes a different stream than deployment.
 3. the bio readout is rank one (`floor(64 · mean of six scalars)`), which
    caps it at 16 distinct ports in practice.
-4. move rate 98 per 600 s sits below the preregistered 100–300 band
+4. move rate mean 97.5 per 600 s, 95% CI [79.7, 115.3], sits below the preregistered 100-300 band
    (recorded as a miss, not run again to fit).
 
 defects 1–3 are scheduled for removal in v1.1 (`docs/PLAN_V11.md` §3).

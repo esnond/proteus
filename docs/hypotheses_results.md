@@ -8,7 +8,7 @@ held-out 2001..2100 not yet run for anything below.
 
 n=20 paired (1001..1020), dose matched sustained schedule frozen in the
 tool before the run. det fires: burst 20 vs sustained 19; per party mean
-diff -0.05, 95% CI [-0.20, 0.10], dz = -0.13, wilcoxon p = 0.564.
+diff -0.05, 95% CI [-0.234, 0.134], dz = -0.13, wilcoxon p = 0.564 (CI recomputed from sustained results; the earlier [-0.20, 0.10] did not reproduce).
 mean det_score last 300 s: diff +0.001, dz = 0.01, p = 0.622.
 the bench desensitization (mixed traffic left det_score 16-20, h7
 amendment) is an order/mixed-input effect, not a sustained-rate effect.
@@ -30,7 +30,7 @@ engine: petri v1.2 core, varshney wiring, vitals in docs/STATE.md.
 
 bio vs cycle censored L: wilcoxon p = 6.6e-21, cohen d = 3.81.
 bio vs random: indistinguishable at this instrument's resolution (both
-censored; the party gives 35..132 observations, the cap is 500).
+censored; the party gives 44..155 observations and the cap of 500 was never reached).
 
 criterion 1 (bio L>=500 in >=95%): pass, 100%, with the censoring
 caveat: "never reached 0.9 within the available observations", not
@@ -41,7 +41,7 @@ misses are parties shorter than 76 moves, where the crossing point
 lies beyond the data. measurement censoring, not schedule change.
 criterion 3 (n_moves n.s. bio vs cycle): fail as registered. root
 cause found: the bio readout can return the same port on consecutive
-moves (13% no-op moves), so the port-change count (70 vs 82) undercounts
+moves (15.1% no-op moves over 100 bio parties), so the port-change count undercounts
 motor events; motor events are identical per seed (cause tallies 81/67/
 75...): timing invariance holds exactly. a registered h9a amendment
 (no-op elimination) is the correct follow-up; these data are reported
@@ -54,11 +54,11 @@ reflex := engine-native reversal episode (speed < -0.02 mm/s sustained
 matched filter design kept. frozen threshold 50.0 (lowest grid value
 with FA within budget: 8 FAs of 10 allowed on seeds 101..110, 6000 s
 model time; 30: 25, 40: 16, 50: 8, 55: 3, 60: 1, 70: 0). detection
-8/10 burst journals, wilson 95% CI [0.44, 0.97], published as outcome.
+8/10 burst journals show any firing (wilson 95% CI [0.490, 0.943]) but only 3/10 fire inside the 3 s window after stimulus onset (wilson [0.108, 0.603]); the five early fires precede the stimulus and are not detections.
 criterion 1 (quiet move rate in [100, 300]/600 s): fail at the mean,
-98 [63..153]. the failure mode the band guarded (dead coupling, no
+mean 97.5, 95% CI [79.7, 115.3], range [62, 152]. the failure mode the band guarded (dead coupling, no
 moves) is excluded by the data; recorded as is, owner escalation noted.
-criterion 2 (FA budget met): pass. burst detection measured: 8/10.
+criterion 2 (FA budget met): pass, 8 alarms over 6000 s. burst detection measured: 8/10 any firing, 3/10 inside the window.
 data: results/cal_v12/, journals in results/journals_v12/.
 
 ## h1-h4, h6: not measured on the current core
