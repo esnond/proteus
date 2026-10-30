@@ -21,6 +21,7 @@ import sys
 SOURCE_GLOBS = (
     "README.md",
     "docs/*.md",
+    "results/*.md",
     "results/research_v2/*.md",
     "results/schedule_attack/*.md",
     "results/manifest.txt",
