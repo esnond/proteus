@@ -521,3 +521,32 @@ bijective relabeling.
 **Falsification**: any learner whose accuracy differs (would mean the
 permutation carries information beyond relabeling). a confirmed null
 removes the feature from the design (docs/RESEARCH_V2.md F3).
+
+## amendment 2026-10-30 (methodologist pass, docs/PLAN_V11.md §5)
+
+applies to h9, h12-h15; no criterion is loosened, three are replaced
+because they were not measurable as written.
+
+- **h9 / h11 censoring**: parties hold 35..132 moves, so the registered
+  cap of 500 is never reached and "L >= 500" is not supported. report
+  instead the proportion of parties reaching prediction 0.9 within the
+  party and the survival curve; state the cap explicitly. the L = 3 for
+  DEST_RANDOM stands (it is reached, not censored).
+- **h12**: freeze before the run: K (number of engine variables), the
+  hash, the weights, the alphabet, the smoothing, the estimator
+  (Miller-Madow for H, bootstrap for CI), and the alpha family. the
+  "27 of 30" rule needs a stated null and alpha; use 30 seeds, paired
+  comparison, alpha in the declared family.
+- **h13**: KL plug-in bias at K=64, N=200 is about 0.23 bits, above the
+  0.1 bit threshold, so the registered N is too small. raise to
+  N >= 500 moves per arm and correct the estimator. add the
+  detector-removed control arm, which separates "state-dependent
+  coupling" from "one extra move".
+- **h14**: STDP cannot run live-only in a headless-first project. in
+  headless the plasticity schedule is a function of elapsed model time,
+  not of feedback. declare quartile boundaries before the run.
+- **h15**: "accuracy difference exactly zero" is a theorem, not an
+  experiment. replace with TOST equivalence, margin 0.01 absolute.
+- **h11**: stays reconnaissance, excluded from the confirmatory family.
+- family: 5 primary endpoints (one per h11-h15, h11 excluded), Bonferroni
+  alpha 0.01; everything else exploratory with BH q=0.05.
