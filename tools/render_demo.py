@@ -63,7 +63,7 @@ def main():
     ap.add_argument("journal")
     ap.add_argument("-o", "--out", default="docs/demo.svg")
     ap.add_argument("--title",
-                    default="connectome-driven port schedule")
+                    default="c. elegans connectome drives the port schedule")
     args = ap.parse_args()
 
     rows = read_journal(args.journal)

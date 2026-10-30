@@ -60,7 +60,7 @@ fail:
 
 static void perm_init(motor_t* m, uint64_t seed)
 {
-    /* Fisher-Yates shuffle of 0..63 using xorshift seeded with seed */
+    /* fisher-yates shuffle of 0..63 using xorshift seeded with seed */
     for (int i = 0; i < 64; i++)
         m->perm[i] = (uint8_t)i;
     uint64_t s = seed ^ 0xBF58476D1CE4E5B9ULL;
@@ -156,7 +156,7 @@ int motor_move_to(motor_t* m, int index)
     index %= PORT_WINDOW;
     if (index < 0)
         index += PORT_WINDOW;
-    /* h9a amendment: no-op elimination — if secret permutation maps
+    /* h9a amendment: no-op elimination: if secret permutation maps
      * back to current port, advance forward until port changes */
     if (m->perm_ready)
         index = m->perm[index];
