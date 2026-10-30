@@ -3,7 +3,7 @@
 this file exists because the four gaps in paper/FINAL.md named a privileged
 bench, an n=30 entropy run, a comparison with published animal behaviour,
 and an independent reader. the entropy run and the two documents are done
-elsewhere. this one cannot be done from the agent sandbox: `sudo -n` needs a
+elsewhere. this one cannot be done from the build sandbox: `sudo -n` needs a
 password and the kernel objects it exercises (`cap_net_admin`, netfilter,
 gcore) are not reachable without root.
 
