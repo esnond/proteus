@@ -21,3 +21,6 @@ results/v1.2-*.txt
 tools/__pycache__/
 results/sustained_journals/
 results/hypotheses_validate/
+.venv/
+__pycache__/
+*.pyc
