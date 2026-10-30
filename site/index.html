@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>proteus: расписание портов, ведомое коннектомом червя</title>
+<meta name="description" content="детерминированный headless планировщик tcp портов, метка которого читается из модели коннектома C. elegans. научная работа в двух языках и каталог опровержений.">
+<style>
+  :root{
+    --ink:#1a1a2e; --mute:#5c6478; --bg:#f7f8fa; --card:#ffffff;
+    --bio:#2a9d8f; --cyc:#e76f51; --rnd:#457b9d; --acc:#e63946;
+    --line:#e3e7ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,"Segoe UI",roboto,ubuntu,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  a{color:var(--rnd);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header{background:linear-gradient(135deg,#12203a 0%,#1a3a5c 55%,#2a9d8f 130%);
+    color:#fff;padding:56px 0 44px}
+  header .wrap{max-width:980px}
+  h1{margin:0;font-size:clamp(30px,5vw,44px);letter-spacing:.5px}
+  h1 span{color:#7ee0cf}
+  .sub{margin:10px 0 0;font-size:17px;color:#cfd8ea;max-width:760px}
+  .chips{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:12.5px;padding:4px 11px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}
+  .chip.draft{background:rgba(230,57,70,.22);border-color:rgba(230,57,70,.55)}
+  section{padding:44px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:22px;margin:0 0 18px}
+  h2 em{font-style:normal;color:var(--mute);font-size:14px;margin-left:10px}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px}
+  .stat b{display:block;font-size:24px;font-weight:650;letter-spacing:.3px}
+  .stat small{color:var(--mute);font-size:13px;line-height:1.45;display:block;margin-top:4px}
+  .stat.bio b{color:var(--bio)} .stat.cyc b{color:var(--cyc)}
+  .stat.rnd b{color:var(--rnd)} .stat.acc b{color:var(--acc)}
+  ol.rej{margin:0;padding-left:22px}
+  ol.rej li{margin:10px 0}
+  ol.rej b{font-weight:650}
+  .figs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  figure{margin:0;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:14px}
+  figure img{width:100%;height:auto;display:block;border-radius:6px}
+  figcaption{font-size:13px;color:var(--mute);margin-top:9px}
+  .cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .ver{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .ver h3{margin:0 0 6px;font-size:16px}
+  .ver p{margin:0 0 12px;color:var(--mute);font-size:14px}
+  .btn{display:inline-block;padding:7px 16px;border-radius:8px;font-size:14px;
+    background:var(--rnd);color:#fff}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  .btn.alt{background:var(--bio)}
+  .note{font-size:13.5px;color:var(--mute);margin-top:16px}
+  footer{padding:34px 0 44px;color:var(--mute);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:space-between}
+  @media (prefers-color-scheme:dark){
+    :root{--ink:#e8eaf0;--mute:#9aa3b5;--bg:#12151c;--card:#1b202b;--line:#2a3040}
+    figure img{background:#fff;border-radius:6px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>proteus<span>.</span></h1>
+    <p class="sub">замкнутая сетевая защита, расписание которой читается из смоделированной нервной системы <i>C.&nbsp;elegans</i>. детерминированный headless планировщик tcp портов: тик задают рефлекс скорости тела и детектор, метку задаёт рукописный readout коннектома. научный выход: каталог опровержений с трассируемыми числами.</p>
+    <div class="chips">
+      <span class="chip">статус: закрыт на v1.0.3</span>
+      <span class="chip draft">статья: draft, отрицательные результаты</span>
+      <span class="chip">c99, без зависимостей</span>
+      <span class="chip">реплей бит в бит</span>
+      <span class="chip">isc</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>ключевые измерения <em>все числа пересчитываются tools/paper_stats.py</em></h2>
+    <div class="grid">
+      <div class="stat cyc"><b>88/100 при L=65</b><small>обучаемость cycle: пассивный атакующий достигает 0.9 точности; bio и random: 0/100, метрика насыщается</small></div>
+      <div class="stat bio"><b>5.851 против 6.025</b><small>held out order 1 log-loss, n=20, парный bootstrap [-0.221, -0.129]; uniform 6.000; биометка предсказуемее случайной</small></div>
+      <div class="stat acc"><b>0/10 в окне 3 s</b><small>firmware det_fired после стимула; детекция вспышки не устанавливается, 8/10 отозвано</small></div>
+      <div class="stat rnd"><b>3 порта</b><small>seed random-армии восстанавливается за 200001 кандидата, меньше секунды, при знании кода; вслепую 0/20</small></div>
+      <div class="stat"><b>97.5 за 600 s</b><small>частота ходов в тишине, t-CI [79.7, 115.3]; зарегистрированная полоса [100, 300] промахнута</small></div>
+      <div class="stat"><b>15.1%</b><small>no-op ходы: движение без смены порта, 1517 из 10048 cause flagged тиков</small></div>
+      <div class="stat"><b>279 нейронов</b><small>коннектом varshney в движке petri v1.2, вендорен в src/petri, 1.25 мс/тик</small></div>
+      <div class="stat"><b>2 версии</b><small>научная работа на английском и русском, числовые множества идентичны механически</small></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>что опровергнуто <em>держится проектом сознательно</em></h2>
+    <ol class="rej">
+      <li><b>биология не случайнее гпсч.</b> при алфавите 64 символа потолок 6 бит на ход, а метрика обучаемости насыщается для почти равномерных источников: «0/100 против 0/100» измеряет метрику, не ничью.</li>
+      <li><b>random-армия сломана на уровне политики seed.</b> xorshift64* при знании кода восстанавливается по трём наблюдённым портам; это провал политики, не генератора.</li>
+      <li><b>bio readout ранга 1.</b> среднее шести скаляров даёт 16 различимых портов из 64; дефект readout, не коннектома; вклад структуры коннектома не тестировался (нет нуль-топологии и абляций).</li>
+      <li><b>детекция вспышки не устанавливается.</b> все 10 журналов срабатывают до стимула; 2/10 raw пересечений порога после стимула скрыты cooldown офлайн-машины.</li>
+      <li><b>тайминг режимонезависим.</b> момент хода задаёт рефлекс и детектор одинаково во всех трёх режимах; режим выбирает только метку порта.</li>
+    </ol>
+    <p class="note">четыре ещё выигрываемых утверждения и эксперименты к ним: <a href="https://github.com/esnond/proteus/blob/master/docs/PLAN_V11.md">docs/PLAN_V11.md</a>.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>графики <em>svg без внешних зависимостей, tools/render_figures.py</em></h2>
+    <div class="figs">
+      <figure><img src="assets/architecture.svg" alt="архитектура потока данных">
+        <figcaption>рисунок 1. поток данных: события, движок, журнал, мотор, сеть; живой путь расходится с журналом.</figcaption></figure>
+      <figure><img src="assets/demo.svg" alt="демо партии">
+        <figcaption>демо: партия 600 s, seed 1001, 69 ходов; метки портов по времени.</figcaption></figure>
+      <figure><img src="assets/entropy.svg" alt="энтропия по режимам">
+        <figcaption>рисунок 2. маргинальная энтропия метки порта по режимам, диагностика, не доказательство.</figcaption></figure>
+      <figure><img src="assets/accuracy.svg" alt="точность предсказания">
+        <figcaption>рисунок 3. held out accuracy порядка 1 против равномерного уровня 0.0156.</figcaption></figure>
+      <figure><img src="assets/detection.svg" alt="детектор срабатывает до стимула">
+        <figcaption>рисунок 4. срабатывание детектора до стимула во всех 10 журналах вспышки.</figcaption></figure>
+      <figure><img src="assets/moves.svg" alt="частота ходов">
+        <figcaption>рисунок 5. частота ходов в тишине против зарегистрированной полосы.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>научная работа <em>две версии, числа идентичны</em></h2>
+    <div class="cards">
+      <div class="ver">
+        <h3>english, revision 5</h3>
+        <p>полный текст: методы, статистика, honesty check с отзывами. 15.4 тыс. слов, 358 числовых токенов, все трассируются гейтом.</p>
+        <a class="btn" href="https://github.com/esnond/proteus/blob/master/paper/FINAL.md">читать FINAL.md</a>
+      </div>
+      <div class="ver">
+        <h3>русский, полный вариант</h3>
+        <p>реферат по ГОСТ 7.32-2017, ключевые слова, те же методы и результаты. числовые множества идентичны английской версии, проверяет tools/check_paper_parity.py.</p>
+        <a class="btn alt" href="https://github.com/esnond/proteus/blob/master/paper/FINAL_RU.md">читать FINAL_RU.md</a>
+      </div>
+    </div>
+    <p class="note">ресёрч с источниками: <a href="https://github.com/esnond/proteus/blob/master/docs/RESEARCH_V3.md">docs/RESEARCH_V3.md</a>; история проекта в коммитах: <a href="https://github.com/esnond/proteus/blob/master/docs/HISTORY.md">docs/HISTORY.md</a>; заявление об использовании ИИ: <a href="https://github.com/esnond/proteus/blob/master/paper/AI_ASSISTANCE.md">paper/AI_ASSISTANCE.md</a>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>движок petri написан с нуля: <a href="https://github.com/esnond/petri">github.com/esnond/petri</a></div>
+    <div>лицензия isc; цитирование: CITATION.cff, zenodo doi готовится</div>
+    <div><a href="https://github.com/esnond/proteus">репозиторий</a> · <a href="https://github.com/esnond/proteus/actions/workflows/ci.yml">ci</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

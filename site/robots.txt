@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://esnond.github.io/proteus/sitemap.xml
