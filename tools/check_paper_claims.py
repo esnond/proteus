@@ -50,10 +50,11 @@ def numeric_tokens(text: str):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("draft")
+    ap.add_argument("--root", default=".", help="repository root holding the sources")
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
-    root = pathlib.Path.cwd()
+    root = pathlib.Path(args.root).resolve()
     draft = pathlib.Path(args.draft)
     if not draft.is_file():
         print(f"FABRICATED_NUMBER: draft missing: {draft}")
