@@ -3,77 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>:root{}
+</style>
 <title>proteus: червь, который двигает порты</title>
 <meta name="description" content="планировщик сетевых портов, которым управляет модель нервной системы червя. объясняем как пятилетнему, показываем цифры и честные провалы.">
-<style>
-  :root{
-    --paper:#fbf6ec; --card:#fffdf6; --ink:#43323b; --mute:#7a6a70;
-    --crayon:#9c2b47; --soft:#6f7d6a; --sky:#5b7d9e; --hl:#f4e7cd; --line:#d9cbb2;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font:17px/1.75 'Segoe Print','Bradley Hand','Comic Sans MS','Chalkboard SE',cursive;
-  }
-  body::before{content:""; position:fixed; inset:0; pointer-events:none;
-    background-image:radial-gradient(#d9cdb4 1.1px, transparent 1.4px);
-    background-size:26px 26px; opacity:.5}
-  .wrap{max-width:900px; margin:0 auto; padding:0 22px; position:relative}
-  a{color:var(--crayon); text-decoration:underline wavy rgba(156,43,71,.5); text-underline-offset:4px}
-  a:hover{color:var(--ink)}
-  .sk{border:2.2px solid var(--ink); background:var(--card);
-    border-radius:255px 18px 225px 18px/18px 225px 18px 255px;
-    box-shadow:3px 4px 0 rgba(67,50,59,.14)}
-  .sk2{border-radius:18px 225px 18px 255px/255px 18px 225px 18px}
-  .rot-l{transform:rotate(-.7deg)} .rot-r{transform:rotate(.6deg)}
-  header{padding:52px 0 30px}
-  .hero{display:flex; gap:26px; align-items:center; flex-wrap:wrap}
-  .mascot{width:172px; max-width:42vw; padding:10px; flex:none}
-  .mascot img{display:block; width:100%; border-radius:12px}
-  h1{font-size:clamp(34px,6vw,52px); margin:0; line-height:1.15}
-  h1 small{display:block; font-size:15px; color:var(--mute); margin-top:6px}
-  .sub{margin:14px 0 0; font-size:16.5px; max-width:560px}
-  .chips{margin-top:16px; display:flex; flex-wrap:wrap; gap:9px}
-  .chip{font-size:12.5px; padding:3px 13px; border:2px solid var(--ink);
-    border-radius:255px 15px 225px 15px/15px 225px 15px 255px; background:var(--card)}
-  .chip.hot{border-color:var(--crayon); color:var(--crayon)}
-  section{padding:42px 0}
-  h2{font-size:26px; margin:0 0 8px}
-  h2::after{content:""; display:block; width:190px; height:10px; margin-top:2px;
-    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="190" height="10"><path d="M2 6 Q 24 1 48 6 T 94 6 T 140 6 T 188 5" fill="none" stroke="%239c2b47" stroke-width="2.4" stroke-linecap="round"/></svg>') no-repeat}
-  .lead{color:var(--mute); font-size:15px; margin:0 0 22px}
-  .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-  .stat{padding:14px 16px; margin-bottom:4px}
-  .stat b{display:block; font-size:23px; font-weight:700; letter-spacing:.5px}
-  .stat small{color:var(--mute); font-size:13px; line-height:1.5; display:block; margin-top:4px}
-  .c-crayon b{color:var(--crayon)} .c-soft b{color:var(--soft)} .c-sky b{color:var(--sky)}
-  .qa{margin-top:6px}
-  .row{display:flex; gap:16px; margin:22px 0; align-items:flex-start}
-  .row:nth-child(even){flex-direction:row-reverse}
-  .ava{width:88px; flex:none; padding:6px}
-  .ava img{display:block; width:100%; border-radius:10px}
-  .bubble{flex:1; padding:13px 18px}
-  .bubble .q{font-weight:700; color:var(--crayon); font-size:16px; margin:0 0 4px}
-  .bubble p{margin:0; font-size:15.5px}
-  ol.rej{margin:0; padding-left:24px}
-  ol.rej li{margin:13px 0}
-  .figs{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-  figure{margin:0; padding:13px}
-  figure img{width:100%; height:auto; display:block; border-radius:9px; background:#fff}
-  figcaption{font-size:13px; color:var(--mute); margin-top:8px}
-  .cards{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
-  .ver{padding:18px 20px}
-  .ver h3{margin:0 0 6px; font-size:17px}
-  .ver p{margin:0 0 13px; color:var(--mute); font-size:14.5px}
-  .btn{display:inline-block; padding:6px 17px; font-size:14.5px; color:var(--paper);
-    background:var(--crayon); border:2px solid var(--ink);
-    border-radius:255px 15px 225px 15px/15px 225px 15px 255px; text-decoration:none}
-  .btn:hover{filter:brightness(1.07); color:var(--paper)}
-  .btn.alt{background:var(--soft)}
-  .note{font-size:13.5px; color:var(--mute); margin-top:18px}
-  footer{padding:30px 0 46px; color:var(--mute); font-size:14px}
-  footer .sk{padding:14px 20px; margin-bottom:14px}
-</style>
+
 </head>
 <body>
 
