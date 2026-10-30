@@ -22,11 +22,14 @@ SOURCE_GLOBS = (
     "README.md",
     "docs/*.md",
     "results/research_v2/*.md",
+    "results/schedule_attack/*.md",
     "results/manifest.txt",
     "results/paper_stats.txt",
 )
 
 TOKEN = re.compile(r"\d+(?:[.,]\d+)?")
+# file.c:123 is a pointer into the tree, not a numeric claim about a quantity
+LINE_REF = re.compile(r"\S+\.[A-Za-z0-9]{1,4}:\d+(?:-\d+)?")
 SKIP_DIRS = {".git", "src/petri"}
 
 
@@ -45,6 +48,7 @@ def corpus_text(root: pathlib.Path) -> str:
 def numeric_tokens(text: str):
     # code fences are commands, not claims: their numbers need not be sourced
     stripped = re.sub(r"```.*?```", " ", text, flags=re.S)
+    stripped = LINE_REF.sub(" ", stripped)
     return TOKEN.findall(stripped)
 
 
