@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="assets/style.css?v=1">
+<link rel="stylesheet" href="assets/style.css?v=2">
 <style>:root{}
 </style>
 <title>proteus: червь, который двигает порты</title>
@@ -14,7 +14,7 @@
 
 <header>
   <div class="wrap hero">
-    <div class="mascot sk rot-l"><img src="assets/mascot.jpg?v=3" alt="волк, нарисованный восковым мелком: это я, автор проекта"></div>
+    <div class="mascot sk rot-l"><img src="assets/mascot.jpg?v=3" alt="волк, талисман сайта, нарисован восковым мелком"></div>
     <div>
       <h1>proteus<small>червь, который двигает порты. сайт нарисован руками, как и волк слева.</small></h1>
       <p class="sub">внутри одной программы живёт маленькая модель нервной системы червя. ей становится «больно» от сетевых сканов, она дёргается, и сервис переезжает на другой порт. звучит странно, так и есть. ниже: цифры, честные провалы и объяснение как пятилетнему.</p>
@@ -49,55 +49,55 @@
 <section>
   <div class="wrap">
     <h2>как пятилетнему: вопросы и ответы</h2>
-    <p class="lead">отвечает волк. он же я, автор проекта.</p>
+    <p class="lead">отвечает волк. он тут главный по вопросам, а человек только проверяет цифры.</p>
     <div class="qa">
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/alert.jpg?v=3" alt="волк, настроение: alert"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/alert.jpg?v=3" alt="волк, настроение: alert></div>
         <div class="bubble sk sk2 rot-r"><p class="q">что такое порт?</p>
         <p>у компьютера 65536 дверей, они называются портами. каждый сайт живёт за одной из них. я сделал дверь, которая каждые несколько секунд переезжает в другое место стены: пока чужак ищет её в одном углу, она уже в другом.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/happy.jpg?v=3" alt="волк, настроение: happy"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/happy.jpg?v=3" alt="волк, настроение: happy></div>
         <div class="bubble sk rot-l"><p class="q">а при чём тут червь?</p>
         <p>переезжать по расписанию скучно: расписание можно выучить. поэтому я посадил внутрь червя. не живого: я написал его нервную систему как программу, 279 нейронов и связи между ними. когда по сети «больно», червь дёргается, и дверь переезжает вместе с ним.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/star.jpg?v=3" alt="волк, настроение: star"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/star.jpg?v=3" alt="волк, настроение: star></div>
         <div class="bubble sk sk2 rot-r"><p class="q">ты правда написал червя сам?</p>
         <p>да. движок называется petri, он на языке c, без чужих библиотек: соседей каждого нейрона, простые правила, немного шума. проводку я взял настоящую: атлас варшней 2011 года, сколько нейронов связано с какими.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/cry.jpg?v=3" alt="волк, настроение: cry"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/cry.jpg?v=3" alt="волк, настроение: cry></div>
         <div class="bubble sk rot-l"><p class="q">это защищает от хакеров?</p>
         <p>я очень хотел, чтобы да. но измерил и честно написал: нет. червячный режим предсказуемее случайного, детектор срабатывает раньше атаки, а случайный режим вскрывается по трём портам. поэтому моя работа называется каталогом опровержений: это список того, что не работает.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/angel.jpg?v=3" alt="волк, настроение: angel"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/angel.jpg?v=3" alt="волк, настроение: angel></div>
         <div class="bubble sk sk2 rot-r"><p class="q">и почему этим можно гордиться?</p>
         <p>потому что обычно публикуют только победы. я показал, как всё измерял, выложил журнал каждой партии и написал, где ошибся. следующий человек потратит неделю, а не год, чтобы пойти дальше. в науке это дороже красивой победы.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/sleep.jpg?v=3" alt="волк, настроение: sleep"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/sleep.jpg?v=3" alt="волк, настроение: sleep></div>
         <div class="bubble sk rot-l"><p class="q">что значит «реплей бит в бит»?</p>
         <p>если запустить программу дважды с одной и той же затравкой, журналы совпадут до последнего байта. как раскраска по номерам: те же номера, те же цвета. наука любит, когда опыт можно повторить один в один.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/smug.jpg?v=3" alt="волк, настроение: smug"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/smug.jpg?v=3" alt="волк, настроение: smug></div>
         <div class="bubble sk sk2 rot-r"><p class="q">почему картинки такие кривые?</p>
         <p>потому что нарисованы руками: и волк, и этот сайт. серьёзная наука не обязана выглядеть как корпорация. кривая линия всё равно показывает, где точки.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/calm.jpg?v=3" alt="волк, настроение: calm"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/calm.jpg?v=3" alt="волк, настроение: calm></div>
         <div class="bubble sk rot-l"><p class="q">где на графиках червь?</p>
         <p>столбики это его «настроение» в цифрах: сколько разных портов он выбирает, насколько это предсказуемо, как часто дёргается. синий и зелёный не значат ничего страшного, просто цвета мелков.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/excited.jpg?v=3" alt="волк, настроение: excited"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/excited.jpg?v=3" alt="волк, настроение: excited></div>
         <div class="bubble sk sk2 rot-r"><p class="q">а можно потрогать?</p>
         <p>можно и нужно: код открыт, сборка одной командой make, запуск без прав администратора. журнал любой партии лежит рядом с кодом, все 300 штук с зашифрованной контрольной суммой.</p></div>
       </div>
       <div class="row">
-        <div class="ava sk"><img src="assets/wolf/pouty.jpg?v=3" alt="волк, настроение: pouty"></div>
+        <div class="ava sk"><img loading="lazy" src="assets/wolf/pouty.jpg?v=3" alt="волк, настроение: pouty></div>
         <div class="bubble sk rot-l"><p class="q">что дальше?</p>
         <p>досчитать ночные замеры, повесить doi на архив данных и оставить ядро людям: из него можно сделать маленький честный симулятор для лабораторий. а защита информации пусть остаётся честным отрицательным результатом.</p></div>
       </div>
@@ -109,7 +109,7 @@
   <div class="wrap">
     <h2>что не выдержало проверки</h2>
     <div style="display:flex;gap:18px;align-items:center;margin-bottom:10px">
-      <img src="assets/wolf/ko.jpg?v=3" alt="волк в обмороке: все защитные гипотезы не выжили" style="width:110px;padding:8px" class="sk rot-l">
+      <img loading="lazy" src="assets/wolf/ko.jpg?v=3" alt="волк в обмороке: все защитные гипотезы не выжили" style="width:110px;padding:8px" class="sk rot-l>
       <p class="lead" style="margin:0">мы оставляем это в проекте нарочно: отрицательный результат это тоже результат. волк сверху выражает всю защитную часть проекта.</p>
     </div>
     <ol class="rej">
@@ -128,17 +128,17 @@
     <h2>картинки</h2>
     <p class="lead">svg нарисованы программой без внешних библиотек, числа на них из пересчитанных таблиц.</p>
     <div class="figs">
-      <figure class="sk rot-l"><img src="assets/architecture.svg?v=2" alt="как данные текут через систему">
+      <figure class="sk rot-l"><img loading="lazy" src="assets/architecture.svg?v=2" alt="как данные текут через систему>
         <figcaption>рисунок 1. события, движок, журнал, мотор, сеть; живой путь расходится с журналом.</figcaption></figure>
       <figure class="sk sk2 rot-r"><img src="assets/demo.svg?v=2" alt="демо партии">
         <figcaption>демо: партия 600 секунд, 69 переездов.</figcaption></figure>
-      <figure class="sk rot-r"><img src="assets/entropy.svg?v=2" alt="энтропия по режимам">
+      <figure class="sk rot-r"><img loading="lazy" src="assets/entropy.svg?v=2" alt="энтропия по режимам>
         <figcaption>рисунок 2. разнобой меток порта по режимам; это диагностика, не доказательство.</figcaption></figure>
-      <figure class="sk sk2 rot-l"><img src="assets/accuracy.svg?v=2" alt="точность предсказания">
+      <figure class="sk sk2 rot-l"><img loading="lazy" src="assets/accuracy.svg?v=2" alt="точность предсказания>
         <figcaption>рисунок 3. угадывание следующего порта против чистого шанса 0.0156.</figcaption></figure>
-      <figure class="sk rot-l"><img src="assets/detection.svg?v=2" alt="детектор срабатывает до стимула">
-        <figcaption>рисунок 4. почему обнаружение снято: срабатывание раньше атаки. волк тоже удивлён: <img src="assets/wolf/shocked.jpg?v=3" alt="удивлённый волк" style="height:30px;vertical-align:middle;border-radius:6px"></figcaption></figure>
-      <figure class="sk sk2 rot-r"><img src="assets/moves.svg?v=2" alt="частота переездов">
+      <figure class="sk rot-l"><img loading="lazy" src="assets/detection.svg?v=2" alt="детектор срабатывает до стимула>
+        <figcaption>рисунок 4. почему обнаружение снято: срабатывание раньше атаки. волк тоже удивлён: <img loading="lazy" src="assets/wolf/shocked.jpg?v=3" alt="удивлённый волк" style="height:30px;vertical-align:middle;border-radius:6px></figcaption></figure>
+      <figure class="sk sk2 rot-r"><img loading="lazy" src="assets/moves.svg?v=2" alt="частота переездов>
         <figcaption>рисунок 5. частота переездов против задуманной полосы.</figcaption></figure>
     </div>
   </div>
@@ -172,5 +172,6 @@
   </div>
 </footer>
 
+<script src="assets/site.js?v=1" defer></script>
 </body>
 </html>
