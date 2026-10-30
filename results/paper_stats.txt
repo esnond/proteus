@@ -23,5 +23,12 @@ party lengths, moves per 600 s party:
 no-op proxy, bio parties (a move tick whose port did not change):
   move ticks 10048, port unchanged 1517, share 15.1%
 
+schedule statistics, one reconnaissance seed per mode (results/research_v2/*_moves.csv, n=1):
+  mode     moves distinct   H bits  H_mm bits  held-out acc  log-loss  dwell mean/median/CV/acf1
+  cycle      81       64     5.920      6.481         0.531      5.511  7344/2800/1.29/-0.11
+  bio        69       16     3.672      3.829         0.185      5.823  8647/3830/1.18/-0.09
+  random     80       45     5.290      5.687         0.000      6.018  7443/2800/1.30/-0.11
+  note: n=1 seed, reconnaissance only; no confidence interval is attached to these values
+
 idle cpu: not measured in this tree; the 0.75% figure is the arithmetic bound 6 x 1.25 ms per 1000 ms poll, not a measurement
 bitwise replay: verified on seed 42 (one pair, cmp identical); a 100 party replay claim needs its own run

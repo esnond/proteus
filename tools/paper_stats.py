@@ -133,6 +133,72 @@ def node_count(csv_path):
     return len(src_set | dst_set)
 
 
+def moves_file(path):
+    """t_ms,port rows from results/research_v2/*_moves.csv."""
+    out = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("t_ms") or line.startswith("#"):
+                continue
+            t, port = line.split(",")
+            out.append((float(t), int(port)))
+    return out
+
+
+def entropy_bits(seq):
+    n = len(seq)
+    counts = {}
+    for x in seq:
+        counts[x] = counts.get(x, 0) + 1
+    h = -sum(c / n * math.log2(c / n) for c in counts.values())
+    k = len([c for c in counts.values() if c > 0])
+    mm = h + (k - 1) / (2 * n * math.log(2))   # miller-madow correction
+    return h, mm, k
+
+
+def held_out_order1(seq, frac=0.6, alphabet=64):
+    """accuracy and log loss on a held out tail. laplace smoothing."""
+    n = len(seq)
+    cut = int(n * frac)
+    train, test = seq[:cut], seq[cut:]
+    tab = {}
+    for a, b in zip(train, train[1:]):
+        tab.setdefault(a, {})
+        tab[a][b] = tab[a].get(b, 0) + 1
+    maj = max(set(train), key=train.count)
+    hit = 0
+    loss = 0.0
+    for a, b in zip(test, test[1:]):
+        row = tab.get(a)
+        if row:
+            pred = max(row, key=row.get)
+            denom = sum(row.values()) + alphabet
+            prob = (row.get(b, 0) + 1) / denom
+        else:
+            pred = maj
+            prob = 1.0 / alphabet
+        if pred == b:
+            hit += 1
+        loss -= math.log2(prob)
+    m = max(1, len(test) - 1)
+    return hit / m, loss / m
+
+
+def dwell_stats(path):
+    seq = moves_file(path)
+    ts = [t for t, _ in seq]
+    d = [ts[i + 1] - ts[i] for i in range(len(ts) - 1)]
+    if not d:
+        return None
+    m = statistics.mean(d)
+    sd = statistics.pstdev(d)
+    var = sum((x - m) ** 2 for x in d)
+    ac = (sum((d[i] - m) * (d[i + 1] - m) for i in range(len(d) - 1)) / var
+          if var else 0.0)
+    return m, statistics.median(d), sd / m if m else 0.0, ac
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out")
@@ -223,6 +289,25 @@ def main():
     if tot_moves + tot_noop:
         say(f"  move ticks {tot_moves + tot_noop}, port unchanged "
             f"{tot_noop}, share {100.0 * tot_noop / (tot_moves + tot_noop):.1f}%")
+
+    say()
+    say("schedule statistics, one reconnaissance seed per mode "
+        "(results/research_v2/*_moves.csv, n=1):")
+    say("  mode     moves distinct   H bits  H_mm bits  held-out acc  "
+        "log-loss  dwell mean/median/CV/acf1")
+    for mode in ("cycle", "bio", "random"):
+        path = f"results/research_v2/{mode}_1001_moves.csv"
+        if not os.path.exists(path):
+            continue
+        seq = [port for _t, port in moves_file(path)]
+        h, mm, k = entropy_bits(seq)
+        acc, loss = held_out_order1(seq)
+        dw = dwell_stats(path)
+        say(f"  {mode:<7s} {len(seq):5d} {k:8d} {h:9.3f} {mm:10.3f} "
+            f"{acc:13.3f} {loss:10.3f}  "
+            f"{dw[0]:.0f}/{dw[1]:.0f}/{dw[2]:.2f}/{dw[3]:+.2f}")
+    say("  note: n=1 seed, reconnaissance only; no confidence interval is "
+        "attached to these values")
 
     say()
     say("idle cpu: not measured in this tree; the 0.75% figure is the "
