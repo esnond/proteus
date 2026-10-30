@@ -1,4 +1,4 @@
-# research_v2 — measured move sequences
+# research_v2: measured move sequences
 
 source: `./proteusd -s 1001 -d 600 -e tests/fixtures/burst.csv --dest-mode MODE -o /tmp/MODE_1001.csv`
 binary sha256 `60b0486045893880…`, commit `e58a92c`, headless.

@@ -1,4 +1,4 @@
-# red team report — r2.5 trust layer
+# red team report: r2.5 trust layer
 
 generated 2026-10-29T07:29:54Z
 
@@ -17,6 +17,6 @@ generated 2026-10-29T07:29:54Z
 | t10_detector_blindness | DOCUMENTED | a registered source is exempt by construction within the 60 s trust window; defense is the registration allowlist (owner/root) |
 | t11_downgrade | DOCUMENTED | unregistered traffic keeps the f1.4 numbers: 0 bans in 1600 legit sessions |
 
-residual risks: same-uid attacker is inside the trust domain;
+residual risks: an attacker with the same uid is inside the trust domain;
 the mark fast path does not fire in this environment; a registered
 service is exempt from the detector by construction.
