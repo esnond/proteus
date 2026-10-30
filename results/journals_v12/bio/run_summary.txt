@@ -1,0 +1,10 @@
+# Atlas runner summary
+# Generated: 2026-10-30T03:32:49+03:00
+# Commit: 4c5eb5d
+# Binary SHA256: cafd37d7add833d22e2f4609aa9a4ef2fc1a6dab542dbfc11a672045b5a091b4
+# Schedule: tests/fixtures/burst.csv (0004f0b0c6f0f65a83ff5944605fec6006cbafdc2a1ab66c0b481fc1e2f47b10)
+# Seed range: 1001..1100
+# Duration: 600
+# Completed: 100
+# Failed: 0
+# Elapsed seconds: 10291

@@ -41,6 +41,11 @@ updated: 2026-10-29
 | h9 dest modes | implemented | --dest-mode {cycle,bio,random}; bio = frozen mean readout of 6 state vars; random = proteus xorshift (engine rng untouched); replay green | 96aee63 | science chain |
 | h10 coupling | registered, calibration running | reflex = engine-native reversal episode (speed, metrics.c constants); detector channel = avb (ava saturated, mean 0.988, wiring regime not noise); FA grid on 101..110 in flight | a9313c6 | freeze new DET_THRESHOLD, then science chain |
 | industry research (owner order) | done, inline | competitors: SDN shuffle, Morphisec, WireGuard hopping, Rlaph 2025 — all mechanical open-loop randomization; NO published learnability metric for port schedules (closest: LSTM test Mani 2023, 802.15.4 cracking, Cai unpredictability formalism) | - | write into architecture_research.md; differentiators: L benchmark, closed-loop schedule (attack-reactive), host-specific bio schedules, bitwise-replayable daemon |
+| h9 verdict (new core) | CONFIRMED main, 2 fails (meas. defects) | bio 0/100 learned, cycle 88/100 at L=65, random 0/100; bio vs cycle p=6.6e-21 d=3.81; cycle gate fail=12% (short parties), n_moves fail=13% no-op moves; root causes published | 4c5eb5d+this | h9a amendment (no-op elimination), held-out 2001..2100 |
+| h10 verdict | 1/2 (marginal move band) | threshold 50.0 frozen: FA 8/10, det 8/10 CI [0.44,0.97]; quiet move rate 98 [63..153] vs [100,300] band miss recorded | 4c5eb5d | bench validate, owner decision on band |
+| h5 verdict (old core) | NOT FALSIFIED | fires 20 vs 19, dz=-0.13 p=0.564; bench desensitization = mixed-input effect | 2617138 | re-measure on v1.2 core |
+| schedule-attacker | DONE | cycle: fully predictable (2 moves, 3.5 s, exact LCG); random: no leak (claim_supported); bio: deterministic first move 40032, favorite ports 23.4%, but 0.90 unreachable (>87 moves); active probe top-2 in 4.3 probes | this commit | results/schedule_attack/REPORT.md |
+| hypotheses_results | written | docs/hypotheses_results.md: all phase B outcomes, negative results included | this | update after held-out |
 
 ## known gaps (no hiding)
 
