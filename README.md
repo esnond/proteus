@@ -51,7 +51,7 @@ zenodo архив, см. [results/BULK_DATA.md](results/BULK_DATA.md).
 | рисунок | что показывает |
 |---|---|
 | ![архитектура](docs/figures/architecture.svg) | поток данных: события → движок → журнал → мотор → сеть |
-| ![энтропия](docs/figures/entropy.svg) | H_mm меток порта по режимам, равномерный потолок 6 бит |
+| ![энтропия](docs/figures/entropy.svg) | H_mm меток порта по режимам, диагностика, не доказательство |
 | ![точность](docs/figures/accuracy.svg) | held out accuracy против равномерного уровня 0.0156 |
 | ![детекция](docs/figures/detection.svg) | срабатывание детектора до стимула, основание отзыва 8/10 |
 | ![частота ходов](docs/figures/moves.svg) | CI частоты ходов против зарегистрированной полосы |
@@ -125,7 +125,10 @@ sha256 всех артефактов). честные границы: репле
 
 | файл | содержимое |
 |---|---|
-| [paper/FINAL.md](paper/FINAL.md) | полный текст научной работы |
+| [paper/FINAL.md](paper/FINAL.md) | полный текст научной работы, revision 5, draft |
+| [paper/FINAL_RU.md](paper/FINAL_RU.md) | полный русский вариант работы |
+| [docs/RESEARCH_V3.md](docs/RESEARCH_V3.md) | ресёрч v3: 19 источников по расписаниям и поведению |
+| [docs/HISTORY.md](docs/HISTORY.md) | история проекта в коммитах |
 | [docs/theory.md](docs/theory.md) | метрика L, зарегистрированные гипотезы г1..г7 |
 | [docs/hypotheses.md](docs/hypotheses.md) | h1..h15 с критериями успеха и опровержения |
 | [docs/hypotheses_results.md](docs/hypotheses_results.md) | вердикты, включая провалы |
@@ -146,7 +149,7 @@ sha256 всех артефактов). честные границы: репле
 
 ## статус и цитирование
 
-закрыт на v1.0.3 (2026-10-30), репозиторий заморожен. итоговый отчёт:
+закрыт на v1.0.3 (2026-10-30), репозиторий заморожен; научная работа доведена до revision 5 и помечена draft. итоговый отчёт:
 [docs/CLOSE.md](docs/CLOSE.md). лицензия ISC, `LICENSE`. цитируйте
 репозиторий (zenodo doi готовится, метаданные в `CITATION.cff` и
 `.zenodo.json`) и первичные источники движка: Yemini et al. 2013,

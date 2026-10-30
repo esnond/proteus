@@ -50,7 +50,7 @@ archive, see [results/BULK_DATA.md](results/BULK_DATA.md).
 | figure | what it shows |
 |---|---|
 | ![architecture](docs/figures/architecture.svg) | data flow: events, engine, journal, motor, network |
-| ![entropy](docs/figures/entropy.svg) | H_mm of port labels per mode, uniform ceiling 6 bits |
+| ![entropy](docs/figures/entropy.svg) | H_mm of port labels per mode, diagnostic only |
 | ![accuracy](docs/figures/accuracy.svg) | held out accuracy against the uniform level 0.0156 |
 | ![detection](docs/figures/detection.svg) | the detector fires before the stimulus, basis of the 8/10 retraction |
 | ![move rate](docs/figures/moves.svg) | move rate CI against the registered band |
