@@ -3,155 +3,233 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>proteus: расписание портов, ведомое коннектомом червя</title>
-<meta name="description" content="детерминированный headless планировщик tcp портов, метка которого читается из модели коннектома C. elegans. научная работа в двух языках и каталог опровержений.">
+<title>proteus: червь, который двигает порты</title>
+<meta name="description" content="планировщик сетевых портов, которым управляет модель нервной системы червя. объясняем как пятилетнему, показываем цифры и честные провалы.">
 <style>
   :root{
-    --ink:#1a1a2e; --mute:#5c6478; --bg:#f7f8fa; --card:#ffffff;
-    --bio:#2a9d8f; --cyc:#e76f51; --rnd:#457b9d; --acc:#e63946;
-    --line:#e3e7ee;
+    --paper:#fbf6ec; --card:#fffdf6; --ink:#43323b; --mute:#7a6a70;
+    --crayon:#9c2b47; --soft:#6f7d6a; --sky:#5b7d9e; --hl:#f4e7cd; --line:#d9cbb2;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.65 -apple-system,"Segoe UI",roboto,ubuntu,sans-serif}
-  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
-  a{color:var(--rnd);text-decoration:none}
-  a:hover{text-decoration:underline}
-  header{background:linear-gradient(135deg,#12203a 0%,#1a3a5c 55%,#2a9d8f 130%);
-    color:#fff;padding:56px 0 44px}
-  header .wrap{max-width:980px}
-  h1{margin:0;font-size:clamp(30px,5vw,44px);letter-spacing:.5px}
-  h1 span{color:#7ee0cf}
-  .sub{margin:10px 0 0;font-size:17px;color:#cfd8ea;max-width:760px}
-  .chips{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
-  .chip{font-size:12.5px;padding:4px 11px;border-radius:999px;
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}
-  .chip.draft{background:rgba(230,57,70,.22);border-color:rgba(230,57,70,.55)}
-  section{padding:44px 0;border-bottom:1px solid var(--line)}
-  h2{font-size:22px;margin:0 0 18px}
-  h2 em{font-style:normal;color:var(--mute);font-size:14px;margin-left:10px}
-  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;
-    padding:14px 16px}
-  .stat b{display:block;font-size:24px;font-weight:650;letter-spacing:.3px}
-  .stat small{color:var(--mute);font-size:13px;line-height:1.45;display:block;margin-top:4px}
-  .stat.bio b{color:var(--bio)} .stat.cyc b{color:var(--cyc)}
-  .stat.rnd b{color:var(--rnd)} .stat.acc b{color:var(--acc)}
-  ol.rej{margin:0;padding-left:22px}
-  ol.rej li{margin:10px 0}
-  ol.rej b{font-weight:650}
-  .figs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-  figure{margin:0;background:var(--card);border:1px solid var(--line);
-    border-radius:12px;padding:14px}
-  figure img{width:100%;height:auto;display:block;border-radius:6px}
-  figcaption{font-size:13px;color:var(--mute);margin-top:9px}
-  .cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-  .ver{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
-  .ver h3{margin:0 0 6px;font-size:16px}
-  .ver p{margin:0 0 12px;color:var(--mute);font-size:14px}
-  .btn{display:inline-block;padding:7px 16px;border-radius:8px;font-size:14px;
-    background:var(--rnd);color:#fff}
-  .btn:hover{text-decoration:none;filter:brightness(1.08)}
-  .btn.alt{background:var(--bio)}
-  .note{font-size:13.5px;color:var(--mute);margin-top:16px}
-  footer{padding:34px 0 44px;color:var(--mute);font-size:14px}
-  footer .wrap{display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:space-between}
-  @media (prefers-color-scheme:dark){
-    :root{--ink:#e8eaf0;--mute:#9aa3b5;--bg:#12151c;--card:#1b202b;--line:#2a3040}
-    figure img{background:#fff;border-radius:6px}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font:17px/1.75 'Segoe Print','Bradley Hand','Comic Sans MS','Chalkboard SE',cursive;
   }
+  body::before{content:""; position:fixed; inset:0; pointer-events:none;
+    background-image:radial-gradient(#d9cdb4 1.1px, transparent 1.4px);
+    background-size:26px 26px; opacity:.5}
+  .wrap{max-width:900px; margin:0 auto; padding:0 22px; position:relative}
+  a{color:var(--crayon); text-decoration:underline wavy rgba(156,43,71,.5); text-underline-offset:4px}
+  a:hover{color:var(--ink)}
+  .sk{border:2.2px solid var(--ink); background:var(--card);
+    border-radius:255px 18px 225px 18px/18px 225px 18px 255px;
+    box-shadow:3px 4px 0 rgba(67,50,59,.14)}
+  .sk2{border-radius:18px 225px 18px 255px/255px 18px 225px 18px}
+  .rot-l{transform:rotate(-.7deg)} .rot-r{transform:rotate(.6deg)}
+  header{padding:52px 0 30px}
+  .hero{display:flex; gap:26px; align-items:center; flex-wrap:wrap}
+  .mascot{width:172px; max-width:42vw; padding:10px; flex:none}
+  .mascot img{display:block; width:100%; border-radius:12px}
+  h1{font-size:clamp(34px,6vw,52px); margin:0; line-height:1.15}
+  h1 small{display:block; font-size:15px; color:var(--mute); margin-top:6px}
+  .sub{margin:14px 0 0; font-size:16.5px; max-width:560px}
+  .chips{margin-top:16px; display:flex; flex-wrap:wrap; gap:9px}
+  .chip{font-size:12.5px; padding:3px 13px; border:2px solid var(--ink);
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px; background:var(--card)}
+  .chip.hot{border-color:var(--crayon); color:var(--crayon)}
+  section{padding:42px 0}
+  h2{font-size:26px; margin:0 0 8px}
+  h2::after{content:""; display:block; width:190px; height:10px; margin-top:2px;
+    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="190" height="10"><path d="M2 6 Q 24 1 48 6 T 94 6 T 140 6 T 188 5" fill="none" stroke="%239c2b47" stroke-width="2.4" stroke-linecap="round"/></svg>') no-repeat}
+  .lead{color:var(--mute); font-size:15px; margin:0 0 22px}
+  .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .stat{padding:14px 16px; margin-bottom:4px}
+  .stat b{display:block; font-size:23px; font-weight:700; letter-spacing:.5px}
+  .stat small{color:var(--mute); font-size:13px; line-height:1.5; display:block; margin-top:4px}
+  .c-crayon b{color:var(--crayon)} .c-soft b{color:var(--soft)} .c-sky b{color:var(--sky)}
+  .qa{margin-top:6px}
+  .row{display:flex; gap:16px; margin:22px 0; align-items:flex-start}
+  .row:nth-child(even){flex-direction:row-reverse}
+  .ava{width:88px; flex:none; padding:6px}
+  .ava img{display:block; width:100%; border-radius:10px}
+  .bubble{flex:1; padding:13px 18px}
+  .bubble .q{font-weight:700; color:var(--crayon); font-size:16px; margin:0 0 4px}
+  .bubble p{margin:0; font-size:15.5px}
+  ol.rej{margin:0; padding-left:24px}
+  ol.rej li{margin:13px 0}
+  .figs{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  figure{margin:0; padding:13px}
+  figure img{width:100%; height:auto; display:block; border-radius:9px; background:#fff}
+  figcaption{font-size:13px; color:var(--mute); margin-top:8px}
+  .cards{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+  .ver{padding:18px 20px}
+  .ver h3{margin:0 0 6px; font-size:17px}
+  .ver p{margin:0 0 13px; color:var(--mute); font-size:14.5px}
+  .btn{display:inline-block; padding:6px 17px; font-size:14.5px; color:var(--paper);
+    background:var(--crayon); border:2px solid var(--ink);
+    border-radius:255px 15px 225px 15px/15px 225px 15px 255px; text-decoration:none}
+  .btn:hover{filter:brightness(1.07); color:var(--paper)}
+  .btn.alt{background:var(--soft)}
+  .note{font-size:13.5px; color:var(--mute); margin-top:18px}
+  footer{padding:30px 0 46px; color:var(--mute); font-size:14px}
+  footer .sk{padding:14px 20px; margin-bottom:14px}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="wrap">
-    <h1>proteus<span>.</span></h1>
-    <p class="sub">замкнутая сетевая защита, расписание которой читается из смоделированной нервной системы <i>C.&nbsp;elegans</i>. детерминированный headless планировщик tcp портов: тик задают рефлекс скорости тела и детектор, метку задаёт рукописный readout коннектома. научный выход: каталог опровержений с трассируемыми числами.</p>
-    <div class="chips">
-      <span class="chip">статус: закрыт на v1.0.3</span>
-      <span class="chip draft">статья: draft, отрицательные результаты</span>
-      <span class="chip">c99, без зависимостей</span>
-      <span class="chip">реплей бит в бит</span>
-      <span class="chip">isc</span>
+  <div class="wrap hero">
+    <div class="mascot sk rot-l"><img src="assets/mascot.jpg" alt="волк, нарисованный восковым мелком: это я, автор проекта"></div>
+    <div>
+      <h1>proteus<small>червь, который двигает порты. сайт нарисован руками, как и волк слева.</small></h1>
+      <p class="sub">внутри одной программы живёт маленькая модель нервной системы червя. ей становится «больно» от сетевых сканов, она дёргается, и сервис переезжает на другой порт. звучит странно, так и есть. ниже: цифры, честные провалы и объяснение как пятилетнему.</p>
+      <div class="chips">
+        <span class="chip">статус: закрыт на v1.0.3</span>
+        <span class="chip hot">работа: draft, отрицательные результаты</span>
+        <span class="chip">реплей бит в бит</span>
+        <span class="chip">два языка</span>
+      </div>
     </div>
   </div>
 </header>
 
 <section>
   <div class="wrap">
-    <h2>ключевые измерения <em>все числа пересчитываются tools/paper_stats.py</em></h2>
+    <h2>цифры</h2>
+    <p class="lead">каждую из них можно пересчитать самому, команда лежит рядом в репозитории.</p>
     <div class="grid">
-      <div class="stat cyc"><b>88/100 при L=65</b><small>обучаемость cycle: пассивный атакующий достигает 0.9 точности; bio и random: 0/100, метрика насыщается</small></div>
-      <div class="stat bio"><b>5.851 против 6.025</b><small>held out order 1 log-loss, n=20, парный bootstrap [-0.221, -0.129]; uniform 6.000; биометка предсказуемее случайной</small></div>
-      <div class="stat acc"><b>0/10 в окне 3 s</b><small>firmware det_fired после стимула; детекция вспышки не устанавливается, 8/10 отозвано</small></div>
-      <div class="stat rnd"><b>3 порта</b><small>seed random-армии восстанавливается за 200001 кандидата, меньше секунды, при знании кода; вслепую 0/20</small></div>
-      <div class="stat"><b>97.5 за 600 s</b><small>частота ходов в тишине, t-CI [79.7, 115.3]; зарегистрированная полоса [100, 300] промахнута</small></div>
-      <div class="stat"><b>15.1%</b><small>no-op ходы: движение без смены порта, 1517 из 10048 cause flagged тиков</small></div>
-      <div class="stat"><b>279 нейронов</b><small>коннектом varshney в движке petri v1.2, вендорен в src/petri, 1.25 мс/тик</small></div>
-      <div class="stat"><b>2 версии</b><small>научная работа на английском и русском, числовые множества идентичны механически</small></div>
+      <div class="stat sk rot-l"><b>88 из 100</b><small>обычный счётчик становится предсказуем за 65 наблюдений; червь и случайные числа: ни одного предсказания в 100 партиях</small></div>
+      <div class="stat sk sk2 rot-r c-crayon"><b>5.851 против 6.025</b><small>предсказуемость биометки против случайной, в битах; меньше значит предсказуемее; равномерный потолок 6.000</small></div>
+      <div class="stat sk rot-r c-soft"><b>0 из 10</b><small>срабатываний детектора после атаки: обнаружение вспышки мы сняли с публикации</small></div>
+      <div class="stat sk sk2 rot-l c-sky"><b>3 порта</b><small>столько нужно подсмотреть, чтобы вскрыть случайный режим за секунду, если знаешь код</small></div>
+      <div class="stat sk rot-l"><b>97.5</b><small>переездов за 600 секунд в тишине; в плане была полоса от 100 до 300, не попали и записали честно</small></div>
+      <div class="stat sk sk2 rot-r c-soft"><b>15.1%</b><small>движений, после которых порт остался на месте</small></div>
+      <div class="stat sk rot-r c-crayon"><b>279</b><small>нейронов червя внутри демона, целая проводка варшней, 1.25 миллисекунды на тик</small></div>
+      <div class="stat sk sk2 rot-l c-sky"><b>2 текста</b><small>одна работа на английском и русском, числа совпадают механически, проверяет отдельный инструмент</small></div>
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <h2>что опровергнуто <em>держится проектом сознательно</em></h2>
+    <h2>как пятилетнему: вопросы и ответы</h2>
+    <p class="lead">отвечает волк. он же я, автор проекта.</p>
+    <div class="qa">
+      <div class="row">
+        <div class="ava sk rot-l"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk sk2 rot-r"><p class="q">что такое порт?</p>
+        <p>у компьютера 65536 дверей, они называются портами. каждый сайт живёт за одной из них. я сделал дверь, которая каждые несколько секунд переезжает в другое место стены: пока чужак ищет её в одном углу, она уже в другом.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-r"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk rot-l"><p class="q">а при чём тут червь?</p>
+        <p>переезжать по расписанию скучно: расписание можно выучить. поэтому я посадил внутрь червя. не живого: я написал его нервную систему как программу, 279 нейронов и связи между ними. когда по сети «больно», червь дёргается, и дверь переезжает вместе с ним.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-l"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk sk2 rot-r"><p class="q">ты правда написал червя сам?</p>
+        <p>да. движок называется petri, он на языке c, без чужих библиотек: соседей каждого нейрона, простые правила, немного шума. проводку я взял настоящую: атлас варшней 2011 года, сколько нейронов связано с какими.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-r"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk rot-l"><p class="q">это защищает от хакеров?</p>
+        <p>я очень хотел, чтобы да. но измерил и честно написал: нет. червячный режим предсказуемее случайного, детектор срабатывает раньше атаки, а случайный режим вскрывается по трём портам. поэтому моя работа называется каталогом опровержений: это список того, что не работает.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-l"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk sk2 rot-r"><p class="q">и почему этим можно гордиться?</p>
+        <p>потому что обычно публикуют только победы. я показал, как всё измерял, выложил журнал каждой партии и написал, где ошибся. следующий человек потратит неделю, а не год, чтобы пойти дальше. в науке это дороже красивой победы.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-r"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk rot-l"><p class="q">что значит «реплей бит в бит»?</p>
+        <p>если запустить программу дважды с одной и той же затравкой, журналы совпадут до последнего байта. как раскраска по номерам: те же номера, те же цвета. наука любит, когда опыт можно повторить один в один.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-l"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk sk2 rot-r"><p class="q">почему картинки такие кривые?</p>
+        <p>потому что нарисованы руками: и волк, и этот сайт. серьёзная наука не обязана выглядеть как корпорация. кривая линия всё равно показывает, где точки.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-r"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk rot-l"><p class="q">где на графиках червь?</p>
+        <p>столбики это его «настроение» в цифрах: сколько разных портов он выбирает, насколько это предсказуемо, как часто дёргается. синий и зелёный не значат ничего страшного, просто цвета мелков.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-l"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk sk2 rot-r"><p class="q">а можно потрогать?</p>
+        <p>можно и нужно: код открыт, сборка одной командой make, запуск без прав администратора. журнал любой партии лежит рядом с кодом, все 300 штук с зашифрованной контрольной суммой.</p></div>
+      </div>
+      <div class="row">
+        <div class="ava sk rot-r"><img src="assets/mascot.jpg" alt="волк"></div>
+        <div class="bubble sk rot-l"><p class="q">что дальше?</p>
+        <p>досчитать ночные замеры, повесить doi на архив данных и оставить ядро людям: из него можно сделать маленький честный симулятор для лабораторий. а защита информации пусть остаётся честным отрицательным результатом.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>что не выдержало проверки</h2>
+    <p class="lead">мы оставляем это в проекте нарочно: negative results это тоже результат.</p>
     <ol class="rej">
-      <li><b>биология не случайнее гпсч.</b> при алфавите 64 символа потолок 6 бит на ход, а метрика обучаемости насыщается для почти равномерных источников: «0/100 против 0/100» измеряет метрику, не ничью.</li>
-      <li><b>random-армия сломана на уровне политики seed.</b> xorshift64* при знании кода восстанавливается по трём наблюдённым портам; это провал политики, не генератора.</li>
-      <li><b>bio readout ранга 1.</b> среднее шести скаляров даёт 16 различимых портов из 64; дефект readout, не коннектома; вклад структуры коннектома не тестировался (нет нуль-топологии и абляций).</li>
-      <li><b>детекция вспышки не устанавливается.</b> все 10 журналов срабатывают до стимула; 2/10 raw пересечений порога после стимула скрыты cooldown офлайн-машины.</li>
-      <li><b>тайминг режимонезависим.</b> момент хода задаёт рефлекс и детектор одинаково во всех трёх режимах; режим выбирает только метку порта.</li>
+      <li><b>червь не случайнее генератора.</b> потолок 6 бит на ход, а метрика обучаемости насыщается у любого почти равномерного источника: ничья оказалась свойством линейки, а не ничьей.</li>
+      <li><b>случайный режим сломан политикой, не генератором.</b> кто знает код, восстановит затравку по трём портам.</li>
+      <li><b>чтение червя свёрнуто в одно среднее.</b> из 64 портов живыми остаются 16; это наш дефект проектирования, не природа коннектома.</li>
+      <li><b>детектор бьёт раньше атаки.</b> все 10 журналов срабатывают до стимула; обнаружение вспышки снято с публикации.</li>
+      <li><b>когда переезжать, червь не решает.</b> рефлекс и детектор тикают одинаково во всех режимах; червь выбирает только адрес.</li>
     </ol>
-    <p class="note">четыре ещё выигрываемых утверждения и эксперименты к ним: <a href="https://github.com/esnond/proteus/blob/master/docs/PLAN_V11.md">docs/PLAN_V11.md</a>.</p>
+    <p class="note">что ещё можно спасти и как: <a href="https://github.com/esnond/proteus/blob/master/docs/PLAN_V11.md">docs/PLAN_V11.md</a>.</p>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <h2>графики <em>svg без внешних зависимостей, tools/render_figures.py</em></h2>
+    <h2>картинки</h2>
+    <p class="lead">svg нарисованы программой без внешних библиотек, числа на них из пересчитанных таблиц.</p>
     <div class="figs">
-      <figure><img src="assets/architecture.svg" alt="архитектура потока данных">
-        <figcaption>рисунок 1. поток данных: события, движок, журнал, мотор, сеть; живой путь расходится с журналом.</figcaption></figure>
-      <figure><img src="assets/demo.svg" alt="демо партии">
-        <figcaption>демо: партия 600 s, seed 1001, 69 ходов; метки портов по времени.</figcaption></figure>
-      <figure><img src="assets/entropy.svg" alt="энтропия по режимам">
-        <figcaption>рисунок 2. маргинальная энтропия метки порта по режимам, диагностика, не доказательство.</figcaption></figure>
-      <figure><img src="assets/accuracy.svg" alt="точность предсказания">
-        <figcaption>рисунок 3. held out accuracy порядка 1 против равномерного уровня 0.0156.</figcaption></figure>
-      <figure><img src="assets/detection.svg" alt="детектор срабатывает до стимула">
-        <figcaption>рисунок 4. срабатывание детектора до стимула во всех 10 журналах вспышки.</figcaption></figure>
-      <figure><img src="assets/moves.svg" alt="частота ходов">
-        <figcaption>рисунок 5. частота ходов в тишине против зарегистрированной полосы.</figcaption></figure>
+      <figure class="sk rot-l"><img src="assets/architecture.svg" alt="как данные текут через систему">
+        <figcaption>рисунок 1. события, движок, журнал, мотор, сеть; живой путь расходится с журналом.</figcaption></figure>
+      <figure class="sk sk2 rot-r"><img src="assets/demo.svg" alt="демо партии">
+        <figcaption>демо: партия 600 секунд, 69 переездов.</figcaption></figure>
+      <figure class="sk rot-r"><img src="assets/entropy.svg" alt="энтропия по режимам">
+        <figcaption>рисунок 2. разнобой меток порта по режимам; это диагностика, не доказательство.</figcaption></figure>
+      <figure class="sk sk2 rot-l"><img src="assets/accuracy.svg" alt="точность предсказания">
+        <figcaption>рисунок 3. угадывание следующего порта против чистого шанса 0.0156.</figcaption></figure>
+      <figure class="sk rot-l"><img src="assets/detection.svg" alt="детектор срабатывает до стимула">
+        <figcaption>рисунок 4. почему обнаружение снято: срабатывание раньше атаки.</figcaption></figure>
+      <figure class="sk sk2 rot-r"><img src="assets/moves.svg" alt="частота переездов">
+        <figcaption>рисунок 5. частота переездов против задуманной полосы.</figcaption></figure>
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <h2>научная работа <em>две версии, числа идентичны</em></h2>
+    <h2>текст работы</h2>
+    <p class="lead">две версии, числа в них совпадают один в один.</p>
     <div class="cards">
-      <div class="ver">
-        <h3>english, revision 5</h3>
-        <p>полный текст: методы, статистика, honesty check с отзывами. 15.4 тыс. слов, 358 числовых токенов, все трассируются гейтом.</p>
+      <div class="ver sk rot-l">
+        <h3>на английском, ревизия 5</h3>
+        <p>полный текст: методы, статистика, honesty check со всеми отзывами. около 15 тысяч слов, 358 чисел, каждое трассируется до команды.</p>
         <a class="btn" href="https://github.com/esnond/proteus/blob/master/paper/FINAL.md">читать FINAL.md</a>
       </div>
-      <div class="ver">
-        <h3>русский, полный вариант</h3>
-        <p>реферат по ГОСТ 7.32-2017, ключевые слова, те же методы и результаты. числовые множества идентичны английской версии, проверяет tools/check_paper_parity.py.</p>
+      <div class="ver sk sk2 rot-r">
+        <h3>на русском, целиком</h3>
+        <p>реферат по гост, те же методы и результаты. парный инструмент доказывает, что числа в двух версиях идентичны.</p>
         <a class="btn alt" href="https://github.com/esnond/proteus/blob/master/paper/FINAL_RU.md">читать FINAL_RU.md</a>
       </div>
     </div>
-    <p class="note">ресёрч с источниками: <a href="https://github.com/esnond/proteus/blob/master/docs/RESEARCH_V3.md">docs/RESEARCH_V3.md</a>; история проекта в коммитах: <a href="https://github.com/esnond/proteus/blob/master/docs/HISTORY.md">docs/HISTORY.md</a>; заявление об использовании ИИ: <a href="https://github.com/esnond/proteus/blob/master/paper/AI_ASSISTANCE.md">paper/AI_ASSISTANCE.md</a>.</p>
+    <p class="note">ресёрч с источниками: <a href="https://github.com/esnond/proteus/blob/master/docs/RESEARCH_V3.md">docs/RESEARCH_V3.md</a>; история в коммитах: <a href="https://github.com/esnond/proteus/blob/master/docs/HISTORY.md">docs/HISTORY.md</a>; про помощь ии честно: <a href="https://github.com/esnond/proteus/blob/master/paper/AI_ASSISTANCE.md">paper/AI_ASSISTANCE.md</a>.</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <div>движок petri написан с нуля: <a href="https://github.com/esnond/petri">github.com/esnond/petri</a></div>
-    <div>лицензия isc; цитирование: CITATION.cff, zenodo doi готовится</div>
-    <div><a href="https://github.com/esnond/proteus">репозиторий</a> · <a href="https://github.com/esnond/proteus/actions/workflows/ci.yml">ci</a></div>
+    <div class="sk rot-l">
+      <p style="margin:0">движок petri написан с нуля: <a href="https://github.com/esnond/petri">github.com/esnond/petri</a>. лицензия isc, цитирование в CITATION.cff, doi готовится. код и ci: <a href="https://github.com/esnond/proteus">репозиторий</a>. нарисовано руками, посчитано честно.</p>
+    </div>
   </div>
 </footer>
 
