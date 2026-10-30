@@ -74,7 +74,7 @@ implemented at src/bridge.c:101-107. this is a hand written rank one linear func
 
 - `ash_trace` is the nociceptor trace, that is, the event input itself.
 - `ser` and `oct` are updated in src/session.c:344-363 by `ser += K_SER * share * dt` and `oct += K_OCT * density * dt`, where density is the burst event rate and share is the legitimate traffic fraction. both constants are in src/config.h:118 and 123.
-- `ava` is saturated: near 1 with small variance over the 60000 rows of results/journals_v12/bio/seed_1001.csv (computed here).
+- `ava` is saturated: near 1 with small variance over the 60000 rows of the bio seed 1001 journal (journal archive, results/BULK_DATA.md; computed here).
 
 the index is dominated by one value: a single index value occupies most of the 60000 ticks in that journal (computed here). from 279 cells, at most the two command cells AVA and AVB and the sensory trace reach the port; AVA is nearly constant, so the effective neural contribution is AVB.
 
@@ -221,7 +221,7 @@ the repository headline documents contradict this paper and were not edited in t
 - README.md:43 says "L capped at 65"; the code cap is 500 (tools/learnability.py:57), and 65 is only the cycle crossing.
 - docs/CLOSE.md:22-25 says detection works at 8/10; retracted in 3.5.
 
-these are artifact hygiene failures and are listed in the honesty check. the paper uses only values recomputed from results/journals_v12, results/cal_v12, results/schedule_attack and the source tree.
+these are artifact hygiene failures and are listed in the honesty check. the paper uses only values recomputed from the journal and calibration archives (results/BULK_DATA.md), results/schedule_attack and the source tree.
 
 ## 4 limitations
 
@@ -285,7 +285,7 @@ headless modes:
 ./proteusd -s 1001 -d 600 -e tests/fixtures/burst.csv --dest-mode random -o /tmp/r.csv
 ```
 
-regenerating bio seed 1001 and comparing to results/journals_v12/bio/seed_1001.csv matched, sha256 65a513008a090a5a096e52bfd499a0aa979a043791a3b8820593b42a5b37d14d (1 of 300).
+regenerating bio seed 1001 and comparing to the archived bio seed 1001 journal (results/BULK_DATA.md) matched, sha256 65a513008a090a5a096e52bfd499a0aa979a043791a3b8820593b42a5b37d14d (1 of 300).
 
 ### 5.2 attacks and analyses
 

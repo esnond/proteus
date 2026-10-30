@@ -1,0 +1,34 @@
+# start 2026-10-30T11:30:59 parties=90 duration=6200 jobs=4
+11:53:36 cycle 3003 rc=0 moves=1477 ok in 1355s
+11:53:44 cycle 3002 rc=0 moves=1417 ok in 1364s
+11:53:48 cycle 3004 rc=0 moves=1399 ok in 1367s
+11:53:53 cycle 3001 rc=0 moves=1488 ok in 1373s
+12:13:15 cycle 3005 rc=0 moves=1363 ok in 1179s
+12:13:19 cycle 3006 rc=0 moves=1475 ok in 1175s
+12:13:21 cycle 3007 rc=0 moves=1458 ok in 1173s
+12:13:33 cycle 3008 rc=0 moves=1442 ok in 1179s
+# start 2026-10-30T17:52:12 parties=90 duration=6200 jobs=4
+17:52:14 cycle 3001 rc=0 moves=1488 cached
+17:52:14 cycle 3003 rc=0 moves=1477 cached
+17:52:14 cycle 3002 rc=0 moves=1417 cached
+17:52:14 cycle 3004 rc=0 moves=1399 cached
+17:52:17 cycle 3008 rc=0 moves=1442 cached
+17:52:17 cycle 3007 rc=0 moves=1458 cached
+17:52:17 cycle 3005 rc=0 moves=1363 cached
+17:52:17 cycle 3006 rc=0 moves=1475 cached
+18:14:41 cycle 3009 rc=0 moves=1318 ok in 1343s
+18:14:47 cycle 3010 rc=0 moves=1389 ok in 1349s
+18:14:47 cycle 3012 rc=0 moves=1481 ok in 1349s
+18:14:57 cycle 3011 rc=0 moves=1458 ok in 1359s
+18:37:53 cycle 3014 rc=0 moves=1453 ok in 1385s
+18:37:59 cycle 3013 rc=0 moves=1382 ok in 1397s
+18:38:04 cycle 3015 rc=0 moves=1409 ok in 1396s
+18:38:07 cycle 3016 rc=0 moves=1518 ok in 1390s
+19:00:08 cycle 3017 rc=0 moves=1441 ok in 1334s
+19:00:08 cycle 3018 rc=0 moves=1548 ok in 1328s
+19:00:10 cycle 3019 rc=0 moves=1404 ok in 1325s
+19:00:58 cycle 3020 rc=0 moves=1345 ok in 1368s
+19:20:35 cycle 3022 rc=0 moves=1439 ok in 1225s
+19:20:43 cycle 3021 rc=0 moves=1499 ok in 1234s
+19:20:45 cycle 3023 rc=0 moves=1437 ok in 1234s
+19:21:07 cycle 3024 rc=0 moves=1455 ok in 1208s

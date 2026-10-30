@@ -24,3 +24,10 @@ results/hypotheses_validate/
 .venv/
 __pycache__/
 *.pyc
+results/journals_v12/*/*.csv
+results/journals_v12/*/*.log
+results/journals_v12/*/checkpoint.txt
+results/cal_v12/
+results/entropy_n30/*/*.csv
+results/entropy_n30/*/*.log
+results/entropy_n30/*/checkpoint.txt
