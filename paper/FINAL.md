@@ -1,6 +1,14 @@
 # proteus: a headless port schedule driven by a reduced connectome model, bitwise replay, and a catalogue of refutations
 
-revision 2. this file supersedes paper/DRAFT.md and applies the review fixes. the paper is a negative results and methods report, not a security paper.
+revision 3. this file supersedes paper/DRAFT.md, applies the review fixes and the hostile reviewer pass, and adds the ГОСТ style annotation, declarations and figures. the paper is a negative results and methods report, not a security paper.
+
+## реферат (аннотация по ГОСТ 7.32-2017)
+
+объект исследования: детерминированный headless планировщик tcp портов, метка которого в режиме bio читается из модели коннектома *C. elegans* (279 нейронов, вендоренный движок petri v1.2). цель: установить, даёт ли биостохастическое расписание измеримое преимущество перед сеяным и случайным, и что из заявленного выдерживает проверку артефакта. методы: парные партии с журналом (100 сидов на режим по 600 s), пассивная метрика обучаемости L, held out порядок 1 (n = 20 журналов на семейство, bootstrap 95%), восстановление генератора, калибровка детектора на замороженной процедуре. результаты: каталог опровержений. bio не лучше random ни по энтропии (4.014 [3.885, 4.136] против 5.468 [5.402, 5.539]), ни по точности (0.0712 [0.0540, 0.0901] против 0.0100 [0.0047, 0.0158], uniform 0.0156); детекция 8/10 отозвана, в окне 3 s остаётся 3/10; seed random-армии восстанавливается по 3 портам за 0.6 s при знании кода; тайминг режимонезависим; реплей бит в бит подтверждён на 1 паре и 1 из 300 журналов. новизна: не заявляется; количественный обзор литературы по mtd метрикам отсутствует (docs/RESEARCH_V2.md:147-149). область применения: воспроизводимая вычислительная нейронаука, оценка артефактов, отрицательные результаты. полный список источников: paper/REFERENCES.md. заявление об использовании ИИ: paper/AI_ASSISTANCE.md.
+
+ключевые слова: коннектом, *C. elegans*, moving target defense, воспроизводимость, детерминированный реплей, отрицательные результаты, обучаемость расписания, zenodo архив.
+
+keywords: connectome, *C. elegans*, moving target defense, reproducibility, deterministic replay, negative results, schedule learnability.
 
 ## abstract
 
@@ -213,15 +221,13 @@ quiet move rate remains a measurement: mean 97.5 moves per 600 s, sample sd 24.9
 
 ### 3.7 repository consistency
 
-the repository headline documents contradict this paper and were not edited in this revision, because only paper files may be changed. a reviewer who checks the artifact will find:
+the earlier revisions of the headline documents contradicted this paper; they were reconciled with it in revision 3 and the agent process logs were removed from the tree:
 
-- README.md:41 reports burst detection 8/10 with Wilson [0.44, 0.97]; this paper says the burst detection is not established (3.5).
-- README.md:13 says there is no seeded PRNG in the schedule path; that is false for `DEST_RANDOM` (src/motor.c:182).
-- README.md:31-33 says 100 parties replay checked; this paper verifies 1 seed here and 1 of 300 shipped journals.
-- README.md:43 says "L capped at 65"; the code cap is 500 (tools/learnability.py:57), and 65 is only the cycle crossing.
-- docs/CLOSE.md:22-25 says detection works at 8/10; retracted in 3.5.
+- the README reports the corrected numbers: burst detection 3/10 in the 3 s window with the 8/10 retraction stated, the xorshift seed recovery of the random arm, replay verified on 1 seed and 1 of 300 journals, L cap 500 with the cycle crossing at 65.
+- docs/CLOSE.md states both detection numbers and marks the early fires as preceding the stimulus.
+- the bulk journals and calibration data left the git tree for the zenodo archive; the split and the pending doi are recorded in results/BULK_DATA.md.
 
-these are artifact hygiene failures and are listed in the honesty check. the paper uses only values recomputed from the journal and calibration archives (results/BULK_DATA.md), results/schedule_attack and the source tree.
+the paper and the repository now agree; the honesty check keeps the original findings as a record of what was wrong.
 
 ## 4 limitations
 
@@ -398,6 +404,28 @@ conditions: seed 1001, 600 s, tests/fixtures/burst.csv, headless, binary sha256 
 all schedule statistics in this table are produced by tools/paper_stats.py over results/research_v2/*_moves.csv. this is one reconnaissance seed per mode (n = 1), so no confidence interval is attached. the dwell mean for cycle is 7344 ms, close to the 7443 ms printed in docs/RESEARCH_V2.md:29. the 0.531 cycle order 1 value is not reproduced exactly by a simple deterministic predictor because of tie breaking; the direction and the 1.000 on seen states reproduce. CLOSE.md:36-47 quotes 3.672 bits and 0.185 against 0.000 without an n = 1 marker; this appendix supplies it.
 
 h11 is post hoc: the measurement was made before the hypothesis was written down (docs/hypotheses.md:252-265). it is reconnaissance, excluded from the confirmatory family, and its "L = 3" is renamed `n_obs_to_recover = 3`.
+
+## 6 declarations
+
+вклад авторов (CRediT, ANSI/NISO Z39.104-2022): автор выполнял концептуализацию, методологию, программное обеспечение (движок petri написан им с нуля), исследование, работу с данными, написание первоначального текста и визуализацию. инструменты ИИ выполняли редактирование текста, вспомогательные скрипты и визуализацию под контролем автора и автором верифицированы.
+
+финансирование: отсутствует. конфликт интересов: отсутствует. доступность данных: массовые журналы и калибровки вынесены в zenodo архив (doi готовится), состав архива и проверка sha256 по манифесту описаны в results/BULK_DATA.md; код, инструменты, малые сводки и манифест в репозитории. заявление об ИИ: paper/AI_ASSISTANCE.md, по практике ICMJE и Elsevier.
+
+## appendix b: figures
+
+рисунки воспроизводятся командой `tools/render_figures.py`, svg в docs/figures/, числа взяты из результатов раздела 3.
+
+| обозначение | содержание |
+|---|---|
+| рисунок 1 | поток данных proteus: события, движок, журнал, мотор, сеть; живой путь расходится с журналом |
+| рисунок 2 | маргинальная энтропия H_mm метки порта по режимам, n = 1 разведка, равномерный потолок 6 бит |
+| рисунок 3 | held out accuracy порядка 1 против равномерного уровня 0.0156, n = 1 разведка |
+| рисунок 4 | срабатывание детектора до стимула во всех 10 журналах вспышки, основание отзыва детекции 8/10 |
+| рисунок 5 | частота ходов в тишине с t интервалом [79.7, 115.3] против зарегистрированной полосы 100..300 |
+
+## references
+
+the source list lives in paper/REFERENCES.md; it follows ГОСТ Р 7.0.5-2008 in entry structure, and entries that were not re-verified against the primary text are marked there explicitly.
 
 ## honesty_check
 

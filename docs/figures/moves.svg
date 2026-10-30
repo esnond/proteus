@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="340" viewBox="0 0 560 340" role="img">
+<title>quiet move rate against the registered band</title>
+<style>text{font-family:sans-serif;fill:#1a1a2e}</style>
+<rect width="560" height="340" fill="white"/>
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1a1a2e"/></marker></defs>
+<line x1="70" y1="280" x2="530" y2="280" stroke="#e5e9f0"/>
+<text x="62" y="284" text-anchor="end" font-size="10" fill="#8d99ae">0</text>
+<line x1="70" y1="220" x2="530" y2="220" stroke="#e5e9f0"/>
+<text x="62" y="224" text-anchor="end" font-size="10" fill="#8d99ae">80</text>
+<line x1="70" y1="160" x2="530" y2="160" stroke="#e5e9f0"/>
+<text x="62" y="164" text-anchor="end" font-size="10" fill="#8d99ae">160</text>
+<line x1="70" y1="100" x2="530" y2="100" stroke="#e5e9f0"/>
+<text x="62" y="104" text-anchor="end" font-size="10" fill="#8d99ae">240</text>
+<line x1="70" y1="40" x2="530" y2="40" stroke="#e5e9f0"/>
+<text x="62" y="44" text-anchor="end" font-size="10" fill="#8d99ae">320</text>
+<line x1="70" y1="280" x2="58" y2="50" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#ah)"/>
+<text x="12" y="52" font-size="10" fill="#8d99ae" transform="rotate(-90 12 52)">moves per 600 s</text>
+<rect x="237" y="207" width="127" height="73" fill="#2a9d8f"/>
+<text x="300" y="201" text-anchor="middle" font-size="11">97.5</text>
+<text x="300" y="296" text-anchor="middle" font-size="11">mean</text>
+<text x="70" y="328" font-size="10" fill="#8d99ae">n = 10, sd 24.9, t interval [79.7, 115.3]; registered band 100..300</text>
+</svg>
+<rect x="214" y="46" width="288" height="234" fill="#e63946" opacity="0.08"/>
+<text x="358" y="64" text-anchor="middle" font-size="10" fill="#e63946">registered band 100..300</text>
+<line x1="210" y1="220" x2="210" y2="194" stroke="#1a1a2e" stroke-width="2"/>
+<line x1="202" y1="220" x2="218" y2="220" stroke="#1a1a2e" stroke-width="2"/>
+<line x1="202" y1="194" x2="218" y2="194" stroke="#1a1a2e" stroke-width="2"/>
+</svg>

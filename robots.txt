@@ -1,0 +1,9 @@
+# robots.txt действует только на github pages (esnond.github.io/proteus/):
+# github сам управляет индексацией страницы репозитория.
+# включите pages: settings, pages, deploy from branch, master, root.
+User-agent: *
+Allow: /
+Disallow: /results/journals_v12/
+Disallow: /results/cal_v12/
+
+Sitemap: https://esnond.github.io/proteus/sitemap.xml
