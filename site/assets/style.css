@@ -176,16 +176,16 @@ ul li::before{content:"";position:absolute;left:2px;top:.72em;width:13px;height:
 /* текст не идеально ровный: лёгкое дыхание строк */
 p{letter-spacing:.1px}
 body{font-family:'Neucha','Segoe Print','Comic Sans MS',cursive;
-  font-size:17.5px;line-height:1.8}
+  font-size:19px;line-height:1.85}
 h1,h2,h3,.stat b,.fact b,.bubble .q,.ver h3,.card h3{
   font-family:'Caveat','Segoe Print',cursive;font-weight:700}
-h1{font-size:clamp(36px,6vw,56px)}
-h2{font-size:30px}
+h1{font-size:clamp(40px,6.5vw,60px)}
+h2{font-size:33px}
 /* появление при прокрутке */
 .reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
 .reveal.on{opacity:1;transform:none}
 
 /* флагманская печать */
-.flagchip{display:inline-block;padding:3px 14px;font-size:13px;color:var(--paper);
-  background:var(--crayon);border:2px solid var(--ink);border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
-  transform:rotate(-2deg);box-shadow:2px 2px 0 rgba(67,50,59,.15)}
+.flagchip{display:inline-block;padding:2px 13px;font-size:14px;color:var(--ink);
+  background:var(--hl);border:2px dashed var(--ink);border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+  transform:rotate(-2deg);white-space:nowrap}
